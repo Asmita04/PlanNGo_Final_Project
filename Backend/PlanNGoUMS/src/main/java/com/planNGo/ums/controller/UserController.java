@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.planNGo.ums.dtos.AuthRequest;
 import com.planNGo.ums.dtos.UserDTO;
+import com.planNGo.ums.dtos.UserRegDTO;
 import com.planNGo.ums.entities.User;
 import com.planNGo.ums.service.UserService;
 
@@ -38,15 +39,7 @@ public class UserController {
 	//depcy 	
 	private final UserService userService;	
 	
-	/*
-	 * 1. Get All Users (get resource - readonly)
-URI (path) - /users
-Method - GET
-Payload - none
-Resp - SC 200 + List<UserDTO> - if list is not empty
-user details - user id , name , dob , role , reg amount
- In case of empty list -       SC 204 , no body
-	 */
+
 	@GetMapping
 	public /* @ResponseBody */  ResponseEntity<?> renderUserList() {
 		System.out.println("in render user list");
@@ -57,24 +50,7 @@ user details - user id , name , dob , role , reg amount
 		//=> non empty body
 		return ResponseEntity.ok(list); //SC 200 + List -> Json[]
 	}
-	/*
-	 * Handler (RestController) -> rets @ResponseBody List<User> 
-	 * -> D.S
-	 * -> Spring boot chooses default vendor for HttpMessageConverter
-	 *  -> jackson perform serialization java-> json -> sent to REST client
-	 *  
-	 */
-		/*
-	 * Get existing user details By Id(from the back end) : GET
-URI - /users/{userId}
-Method - GET
-Success Resp -  SC 200 + User details
-
-Failure Resp - SC 404  + ApiResponse (DTO)
- - time stamp , status - failed , message - error mesg - user not found !!!!
-Hint - Use findById
-
-	 */
+	
 	@GetMapping("/{userId}")
 	public ResponseEntity<?> getUserDetails(@PathVariable  @Min(1) @Max(100) Long userId) {
 		System.out.println("in get user details "+userId);
@@ -83,13 +59,7 @@ Hint - Use findById
 					userService.getUserDetails(userId));
 		
 	}
-	/*
-	 * Desc -Complete Update user details
-	 * URI - /users/{id}
-	 * Payload - request body - user details to be updated
-	 * Success - SC 200 + ApiResp 
-	 * Failed - SC 400
-	 */
+	
 	@PutMapping("/{id}")
 	//swagger annotation - use till testing phase
 	@Operation(description ="Complete Update user details")
@@ -100,30 +70,21 @@ Hint - Use findById
 					);
 		
 	}
-	/*
-	 * 2. Patient Login / Doctor Login(User Login)  common
 
-URL - http://host:port/users/signin
-Method - POST  (for security , JWT generation, JSON payload)
-Eg . Patient Logs in 
-Payload - email , password  
-Success Resp -Sc 200 |201  Auth Resp (JWT , message)
-Failure Resp - SC 401 ApiResp DTO(status :  failure , timestamp , message)
-
-	 */
 	@PostMapping("/signin")
 	@Operation(description = "User Login")
 	public ResponseEntity<?> userSignIn(@RequestBody @Valid  AuthRequest request) {
 		log.info("***** in user sign in {} ",request);		
 			return ResponseEntity.ok(userService.authenticate(request));		
 	}
-	/*
-	 * Encrypt Password of all users	  
-	 * o/p -ApiResp (encrypted!) 
-	 * DB Action - store  encrypted password in the DB 
-	 * URL -http://host:port/users/pwd-encryption 
-	 * Method - PATCH
-	 */
+	
+	@PostMapping("/signup")
+	@Operation(description = "User SignUp")
+	public ResponseEntity<?> userSignUp(@RequestBody @Valid  UserRegDTO request) {
+		log.info("***** in user sign in {} ",request);		
+			return ResponseEntity.ok(userService.register(request));		
+	}
+	
 	@PatchMapping("/pwd-encryption")
 	@Operation(description ="Encrypt Password of all users" )
 	public ResponseEntity<?> encryptUserPassword() {

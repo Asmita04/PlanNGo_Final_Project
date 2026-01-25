@@ -5,6 +5,9 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.planNGo.ums.entities.User;
+import com.planNGo.ums.entities.UserRole;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -34,5 +37,10 @@ public class UserPrincipal implements UserDetails {
 		// TODO Auto-generated method stub
 		return this.email;
 	}
+
+	
+
+	
+	
 
 }
