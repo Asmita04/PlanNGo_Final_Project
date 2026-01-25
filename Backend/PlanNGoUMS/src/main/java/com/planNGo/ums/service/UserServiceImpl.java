@@ -7,6 +7,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +20,13 @@ import com.planNGo.ums.dtos.ApiResponse;
 import com.planNGo.ums.dtos.AuthRequest;
 import com.planNGo.ums.dtos.AuthResp;
 import com.planNGo.ums.dtos.UserDTO;
+import com.planNGo.ums.dtos.UserRegDTO;
+import com.planNGo.ums.entities.Customer;
+import com.planNGo.ums.entities.Organizer;
 import com.planNGo.ums.entities.User;
+import com.planNGo.ums.entities.UserRole;
+import com.planNGo.ums.repository.CustomerRepository;
+import com.planNGo.ums.repository.OrganizerRepository;
 import com.planNGo.ums.repository.UserRepository;
 import com.planNGo.ums.security.JwtUtils;
 import com.planNGo.ums.security.UserPrincipal;
@@ -28,14 +38,97 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional // auto tx management
 @RequiredArgsConstructor
 @Slf4j
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends DefaultOAuth2UserService  implements UserService {
 	// depcy - Constructor based D.I	
+	private final OrganizerRepository organizerRepository;
+    private final CustomerRepository customerRepository;
 	private final UserRepository userRepository;
+
 	private final ModelMapper modelMapper;
 	private final PasswordEncoder passwordEncoder;
 	private final AuthenticationManager authenticationManager;
 	private final JwtUtils jwtUtils;
 
+
+	@Override
+	public AuthResp authenticate(AuthRequest request) {
+		System.out.println("in user sign in "+request);		
+		/*1. Create Authentication object (UsernamePasswordAuthToken) 
+		 * to store - email & password
+		 */
+		Authentication holder=new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
+		log.info("*****Before -  is authenticated {}",holder.isAuthenticated());//false
+		/*
+		 * Call AuthenticationMgr's authenticate method
+		 */
+		 Authentication fullyAuth = authenticationManager.authenticate(holder);
+		//=> authentication success -> create JWT 
+		log.info("*****After -  is authenticated {}",fullyAuth.isAuthenticated());//true
+		log.info("**** auth {} ",fullyAuth);//principal : user details , null : pwd , Collection<GrantedAuth>		
+		log.info("***** class of principal {}",fullyAuth.getPrincipal().getClass());//com.healthcare.security.UserPrincipal
+		//downcast Object -> UserPrincipal
+		UserPrincipal principal=(UserPrincipal) fullyAuth.getPrincipal();
+			return new AuthResp(jwtUtils.generateToken(principal),"Successful Login");		
+	
+	}
+
+	/*
+	 * @Override public AuthResp googleSignIn(OAuth2UserRequest userRequest) throws
+	 * OAuth2AuthenticationException {
+	 * 
+	 * OAuth2User oauthUser = super.loadUser(userRequest); User user = new User();
+	 * String googleId = oauthUser.getAttribute("sub"); String email =
+	 * oauthUser.getAttribute("email");
+	 * 
+	 * user=userRepository.findByGoogleId(googleId) .orElseGet(() -> {
+	 * 
+	 * user.setGoogleId(googleId); user.setEmail(email);
+	 * 
+	 * userRepository.save(user); });
+	 * 
+	 * UserPrincipal principal = UserPrincipal.fromUser(user);
+	 * 
+	 * 
+	 * String jwt = jwtUtils.generateToken(principal); return new
+	 * AuthResp(jwtUtils.generateToken(principal),"Successful Login"); }
+	 */
+	
+	@Override
+	public ApiResponse register(UserRegDTO dto) {
+		
+		User user= modelMapper.map(dto, User.class);
+		
+		
+		
+		if (userRepository.existsByEmailOrPhone(user.getEmail(), user.getPhone())) {
+		
+			throw new InvalidInputException("Dup email or phone !!!!!!!!");
+		}
+		user.setIsEmailVerified(false);
+		if(user.getGoogleId()!=null)
+			user.setIsEmailVerified(true);
+		
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		
+		userRepository.save(user);
+		
+		if(user.getUserRole().equals(UserRole.ROLE_CUSTOMER)) {
+			Customer customer= new Customer();
+			customer.setUserDetails(user);
+			customerRepository.save(customer);
+			
+		}
+		else if (user.getUserRole().equals(UserRole.ROLE_ORGANIZER)) {
+			Organizer organizer= new Organizer();
+			organizer.setUserDetails(user);
+			organizer.setIsVerified(false);
+			organizerRepository.save(organizer);
+			
+		}
+		return new ApiResponse("Success", "User Registered Successfully ....");
+	}
+	
+	
 	@Override
 	public List<UserDTO> getAllUsers() {
 		
@@ -85,32 +178,11 @@ public class UserServiceImpl implements UserService {
 		persistentUser.setFirstName(user.getFirstName());
 		persistentUser.setLastName(user.getLastName());
 		persistentUser.setPassword(user.getPassword());
-		persistentUser.setRegAmount(user.getRegAmount());
+		
 		//similarly call other setters		
 		return new ApiResponse("Success", "Updated user details");
 	}
 
-	@Override
-	public AuthResp authenticate(AuthRequest request) {
-		System.out.println("in user sign in "+request);		
-		/*1. Create Authentication object (UsernamePasswordAuthToken) 
-		 * to store - email & password
-		 */
-		Authentication holder=new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
-		log.info("*****Before -  is authenticated {}",holder.isAuthenticated());//false
-		/*
-		 * Call AuthenticationMgr's authenticate method
-		 */
-		 Authentication fullyAuth = authenticationManager.authenticate(holder);
-		//=> authentication success -> create JWT 
-		log.info("*****After -  is authenticated {}",fullyAuth.isAuthenticated());//true
-		log.info("**** auth {} ",fullyAuth);//principal : user details , null : pwd , Collection<GrantedAuth>		
-		log.info("***** class of principal {}",fullyAuth.getPrincipal().getClass());//com.healthcare.security.UserPrincipal
-		//downcast Object -> UserPrincipal
-		UserPrincipal principal=(UserPrincipal) fullyAuth.getPrincipal();
-			return new AuthResp(jwtUtils.generateToken(principal),"Successful Login");		
-	
-	}
 	
 	@Override
 	public ApiResponse encryptPasswords() {
@@ -121,6 +193,7 @@ public class UserServiceImpl implements UserService {
 		 user.setPassword(passwordEncoder.encode(user.getPassword())));
 		return new ApiResponse("Password encrypted", "Success");
 	}
-	
+
+
 
 }

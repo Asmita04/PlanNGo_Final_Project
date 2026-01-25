@@ -30,40 +30,49 @@ import lombok.ToString;
 
 public class User extends BaseEntity  {
 
+	@Column(nullable = true)
+	String googleId;
+	
 	@Column(name = "first_name", length = 30) // varchar(30)
 	private String firstName;
 	@Column(name = "last_name", length = 30)
 	private String lastName;
 	@Column(unique = true, length = 50) // add UNIQUE constraint
 	private String email;
+	
+	@Column(length = 120)
+	private String address;
+	
 	// not null constraint
 	@Column(nullable = false)
 	private String password;
-//	@Transient //skips from persistence (i.e column will not be created )
-//	private String confirmPassword;
-	// Date , Calendar , GregorainCalendar - older Java API - @Temporal
-	// no annotation required for modern java date times
+
 	private LocalDate dob;
-	@Column(name = "reg_amount")
-	private int regAmount;
+	
 	@Enumerated(EnumType.STRING) // column type - varchar | Enum
 	@Column(name = "user_role")
 	private UserRole userRole;
 	@Column(unique = true, length = 14)
 	private String phone;
-	@Lob // column type - for Mysql : longblob
-	private byte[] image;
+	@Column(nullable = true)
+	private String pfp;
+	
+	private Boolean isEmailVerified;
+	
 
-	public User(String firstName, String lastName, String email, String password, LocalDate dob, int regAmount,
-			String phone) {
+
+	public User(String firstName, String lastName, String email, String password, LocalDate dob, UserRole userRole,
+			String phone, String pfp, Boolean isEmailVerified) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
 		this.password = password;
 		this.dob = dob;
-		this.regAmount = regAmount;
+		
 		this.phone = phone;
+		this.pfp = pfp;
+		this.isEmailVerified = isEmailVerified;
 	}
 
 	
