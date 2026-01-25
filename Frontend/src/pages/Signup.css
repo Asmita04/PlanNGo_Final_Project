@@ -1,0 +1,170 @@
+.modern-auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.modern-auth-card {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 450px;
+}
+
+.modern-auth-card h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.modern-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fee;
+  color: #c53030;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #fed7d7;
+}
+
+.modern-auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modern-auth-card input {
+  padding: 14px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.2s;
+}
+
+.modern-auth-card input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.modern-auth-card button {
+  padding: 14px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modern-auth-card button:not(.role-btn) {
+  padding: 14px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modern-auth-card button:not(.role-btn):hover {
+  background: #5a67d8;
+}
+
+.modern-auth-card button:not(.role-btn):disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+}
+
+.divider {
+  text-align: center;
+  margin: 24px 0;
+  position: relative;
+  color: #718096;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #e2e8f0;
+  z-index: 1;
+}
+
+.divider::after {
+
+  background: white;
+  padding: 0 16px;
+  position: relative;
+  z-index: 2;
+  display: none;
+}
+
+.modern-auth-card p {
+  text-align: center;
+  margin-top: 24px;
+  color: #718096;
+}
+
+.modern-auth-card a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.modern-auth-card a:hover {
+  text-decoration: underline;
+}
+
+.role-buttons {
+  display: flex;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.role-btn {
+  flex: 1;
+  padding: 16px 20px;
+  border: 2px solid #e2e8f0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 18px;
+  font-weight: 500;
+  color: #333 !important;
+}
+
+.role-btn:hover {
+  border-color: #e2e8f0;
+  background: white !important;
+  color: #333 !important;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.role-btn.selected {
+  border-color: #e2e8f0;
+  background: white;
+  color: #333 !important;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.modern-auth-card input[type="radio"] {
+  width: auto;
+  margin: 0;
+}
