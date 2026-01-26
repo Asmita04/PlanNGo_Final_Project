@@ -36,7 +36,7 @@ const AppRoutes = () => {
         <Route
           path="/events/:id/book"
           element={
-            <ProtectedRoute allowedRoles={['client']}>
+            <ProtectedRoute allowedRoles={['ROLE_CUSTOMER']}>
               <Booking />
             </ProtectedRoute>
           }
@@ -55,7 +55,7 @@ const AppRoutes = () => {
         <Route 
           path="/admin/events" 
           element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
               <EventApproval />
             </ProtectedRoute>
           } 
@@ -63,7 +63,7 @@ const AppRoutes = () => {
         <Route 
           path="/admin/organizers" 
           element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
               <OrganizerVerification />
             </ProtectedRoute>
           } 
@@ -79,7 +79,7 @@ const AppRoutes = () => {
         <Route
           path="/user/dashboard"
           element={
-            <ProtectedRoute allowedRoles={['client']}>
+            <ProtectedRoute allowedRoles={['ROLE_CUSTOMER']}>
               <UserDashboard />
             </ProtectedRoute>
           }
@@ -87,7 +87,7 @@ const AppRoutes = () => {
         <Route
           path="/user/profile"
           element={
-            <ProtectedRoute allowedRoles={['client']}>
+            <ProtectedRoute allowedRoles={['ROLE_CUSTOMER']}>
               <ClientProfile />
             </ProtectedRoute>
           }
@@ -95,7 +95,7 @@ const AppRoutes = () => {
         <Route
           path="/organizer/dashboard"
           element={
-            <ProtectedRoute allowedRoles={['organizer']}>
+            <ProtectedRoute allowedRoles={['ROLE_ORGANIZER']}>
               <OrganizerDashboard />
             </ProtectedRoute>
           }
@@ -103,7 +103,7 @@ const AppRoutes = () => {
         <Route
           path="/organizer/profile"
           element={
-            <ProtectedRoute allowedRoles={['organizer']}>
+            <ProtectedRoute allowedRoles={['ROLE_ORGANIZER']}>
               <OrganizerProfile />
             </ProtectedRoute>
           }
@@ -111,7 +111,7 @@ const AppRoutes = () => {
         <Route
           path="/admin/dashboard"
           element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
               <AdminDashboard />
             </ProtectedRoute>
           }

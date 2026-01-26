@@ -1,7 +1,8 @@
 package com.planNGo.ums.dtos;
 
 public record AuthResp (
-	String jwt,
+	String token,
+	UserDTO user,
 	String message
 ) 
 {}

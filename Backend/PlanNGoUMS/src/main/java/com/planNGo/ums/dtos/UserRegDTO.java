@@ -10,23 +10,23 @@ import jakarta.validation.constraints.Size;
 
 public record UserRegDTO (
 	
-	String gooogleID,
+	//String gooogleID,
 	
 	@NotBlank(message = "FirstName is required")
 	@Size(min=3,max=20,message="first name must min 3 chars and max 20 chars")
 	String firstName,
 	@NotBlank
 	String lastName,
-	@NotBlank
-	String address,
+
 	@NotBlank   @Email
 	String email,
 	@NotBlank
 	@Pattern(regexp="((?=.*\\d)(?=.*[a-z])(?=.*[#@$*]).{5,20})")
 	String password,
 
-	String pfp,
 	@NotBlank
-	UserRole role
+	String phone,
+	
+	UserRole userRole
 )
 {}

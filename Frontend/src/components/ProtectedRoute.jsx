@@ -10,7 +10,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   }
 
   // If specific roles are required and user doesn't have the right role
-  if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
+  if (allowedRoles.length > 0 && (!user.userRole || !allowedRoles.includes(user.userRole))) {
     return <Navigate to="/" replace />;
   }
 

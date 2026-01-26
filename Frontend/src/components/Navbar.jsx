@@ -16,9 +16,9 @@ const Navbar = () => {
   };
 
   const getDashboardLink = () => {
-    if (!user) return '/login';
-    if (user.role === 'admin') return '/admin/dashboard';
-    if (user.role === 'organizer') return '/organizer/dashboard';
+    if (!user || !user.userRole) return '/login';
+    if (user.userRole === 'ROLE_ADMIN') return '/admin/dashboard';
+    if (user.userRole === 'ROLE_ORGANIZER') return '/organizer/dashboard';
     return '/user/dashboard';
   };
 
@@ -35,7 +35,7 @@ const Navbar = () => {
             <Link to="/events" onClick={() => setShowMenu(false)}>Events</Link>
             <Link to="/about" onClick={() => setShowMenu(false)}>About Us</Link>
             <Link to="/contact" onClick={() => setShowMenu(false)}>Contact Us</Link>
-            {user && user.role === 'admin' && (
+            {user && user.userRole && user.userRole === 'ROLE_ADMIN' && (
               <>
                 <Link to="/admin/events" onClick={() => setShowMenu(false)}>Event Approval</Link>
                 <Link to="/admin/organizers" onClick={() => setShowMenu(false)}>Organizer Verification</Link>
@@ -81,12 +81,12 @@ const Navbar = () => {
                     <span>{user.name}</span>
                   </button>
                   <div className="user-dropdown">
-                    {user.role === 'client' && (
+                    {user.userRole && user.userRole === 'ROLE_CUSTOMER' && (
                       <Link to="/user/profile">
                         <User size={16} /> Profile
                       </Link>
                     )}
-                    {user.role === 'organizer' && (
+                    {user.userRole && user.userRole === 'ROLE_ORGANIZER' && (
                       <Link to="/organizer/profile">
                         <User size={16} /> Profile
                       </Link>

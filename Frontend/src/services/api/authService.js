@@ -12,8 +12,8 @@ export const authService = {
     if (response.token && response.user) {
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
-      if (response.user.role) {
-        localStorage.setItem('role', response.user.role);
+      if (response.user.userRole) {
+        localStorage.setItem('userRole', response.user.userRole);
       }
     }
     
@@ -32,18 +32,18 @@ export const authService = {
   googleLogin: async (googleUser, additionalData = {}) => {
     
     var idToken=googleUser.idToken;
-    var role=googleUser.role || additionalData.role;
-    console.log("Payload sent to backend:", { idToken, role });
+    var userRole=googleUser.userRole || additionalData.userRole;
+    console.log("Payload sent to backend:", { idToken, userRole });
     const response = await apiClient.post(API_ENDPOINTS.GOOGLE_LOGIN, {
       idToken,   // ✅ STRING
-      role
+      userRole
       
     });
     
     if (response.token) {
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
-      localStorage.setItem('role', response.user.role);
+      localStorage.setItem('userRole', response.user.userRole);
     }
     
     return response;
@@ -52,25 +52,25 @@ export const authService = {
 
 
   
-googleSignup: async ({ idToken, role }) => {
+googleSignup: async ({ idToken, userRole }) => {
   console.log("Payload sent to backend:", {
     idToken,
-    role
+    userRole
   });
 
   const response = await apiClient.post(
     API_ENDPOINTS.GOOGLE_LOGIN,
     {
       idToken,   // ✅ STRING
-      role
+      userRole
     }
   );
 
   if (response.token && response.user) {
     localStorage.setItem('token', response.token);
     localStorage.setItem('user', JSON.stringify(response.user));
-    if (response.user.role) {
-      localStorage.setItem('role', response.user.role);
+    if (response.user.userRole) {
+      localStorage.setItem('userRole', response.user.userRole);
     }
   }
   console.log("Response from backend:", response);
@@ -80,7 +80,7 @@ googleSignup: async ({ idToken, role }) => {
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    localStorage.removeItem('role');
+    localStorage.removeItem('userRole');
   },
 
   getCurrentUser: () => {

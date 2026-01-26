@@ -1,6 +1,7 @@
 package com.planNGo.ums.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -65,7 +66,11 @@ public class UserServiceImpl extends DefaultOAuth2UserService  implements UserSe
 		log.info("***** class of principal {}",fullyAuth.getPrincipal().getClass());//com.healthcare.security.UserPrincipal
 		//downcast Object -> UserPrincipal
 		UserPrincipal principal=(UserPrincipal) fullyAuth.getPrincipal();
-			return new AuthResp(jwtUtils.generateToken(principal),"Successful Login");		
+		User user= userRepository.findById(principal.getUserId()) //Optional<User>
+				.orElseThrow(() -> new ResourceNotFoundException("Invalid user id !!!!!"));
+		UserDTO userDTO= UserDTO.fromEntity(user);
+		
+			return new AuthResp(jwtUtils.generateToken(principal),userDTO,"Successful Login");		
 	
 	}
 
@@ -93,17 +98,24 @@ public class UserServiceImpl extends DefaultOAuth2UserService  implements UserSe
 	@Override
 	public ApiResponse register(UserRegDTO dto) {
 		
-		User user= modelMapper.map(dto, User.class);
+		User user= new User();
+		user.setEmail(dto.email());
+		user.setPassword(dto.password());
+		user.setFirstName(dto.firstName());
+		user.setLastName(dto.lastName());
+		user.setPhone(dto.phone());
+		user.setUserRole(dto.userRole());
+
+		user.setIsEmailVerified(false);
+		log.info(user.getPassword(),user.getFirstName());
 		
 		
-		
-		if (userRepository.existsByEmailOrPhone(user.getEmail(), user.getPhone())) {
+		if (userRepository.existsByEmail(user.getEmail())) {
 		
 			throw new InvalidInputException("Dup email or phone !!!!!!!!");
 		}
 		user.setIsEmailVerified(false);
-		if(user.getGoogleId()!=null)
-			user.setIsEmailVerified(true);
+		
 		
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		

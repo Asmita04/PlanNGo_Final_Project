@@ -1,9 +1,9 @@
-export const API_BASE_URL = 'http://localhost:8081/api';
+export const API_BASE_URL = 'http://localhost:8080/';
 
 export const API_ENDPOINTS = {
   // Auth endpoints
-  LOGIN: '/Auth/login',
-  SIGNUP: '/Auth/signup',
+  LOGIN: '/users/signin',
+  SIGNUP: '/users/signup',
   GOOGLE_LOGIN: '/Auth/google',
   
   // Venues endpoints
@@ -68,7 +68,7 @@ export const EVENT_STATUS = {
 };
 
 export const USER_ROLES = {
-  USER: 'user',
-  ORGANIZER: 'organizer',
-  ADMIN: 'admin'
+  CUSTOMER: 'ROLE_CUSTOMER',
+  ORGANIZER: 'ROLE_ORGANIZER',
+  ADMIN: 'ROLE_ADMIN'
 };
