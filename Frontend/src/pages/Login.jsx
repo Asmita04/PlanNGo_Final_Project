@@ -44,6 +44,32 @@ const Login = () => {
 
     setLoading(true);
     try {
+      // Check for dummy credentials first
+      const dummyCredentials = {
+        'user@test.com': { password: 'user123', role: 'client', name: 'Test User' },
+        'organizer@test.com': { password: 'org123', role: 'organizer', name: 'Test Organizer' },
+        'admin@test.com': { password: 'admin123', role: 'admin', name: 'Test Admin' }
+      };
+
+      const dummyUser = dummyCredentials[formData.email];
+      if (dummyUser && dummyUser.password === formData.password) {
+        const user = {
+          id: Math.random().toString(36).substr(2, 9),
+          email: formData.email,
+          name: dummyUser.name,
+          role: dummyUser.role
+        };
+        
+        login(user);
+        addNotification({ message: 'Login successful!', type: 'success' });
+
+        if (user.role === 'admin') navigate('/admin/dashboard');
+        else if (user.role === 'organizer') navigate('/organizer/dashboard');
+        else navigate('/user/dashboard');
+        return;
+      }
+
+      // If not dummy credentials, try API
       const response = await api.login(formData.email, formData.password);
       login(response.user);
       addNotification({ message: 'Login successful!', type: 'success' });
@@ -63,6 +89,17 @@ const Login = () => {
     if (errors[e.target.name]) {
       setErrors({ ...errors, [e.target.name]: '' });
     }
+  };
+
+  const fillDemoCredentials = (type) => {
+    const credentials = {
+      user: { email: 'user@test.com', password: 'user123' },
+      organizer: { email: 'organizer@test.com', password: 'org123' },
+      admin: { email: 'admin@test.com', password: 'admin123' }
+    };
+    
+    setFormData(credentials[type]);
+    setErrors({});
   };
 
   const handleGoogleSuccess = async (googleResponse) => {
@@ -187,10 +224,35 @@ const Login = () => {
           </div>
 
           <div className="demo-credentials">
-            <h4>Demo Credentials:</h4>
-            <p><strong>User:</strong> user@test.com / user123</p>
-            <p><strong>Organizer:</strong> organizer@test.com / org123</p>
-            <p><strong>Admin:</strong> admin@test.com / admin123</p>
+            <h4>🚀 Quick Demo Login:</h4>
+            <div className="demo-buttons">
+              <button 
+                type="button" 
+                className="demo-btn user"
+                onClick={() => fillDemoCredentials('user')}
+              >
+                👤 User Login
+              </button>
+              <button 
+                type="button" 
+                className="demo-btn organizer"
+                onClick={() => fillDemoCredentials('organizer')}
+              >
+                🎪 Organizer Login
+              </button>
+              <button 
+                type="button" 
+                className="demo-btn admin"
+                onClick={() => fillDemoCredentials('admin')}
+              >
+                ⚡ Admin Login
+              </button>
+            </div>
+            <div className="demo-info">
+              <p><strong>User:</strong> user@test.com / user123</p>
+              <p><strong>Organizer:</strong> organizer@test.com / org123</p>
+              <p><strong>Admin:</strong> admin@test.com / admin123</p>
+            </div>
           </div>
         </div>
       </div>

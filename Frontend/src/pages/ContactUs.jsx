@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Mail, Phone, MapPin, Send, User, FileText, MessageSquare } from 'lucide-react';
 import './ContactUs.css';
 
 const ContactUs = () => {
@@ -10,6 +11,7 @@ const ContactUs = () => {
   });
   const [isVisible, setIsVisible] = useState(false);
   const [focusedField, setFocusedField] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
@@ -22,140 +24,204 @@ const ContactUs = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Reset form
-    setFormData({ name: '', email: '', subject: '', message: '' });
-    alert('Thank you for your message! We\'ll get back to you soon.');
+    setIsSubmitting(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      console.log('Form submitted:', formData);
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      setIsSubmitting(false);
+      alert('Thank you for your message! We\'ll get back to you soon.');
+    }, 1500);
   };
 
   return (
-    <div className="contact-us">
+    <div className="contact-page">
+      {/* Hero Section */}
       <div className="contact-hero">
-        <div className="hero-bg"></div>
+        <div className="hero-background">
+          <div className="gradient-orb orb-1"></div>
+          <div className="gradient-orb orb-2"></div>
+          <div className="gradient-orb orb-3"></div>
+        </div>
         <div className="container">
-          <h1 className="hero-title">Contact Us</h1>
-          <p className="hero-subtitle">Get in touch with our team</p>
+          <div className="hero-content">
+            <h1 className="hero-title">Get In Touch</h1>
+            <p className="hero-subtitle">
+              We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+            </p>
+          </div>
         </div>
       </div>
 
+      {/* Main Content */}
       <div className="contact-content">
         <div className="container">
           <div className={`contact-grid ${isVisible ? 'visible' : ''}`}>
-            <div className="contact-info">
-              <h2 className="info-title">Get in Touch</h2>
-              <p className="info-subtitle">Have questions about PlanNGo? We're here to help!</p>
-              
-              <div className="contact-item item-1">
-                <div className="item-icon">📧</div>
-                <div className="item-content">
-                  <h3>Email</h3>
-                  <p>support@planngo.com</p>
+            {/* Contact Information */}
+            <div className="contact-info-section">
+              <div className="section-header">
+                <h2>Contact Information</h2>
+                <p>Feel free to reach out to us through any of these channels</p>
+              </div>
+
+              <div className="info-cards">
+                <div className="info-card">
+                  <div className="card-icon">
+                    <Mail size={24} />
+                  </div>
+                  <div className="card-content">
+                    <h3>Email Us</h3>
+                    <p>support@planngo.com</p>
+                    <a href="mailto:support@planngo.com" className="card-link">
+                      Send Email →
+                    </a>
+                  </div>
+                </div>
+
+                <div className="info-card">
+                  <div className="card-icon">
+                    <Phone size={24} />
+                  </div>
+                  <div className="card-content">
+                    <h3>Call Us</h3>
+                    <p>+1 (555) 123-4567</p>
+                    <a href="tel:+15551234567" className="card-link">
+                      Make a Call →
+                    </a>
+                  </div>
+                </div>
+
+                <div className="info-card">
+                  <div className="card-icon">
+                    <MapPin size={24} />
+                  </div>
+                  <div className="card-content">
+                    <h3>Visit Us</h3>
+                    <p>Andheri West, Mumbai – 400053</p>
+                    <p className="address-detail">Maharashtra, India</p>
+                    <a href="#" className="card-link">
+                      Get Directions →
+                    </a>
+                  </div>
                 </div>
               </div>
-              
-              <div className="contact-item item-2">
-                <div className="item-icon">📞</div>
-                <div className="item-content">
-                  <h3>Phone</h3>
-                  <p>+1 (555) 123-4567</p>
-                </div>
-              </div>
-              
-              <div className="contact-item item-3">
-                <div className="item-icon">📍</div>
-                <div className="item-content">
-                  <h3>Address</h3>
-                  <p>PlanNgo Technologies Pvt. Ltd.
-<br />Andheri West, Mumbai – 400053 <br /> Maharashtra, India</p>
+
+              <div className="business-hours">
+                <h3>Business Hours</h3>
+                <div className="hours-list">
+                  <div className="hours-item">
+                    <span>Monday - Friday</span>
+                    <span>9:00 AM - 6:00 PM</span>
+                  </div>
+                  <div className="hours-item">
+                    <span>Saturday</span>
+                    <span>10:00 AM - 4:00 PM</span>
+                  </div>
+                  <div className="hours-item">
+                    <span>Sunday</span>
+                    <span>Closed</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <form className="contact-form" onSubmit={handleSubmit}>
-              <div className="form-header">
-                <h2 className="form-title">Send us a Message</h2>
-                <div className="form-decoration"></div>
-              </div>
-              
-              <div className={`form-group ${focusedField === 'name' ? 'focused' : ''} ${formData.name ? 'filled' : ''}`}>
-                <div className="input-wrapper">
-                  <div className="input-icon">👤</div>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    onFocus={() => setFocusedField('name')}
-                    onBlur={() => setFocusedField('')}
-                    required
-                  />
-                  <label className="floating-label">Your Name</label>
-                  <div className="input-border"></div>
+            {/* Contact Form */}
+            <div className="contact-form-section">
+              <form className="contact-form" onSubmit={handleSubmit}>
+                <div className="form-header">
+                  <h2>Send us a Message</h2>
+                  <p>Fill out the form below and we'll get back to you shortly</p>
                 </div>
-              </div>
-              
-              <div className={`form-group ${focusedField === 'email' ? 'focused' : ''} ${formData.email ? 'filled' : ''}`}>
-                <div className="input-wrapper">
-                  <div className="input-icon">✉️</div>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    onFocus={() => setFocusedField('email')}
-                    onBlur={() => setFocusedField('')}
-                    required
-                  />
-                  <label className="floating-label">Your Email</label>
-                  <div className="input-border"></div>
+
+                <div className="form-fields">
+                  <div className={`form-group ${focusedField === 'name' ? 'focused' : ''} ${formData.name ? 'filled' : ''}`}>
+                    <label htmlFor="name">
+                      <User size={18} />
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      onFocus={() => setFocusedField('name')}
+                      onBlur={() => setFocusedField('')}
+                      placeholder="John Doe"
+                      required
+                    />
+                  </div>
+
+                  <div className={`form-group ${focusedField === 'email' ? 'focused' : ''} ${formData.email ? 'filled' : ''}`}>
+                    <label htmlFor="email">
+                      <Mail size={18} />
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      onFocus={() => setFocusedField('email')}
+                      onBlur={() => setFocusedField('')}
+                      placeholder="john@example.com"
+                      required
+                    />
+                  </div>
+
+                  <div className={`form-group ${focusedField === 'subject' ? 'focused' : ''} ${formData.subject ? 'filled' : ''}`}>
+                    <label htmlFor="subject">
+                      <FileText size={18} />
+                      Subject
+                    </label>
+                    <input
+                      type="text"
+                      id="subject"
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      onFocus={() => setFocusedField('subject')}
+                      onBlur={() => setFocusedField('')}
+                      placeholder="How can we help?"
+                      required
+                    />
+                  </div>
+
+                  <div className={`form-group textarea-group ${focusedField === 'message' ? 'focused' : ''} ${formData.message ? 'filled' : ''}`}>
+                    <label htmlFor="message">
+                      <MessageSquare size={18} />
+                      Message
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      rows="5"
+                      value={formData.message}
+                      onChange={handleChange}
+                      onFocus={() => setFocusedField('message')}
+                      onBlur={() => setFocusedField('')}
+                      placeholder="Tell us more about your inquiry..."
+                      required
+                    ></textarea>
+                  </div>
                 </div>
-              </div>
-              
-              <div className={`form-group ${focusedField === 'subject' ? 'focused' : ''} ${formData.subject ? 'filled' : ''}`}>
-                <div className="input-wrapper">
-                  <div className="input-icon">📝</div>
-                  <input
-                    type="text"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    onFocus={() => setFocusedField('subject')}
-                    onBlur={() => setFocusedField('')}
-                    required
-                  />
-                  <label className="floating-label">Subject</label>
-                  <div className="input-border"></div>
-                </div>
-              </div>
-              
-              <div className={`form-group textarea-group ${focusedField === 'message' ? 'focused' : ''} ${formData.message ? 'filled' : ''}`}>
-                <div className="input-wrapper">
-                  <div className="input-icon">💬</div>
-                  <textarea
-                    name="message"
-                    rows="5"
-                    value={formData.message}
-                    onChange={handleChange}
-                    onFocus={() => setFocusedField('message')}
-                    onBlur={() => setFocusedField('')}
-                    required
-                  ></textarea>
-                  <label className="floating-label">Your Message</label>
-                  <div className="input-border"></div>
-                </div>
-              </div>
-              
-              <button type="submit" className="submit-btn">
-                <div className="btn-content">
-                  <span className="btn-text">Send Message</span>
-                  <div className="btn-icon">🚀</div>
-                </div>
-                <div className="btn-ripple"></div>
-                <div className="btn-glow"></div>
-              </button>
-            </form>
+
+                <button 
+                  type="submit" 
+                  className="submit-button"
+                  disabled={isSubmitting}
+                >
+                  <span className="button-text">
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
+                  </span>
+                  <Send size={20} className="button-icon" />
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       </div>

@@ -30,12 +30,12 @@ const Landing = () => {
   ];
 
   const categories = [
-    { name: 'Technology', count: 150, color: '#6366f1' },
-    { name: 'Music', count: 230, color: '#ec4899' },
-    { name: 'Sports', count: 180, color: '#10b981' },
-    { name: 'Food', count: 120, color: '#f59e0b' },
-    { name: 'Art', count: 95, color: '#8b5cf6' },
-    { name: 'Business', count: 140, color: '#ef4444' }
+    { name: 'Technology', count: 150, color: '#667eea', emoji: '💻' },
+    { name: 'Music', count: 230, color: '#ec4899', emoji: '🎵' },
+    { name: 'Sports', count: 180, color: '#10b981', emoji: '⚽' },
+    { name: 'Food', count: 120, color: '#f59e0b', emoji: '🍕' },
+    { name: 'Art', count: 95, color: '#8b5cf6', emoji: '🎨' },
+    { name: 'Business', count: 140, color: '#ef4444', emoji: '💼' }
   ];
 
   return (
@@ -47,6 +47,7 @@ const Landing = () => {
             <h1>
               The Unified Event
               <span className="gradient-text"> Experience</span>
+              <span className="wave">✨</span>
             </h1>
             <p className="hero-subtitle">
               Discover, book, and manage events all in one place. 
@@ -60,7 +61,7 @@ const Landing = () => {
                 Get Started
               </Button>
             </div>
-            <div className="hero-stats">
+            <div className="hero-stats fade-in">
               <div className="stat">
                 <h3>10K+</h3>
                 <p>Events</p>
@@ -81,7 +82,7 @@ const Landing = () => {
       {/* Features Section */}
       <section className="features">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header slide-up">
             <h2>Why Choose PlanNGo?</h2>
             <p>Everything you need for the perfect event experience</p>
           </div>
@@ -100,7 +101,7 @@ const Landing = () => {
       {/* Categories Section */}
       <section className="categories">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header slide-up">
             <h2>Explore by Category</h2>
             <p>Find events that match your interests</p>
           </div>
@@ -108,10 +109,14 @@ const Landing = () => {
             {categories.map((category, index) => (
               <div 
                 key={index} 
-                className="category-card"
-                style={{ '--category-color': category.color }}
+                className="category-card slide-up"
+                style={{ 
+                  '--category-color': category.color,
+                  animationDelay: `${index * 0.1}s`
+                }}
                 onClick={() => navigate(`/events?category=${category.name.toLowerCase()}`)}
               >
+                <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>{category.emoji}</div>
                 <h3>{category.name}</h3>
                 <p>{category.count} Events</p>
               </div>
@@ -123,7 +128,7 @@ const Landing = () => {
       {/* CTA Section */}
       <section className="cta">
         <div className="container">
-          <div className="cta-content">
+          <div className="cta-content slide-up">
             <h2>Ready to Start Your Journey?</h2>
             <p>Join PlanNGo today and experience events like never before</p>
             <Button size="lg" onClick={() => navigate('/signup')}>

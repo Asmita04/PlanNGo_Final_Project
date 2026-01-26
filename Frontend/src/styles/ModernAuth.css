@@ -202,14 +202,72 @@
 }
 
 .demo-credentials h4 {
-  margin: 0 0 8px 0;
+  margin: 0 0 12px 0;
   color: #4a5568;
-  font-size: 14px;
+  font-size: 16px;
+  text-align: center;
 }
 
-.demo-credentials p {
-  margin: 4px 0;
+.demo-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.demo-btn {
+  flex: 1;
+  min-width: 100px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
   font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.demo-btn.user {
+  background: #e6fffa;
+  color: #234e52;
+  border: 1px solid #81e6d9;
+}
+
+.demo-btn.user:hover {
+  background: #81e6d9;
+  color: white;
+}
+
+.demo-btn.organizer {
+  background: #fef5e7;
+  color: #744210;
+  border: 1px solid #f6ad55;
+}
+
+.demo-btn.organizer:hover {
+  background: #f6ad55;
+  color: white;
+}
+
+.demo-btn.admin {
+  background: #fed7e2;
+  color: #702459;
+  border: 1px solid #f687b3;
+}
+
+.demo-btn.admin:hover {
+  background: #f687b3;
+  color: white;
+}
+
+.demo-info {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 8px;
+}
+
+.demo-info p {
+  margin: 4px 0;
+  font-size: 11px;
   color: #718096;
   text-align: left;
 }

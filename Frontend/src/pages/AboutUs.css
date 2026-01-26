@@ -2,15 +2,24 @@
   min-height: 100vh;
 }
 
-.about-hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 8rem 0 4rem;
+
+.about-card {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(220, 38, 38, 0.2);
+  padding: 2.5rem 2rem;
+  margin: 1.5rem 1rem;
   text-align: center;
-  color: white;
+  color: #fff;
   position: relative;
   overflow: hidden;
+  transition: box-shadow 0.3s, transform 0.3s;
 }
 
+.about-card:hover {
+  box-shadow: 0 32px 80px rgba(220, 38, 38, 0.3);
+  transform: translateY(-4px) scale(1.03);
+}
 .about-hero::before {
   content: '';
   position: absolute;
@@ -53,7 +62,7 @@
 
 .about-content {
   padding: 6rem 0;
-  background: #f9fafb;
+  background: #de838a;
 }
 
 body.dark-mode .about-content {
@@ -74,12 +83,12 @@ body.dark-mode .about-content {
 }
 
 body.dark-mode .section-title {
-  color: #f9fafb;
+  color: #1e4a76;
 }
 
 .story-text {
   font-size: 1.125rem;
-  color: #6b7280;
+  color: #27527d;
   max-width: 800px;
   margin: 0 auto;
   line-height: 1.8;
@@ -105,7 +114,7 @@ body.dark-mode .section-title {
 }
 
 .about-card {
-  background: white;
+  background: rgb(208, 40, 40);
   padding: 2rem;
   border-radius: 16px;
   text-align: center;
@@ -264,16 +273,22 @@ body.dark-mode .member-card {
   z-index: 2;
 }
 
-.member-name {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: #1f2937;
-  transition: color 0.3s ease;
+
+.member-card {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(220, 38, 38, 0.2);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.3s, transform 0.3s;
 }
 
-body.dark-mode .member-name {
-  color: #f9fafb;
+.member-card:hover {
+  box-shadow: 0 32px 80px rgba(220, 38, 38, 0.3);
+  transform: translateY(-4px) scale(1.03);
 }
 
 .member-role {
