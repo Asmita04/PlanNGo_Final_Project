@@ -1,5 +1,4 @@
 .dashboard-page {
-  background-color: #de838a;
   padding: 3rem 0;
   min-height: 100vh;
 }
@@ -16,14 +15,14 @@
   font-weight: 800;
   color: #1f2937;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #828283 0%, #f8f8f8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 body.dark-mode .dashboard-header h1 {
-  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #747474 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -36,7 +35,7 @@ body.dark-mode .dashboard-header h1 {
 }
 
 .dashboard-header p strong {
-  color: #9899c1;
+  color: #adadad;
   font-weight: 700;
 }
 
@@ -90,14 +89,14 @@ body.dark-mode .dashboard-content {
   font-weight: 700;
   margin-bottom: 1.5rem;
   color: #1f2937;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #fefefe 0%, #a6a6a6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 body.dark-mode .dashboard-content h2 {
-  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #939393 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -217,7 +216,7 @@ body.dark-mode .empty-state h3 {
   align-items: center;
   margin-bottom: 2rem;
   padding: 1.5rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #fcfcfc 0%, #939393 100%);
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
 }
@@ -241,8 +240,8 @@ body.dark-mode .empty-state h3 {
 }
 
 .edit-btn-circle {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
   color: white;
@@ -253,6 +252,11 @@ body.dark-mode .empty-state h3 {
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+}
+
+.edit-btn-circle svg {
+  width: 24px;
+  height: 24px;
 }
 
 .edit-btn-circle:hover {

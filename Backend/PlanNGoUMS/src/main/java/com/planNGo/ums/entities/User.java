@@ -39,13 +39,13 @@ public class User extends BaseEntity  {
 	@Column(unique = true, length = 50) // add UNIQUE constraint
 	private String email;
 	
-	@Column(length = 120)
+	@Column(nullable = true,length = 120)
 	private String address;
 	
 	// not null constraint
 	@Column(nullable = false)
 	private String password;
-
+	@Column(nullable = true)
 	private LocalDate dob;
 	
 	@Enumerated(EnumType.STRING) // column type - varchar | Enum

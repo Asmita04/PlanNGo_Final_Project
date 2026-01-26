@@ -12,17 +12,28 @@ const UserDashboard = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Split full name into first and last name
-  const getNameParts = (fullName) => {
-    if (!fullName) return { firstName: '', lastName: '' };
-    const parts = fullName.trim().split(' ');
-    const firstName = parts[0] || '';
-    const lastName = parts.slice(1).join(' ') || '';
-    console.log('Name parts:', { fullName, firstName, lastName }); // Debug log
-    return { firstName, lastName };
+  // Get user data from localStorage or context
+  const getUserData = () => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsed = JSON.parse(storedUser);
+      console.log('Stored user data:', parsed); // Debug log
+      return parsed;
+    }
+    console.log('Using context user:', user); // Debug log
+    return user;
   };
 
-  const { firstName, lastName } = getNameParts(user?.name);
+  const userData = getUserData();
+  const { firstName = '', lastName = '' } = userData || {};
+
+  // Function to display user-friendly role name
+  const getRoleDisplayName = (role) => {
+    if (role === 'ROLE_CUSTOMER') return 'User';
+    if (role === 'ROLE_ORGANIZER') return 'Organizer';
+    if (role === 'ROLE_ADMIN') return 'Admin';
+    return role;
+  };
 
   useEffect(() => {
     loadBookings();
@@ -48,8 +59,8 @@ const UserDashboard = () => {
       <div className="container">
         <div className="dashboard-header">
           <div>
-            <h1>🎯 My Dashboard</h1>
-            <p>Welcome back, <strong>{user.name}</strong>! 🚀</p>
+            <h1>My Dashboard</h1>
+            <p>Welcome back, <strong>{userData?.firstName && userData?.lastName ? `${userData.firstName} ${userData.lastName}` : user?.name}</strong>! </p>
           </div>
         </div>
 
@@ -59,21 +70,21 @@ const UserDashboard = () => {
             onClick={() => setActiveTab('bookings')}
           >
             <Ticket size={20} />
-            🎫 My Bookings
+            My Bookings
           </button>
           <button
             className={activeTab === 'favorites' ? 'active' : ''}
             onClick={() => setActiveTab('favorites')}
           >
             <Heart size={20} />
-            ❤️ Favorites
+            Favorites
           </button>
           <button
             className={activeTab === 'profile' ? 'active' : ''}
             onClick={() => setActiveTab('profile')}
           >
             <User size={20} />
-            👤 Profile
+            Profile
           </button>
         </div>
 
@@ -140,9 +151,7 @@ const UserDashboard = () => {
             <div className="profile-section">
               <div className="profile-header">
                 <h2>👤 Profile Information</h2>
-                <button className="edit-btn-circle">
-                  <Edit size={16} />
-                </button>
+               
               </div>
               <div className="profile-card">
                 <div className="profile-avatar">
@@ -152,24 +161,28 @@ const UserDashboard = () => {
                   <div className="name-row" style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem'}}>
                     <div className="info-group">
                       <label>👤 First Name</label>
-                      <p>{firstName || 'Test'}</p>
+                      <p>{userData?.firstName || 'Not provided'}</p>
                     </div>
                     <div className="info-group">
                       <label>👤 Last Name</label>
-                      <p>{lastName || 'User'}</p>
+                      <p>{userData?.lastName || 'Not provided'}</p>
                     </div>
                   </div>
                   <div className="info-group">
                     <label>📧 Email Address</label>
-                    <p>{user.email}</p>
+                    <p>{userData?.email || user?.email || 'Not provided'}</p>
                   </div>
                   <div className="info-group">
                     <label>📱 Phone Number</label>
-                    <p>{user.phone || 'Not provided'}</p>
+                    <p>{userData?.phone || user?.phone || 'Not provided'}</p>
+                  </div>
+                  <div className="info-group">
+                    <label>🎂 Date of Birth</label>
+                    <p>{userData?.dob ? new Date(userData.dob).toLocaleDateString() : 'Not provided'}</p>
                   </div>
                   <div className="info-group">
                     <label>🏷️ Account Type</label>
-                    <p className="role-badge">{user.role}</p>
+                    <p className="role-badge">{getRoleDisplayName(userData?.userRole || user?.userRole)}</p>
                   </div>
                 </div>
               </div>

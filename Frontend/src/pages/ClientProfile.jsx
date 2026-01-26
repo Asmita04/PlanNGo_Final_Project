@@ -17,29 +17,39 @@ const ClientProfile = () => {
     bio: ''
   });
 
-  const getNameParts = (fullName) => {
-    if (!fullName) return { firstName: '', lastName: '' };
-    const parts = fullName.trim().split(' ');
-    const firstName = parts[0] || '';
-    const lastName = parts.slice(1).join(' ') || '';
-    return { firstName, lastName };
+  // Get user data from localStorage or context
+  const getUserData = () => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsed = JSON.parse(storedUser);
+      return parsed;
+    }
+    return user;
   };
 
-  const { firstName, lastName } = getNameParts(user?.name);
+  const userData = getUserData();
+  const { firstName = '', lastName = '' } = userData || {};
+
+  // Function to display user-friendly role name
+  const getRoleDisplayName = (role) => {
+    if (role === 'ROLE_CUSTOMER') return 'User';
+    if (role === 'ROLE_ORGANIZER') return 'Organizer';
+    if (role === 'ROLE_ADMIN') return 'Admin';
+    return role;
+  };
 
   useEffect(() => {
-    if (user) {
-      const { firstName, lastName } = getNameParts(user.name);
+    if (userData) {
       setFormData({
-        firstName: firstName || '',
-        lastName: lastName || '',
-        email: user.email || '',
-        phoneNumber: user.phoneNumber || '',
-        dateOfBirth: user.dateOfBirth || '',
-        bio: user.bio || ''
+        firstName: userData.firstName || '',
+        lastName: userData.lastName || '',
+        email: userData.email || user?.email || '',
+        phoneNumber: userData.phone || user?.phoneNumber || '',
+        dateOfBirth: userData.dob || user?.dateOfBirth || '',
+        bio: userData.bio || user?.bio || ''
       });
     }
-  }, [user]);
+  }, [userData, user]);
 
   const handleChange = (e) => {
     setFormData({
@@ -77,14 +87,13 @@ const ClientProfile = () => {
   };
 
   const handleCancel = () => {
-    const { firstName, lastName } = getNameParts(user.name);
     setFormData({
-      firstName: firstName || '',
-      lastName: lastName || '',
-      email: user.email || '',
-      phoneNumber: user.phoneNumber || '',
-      dateOfBirth: user.dateOfBirth || '',
-      bio: user.bio || ''
+      firstName: userData?.firstName || '',
+      lastName: userData?.lastName || '',
+      email: userData?.email || user?.email || '',
+      phoneNumber: userData?.phone || user?.phoneNumber || '',
+      dateOfBirth: userData?.dob || user?.dateOfBirth || '',
+      bio: userData?.bio || user?.bio || ''
     });
     setIsEditing(false);
   };
@@ -99,7 +108,7 @@ const ClientProfile = () => {
               <User size={56} strokeWidth={2} />
             </div>
             <div className="profile-info">
-              <h1>{user?.name || 'User Name'}</h1>
+              <h1>{userData?.firstName && userData?.lastName ? `${userData.firstName} ${userData.lastName}` : user?.name || 'User Name'}</h1>
               <p className="profile-role">
                 <MapPin size={16} />
                 Event Attendee
@@ -111,7 +120,7 @@ const ClientProfile = () => {
             onClick={() => setIsEditing(!isEditing)}
             aria-label={isEditing ? 'Cancel editing' : 'Edit profile'}
           >
-            {isEditing ? <X size={22} strokeWidth={2.5} /> : <Edit2 size={22} strokeWidth={2.5} />}
+            {isEditing ? <X size={28} strokeWidth={2.5} /> : <Edit2 size={28} strokeWidth={2.5} />}
           </button>
         </div>
 
@@ -139,7 +148,7 @@ const ClientProfile = () => {
                     className="form-input"
                   />
                 ) : (
-                  <div className="form-value">{firstName || 'Not provided'}</div>
+                  <div className="form-value">{userData?.firstName || 'Not provided'}</div>
                 )}
               </div>
 
@@ -155,7 +164,7 @@ const ClientProfile = () => {
                     className="form-input"
                   />
                 ) : (
-                  <div className="form-value">{lastName || 'Not provided'}</div>
+                  <div className="form-value">{userData?.lastName || 'Not provided'}</div>
                 )}
               </div>
             </div>
@@ -175,7 +184,7 @@ const ClientProfile = () => {
                   className="form-input"
                 />
               ) : (
-                <div className="form-value">{user?.email || 'Not provided'}</div>
+                <div className="form-value">{userData?.email || user?.email || 'Not provided'}</div>
               )}
             </div>
 
@@ -194,7 +203,7 @@ const ClientProfile = () => {
                   className="form-input"
                 />
               ) : (
-                <div className="form-value">{user?.phoneNumber || 'Not provided'}</div>
+                <div className="form-value">{userData?.phone || user?.phoneNumber || 'Not provided'}</div>
               )}
             </div>
 
@@ -213,7 +222,7 @@ const ClientProfile = () => {
                 />
               ) : (
                 <div className="form-value">
-                  {user?.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString() : 'Not provided'}
+                  {userData?.dob ? new Date(userData.dob).toLocaleDateString() : (user?.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString() : 'Not provided')}
                 </div>
               )}
             </div>

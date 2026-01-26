@@ -12,12 +12,13 @@ const Signup = () => {
   const { login, addNotification } = useApp();
 
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
-    phoneNumber: '',
-    role: 'client'
+    phone: '',
+    userRole: 'ROLE_CUSTOMER'
   });
 
   const [errors, setErrors] = useState({});
@@ -31,7 +32,8 @@ const Signup = () => {
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.name) newErrors.name = 'Name is required';
+    if (!formData.firstName) newErrors.firstName = 'First name is required';
+    if (!formData.lastName) newErrors.lastName = 'Last name is required';
 
     if (!formData.email)
       newErrors.email = 'Email is required';
@@ -46,10 +48,10 @@ const Signup = () => {
     if (formData.password !== formData.confirmPassword)
       newErrors.confirmPassword = 'Passwords do not match';
 
-    if (!formData.phoneNumber)
-      newErrors.phoneNumber = 'Phone is required';
-    else if (!/^\d{10}$/.test(formData.phoneNumber))
-      newErrors.phoneNumber = 'Invalid phone number';
+    if (!formData.phone)
+      newErrors.phone = 'Phone is required';
+    else if (!/^\d{10}$/.test(formData.phone))
+      newErrors.phone = 'Invalid phone number';
 
     return newErrors;
   };
@@ -88,13 +90,13 @@ const Signup = () => {
     try {
       const response = await api.googleSignup({
         idToken: googleResponse.credential, // ✅ JWT STRING
-        role: formData.role
+        userRole: formData.userRole
       });
 
       login(response.user);
       addNotification({ message: 'Google signup successful! 🎉', type: 'success' });
 
-      response.user.role === 'organizer'
+      response.user.userRole === 'ROLE_ORGANIZER'
         ? navigate('/organizer/dashboard')
         : navigate('/user/dashboard');
 
@@ -132,9 +134,10 @@ const Signup = () => {
 
         <form onSubmit={handleSubmit}>
 
-          <input name="name" placeholder="Full Name" onChange={handleChange} />
+          <input name="firstName" placeholder="First Name" onChange={handleChange} />
+          <input name="lastName" placeholder="Last Name" onChange={handleChange} />
           <input name="email" placeholder="Email" onChange={handleChange} />
-          <input name="phoneNumber" placeholder="Phone" onChange={handleChange} />
+          <input name="phone" placeholder="Phone" onChange={handleChange} />
 
           <input
             type={showPassword ? "text" : "password"}
@@ -153,16 +156,16 @@ const Signup = () => {
           <div className="role-buttons">
             <button
               type="button"
-              className={`role-btn ${formData.role === 'client' ? 'selected' : ''}`}
-              onClick={() => setFormData({...formData, role: 'client'})}
+              className={`role-btn ${formData.userRole === 'ROLE_CUSTOMER' ? 'selected' : ''}`}
+              onClick={() => setFormData({...formData, userRole: 'ROLE_CUSTOMER'})}
             >
               🎫 Join Events
             </button>
 
             <button
               type="button"
-              className={`role-btn ${formData.role === 'organizer' ? 'selected' : ''}`}
-              onClick={() => setFormData({...formData, role: 'organizer'})}
+              className={`role-btn ${formData.userRole === 'ROLE_ORGANIZER' ? 'selected' : ''}`}
+              onClick={() => setFormData({...formData, userRole: 'ROLE_ORGANIZER'})}
             >
               🎪 Host Events
             </button>

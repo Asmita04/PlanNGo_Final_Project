@@ -46,9 +46,9 @@ const Login = () => {
     try {
       // Check for dummy credentials first
       const dummyCredentials = {
-        'user@test.com': { password: 'user123', role: 'client', name: 'Test User' },
-        'organizer@test.com': { password: 'org123', role: 'organizer', name: 'Test Organizer' },
-        'admin@test.com': { password: 'admin123', role: 'admin', name: 'Test Admin' }
+        'user@test.com': { password: 'user123', userRole: 'ROLE_CUSTOMER', name: 'Test User' },
+        'organizer@test.com': { password: 'org123', userRole: 'ROLE_ORGANIZER', name: 'Test Organizer' },
+        'admin@test.com': { password: 'admin123', userRole: 'ROLE_ADMIN', name: 'Test Admin' }
       };
 
       const dummyUser = dummyCredentials[formData.email];
@@ -57,14 +57,14 @@ const Login = () => {
           id: Math.random().toString(36).substr(2, 9),
           email: formData.email,
           name: dummyUser.name,
-          role: dummyUser.role
+          userRole: dummyUser.userRole
         };
         
         login(user);
         addNotification({ message: 'Login successful!', type: 'success' });
 
-        if (user.role === 'admin') navigate('/admin/dashboard');
-        else if (user.role === 'organizer') navigate('/organizer/dashboard');
+        if (user.userRole === 'ROLE_ADMIN') navigate('/admin/dashboard');
+        else if (user.userRole === 'ROLE_ORGANIZER') navigate('/organizer/dashboard');
         else navigate('/user/dashboard');
         return;
       }
@@ -74,8 +74,8 @@ const Login = () => {
       login(response.user);
       addNotification({ message: 'Login successful!', type: 'success' });
 
-      if (response.user.role === 'admin') navigate('/admin/dashboard');
-      else if (response.user.role === 'organizer') navigate('/organizer/dashboard');
+      if (response.user.userRole === 'ROLE_ADMIN') navigate('/admin/dashboard');
+      else if (response.user.userRole === 'ROLE_ORGANIZER') navigate('/organizer/dashboard');
       else navigate('/user/dashboard');
     } catch (error) {
       setErrors({ submit: error.message });
@@ -108,7 +108,7 @@ const Login = () => {
     // ✅ Send ONLY the ID token
     const response = await api.googleLogin({
       idToken: googleResponse.credential,
-      role: formData.role || 'Client' // default to 'user' role
+      userRole: 'ROLE_CUSTOMER' // default role
     });
 
     login(response.user);
@@ -117,8 +117,8 @@ const Login = () => {
       type: 'success',
     });
 
-    if (response.user.role === 'admin') navigate('/admin/dashboard');
-    else if (response.user.role === 'organizer') navigate('/organizer/dashboard');
+    if (response.user.userRole === 'ROLE_ADMIN') navigate('/admin/dashboard');
+    else if (response.user.userRole === 'ROLE_ORGANIZER') navigate('/organizer/dashboard');
     else navigate('/user/dashboard');
 
   } catch (error) {

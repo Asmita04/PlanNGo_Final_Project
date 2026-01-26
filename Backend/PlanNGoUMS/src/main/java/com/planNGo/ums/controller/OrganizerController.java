@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.planNGo.ums.dtos.AuthRequest;
+import com.planNGo.ums.dtos.OrganizerDTO;
 import com.planNGo.ums.dtos.UserDTO;
 import com.planNGo.ums.dtos.UserRegDTO;
 import com.planNGo.ums.entities.Organizer;
@@ -44,7 +45,7 @@ public class OrganizerController {
 	@GetMapping
 	public /* @ResponseBody */  ResponseEntity<?> renderOrgainzerList() {
 		System.out.println("in render user list");
-		List<UserDTO> list = organizerService.getAllOrganizers();
+		List<OrganizerDTO> list = organizerService.getAllOrganizers();
 		if(list.isEmpty())
 			return ResponseEntity.status(HttpStatus.NO_CONTENT)
 					.build(); //only status code : 204
