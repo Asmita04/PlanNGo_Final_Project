@@ -2,15 +2,13 @@ package com.planNGo.ums.dtos;
 
 import java.time.LocalDate;
 
-import com.planNGo.ums.entities.UserRole;
 
-
-public record UserDTO (
+public record UserProfile (
 	Long id,	
 	String firstName,
 	String lastName,
 	LocalDate dob,
-	UserRole userRole
+	String pfp
 	
 	)
 	
