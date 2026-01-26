@@ -20,6 +20,7 @@ import ContactUs from './pages/ContactUs';
 import AboutUs from './pages/AboutUs';
 import EventApproval from './components/EventApproval';
 import OrganizerVerification from './components/OrganizerVerification';
+import './styles/GlobalTheme.css';
 
 // App Routes Component
 const AppRoutes = () => {

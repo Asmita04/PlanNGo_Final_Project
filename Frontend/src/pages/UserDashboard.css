@@ -1,4 +1,5 @@
 .dashboard-page {
+  background-color: #de838a;
   padding: 3rem 0;
   min-height: 100vh;
 }
@@ -15,15 +16,28 @@
   font-weight: 800;
   color: #1f2937;
   margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 body.dark-mode .dashboard-header h1 {
-  color: #f9fafb;
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .dashboard-header p {
   color: #6b7280;
   font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.dashboard-header p strong {
+  color: #9899c1;
+  font-weight: 700;
 }
 
 .dashboard-tabs {
@@ -76,10 +90,17 @@ body.dark-mode .dashboard-content {
   font-weight: 700;
   margin-bottom: 1.5rem;
   color: #1f2937;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 body.dark-mode .dashboard-content h2 {
-  color: #f9fafb;
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .bookings-grid {
@@ -101,7 +122,7 @@ body.dark-mode .dashboard-content h2 {
 }
 
 body.dark-mode .booking-card {
-  background: #236368;
+  background: #05737b;
 }
 
 .booking-card img {
@@ -176,6 +197,7 @@ body.dark-mode .booking-meta {
   font-size: 1.5rem;
   color: #1f2937;
   margin-bottom: 0.5rem;
+  font-weight: 700;
 }
 
 body.dark-mode .empty-state h3 {
@@ -185,6 +207,58 @@ body.dark-mode .empty-state h3 {
 .empty-state p {
   color: #6b7280;
   margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
+}
+
+.profile-header h2 {
+  margin-bottom: 0;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.profile-header button {
+  color: #6366f1 !important;
+  border-color: #6366f1 !important;
+  background: white !important;
+  font-weight: 600 !important;
+}
+
+.profile-header button:hover {
+  background: #6366f1 !important;
+  color: white !important;
+}
+
+.edit-btn-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.edit-btn-circle:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .profile-card {
@@ -192,12 +266,14 @@ body.dark-mode .empty-state h3 {
   grid-template-columns: auto 1fr;
   gap: 3rem;
   padding: 2rem;
-  background: #f9fafb;
-  border-radius: 12px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 body.dark-mode .profile-card {
-  background: #236368;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
 }
 
 .profile-avatar {
@@ -215,8 +291,14 @@ body.dark-mode .profile-card {
 }
 
 .profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.name-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
 }
 
@@ -230,27 +312,38 @@ body.dark-mode .profile-card {
   font-weight: 600;
   color: #6b7280;
   font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .info-group p {
   font-size: 1.05rem;
   color: #1f2937;
   font-weight: 500;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 4px solid #6366f1;
+  margin: 0;
 }
 
 body.dark-mode .info-group p {
   color: #f9fafb;
+  background: #374151;
 }
 
 .role-badge {
   display: inline-block;
-  padding: 0.5rem 1rem;
-  background: #6366f1;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  border-radius: 20px;
-  font-weight: 600;
+  border-radius: 25px;
+  font-weight: 700;
   text-transform: capitalize;
   width: fit-content;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  letter-spacing: 0.5px;
 }
 
 @media (max-width: 768px) {
