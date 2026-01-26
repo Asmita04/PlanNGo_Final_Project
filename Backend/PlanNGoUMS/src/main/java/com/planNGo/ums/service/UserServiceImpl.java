@@ -8,9 +8,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,7 +53,7 @@ public class UserServiceImpl extends DefaultOAuth2UserService  implements UserSe
 		/*1. Create Authentication object (UsernamePasswordAuthToken) 
 		 * to store - email & password
 		 */
-		Authentication holder=new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
+		Authentication holder=new UsernamePasswordAuthenticationToken(request.email(), request.password());
 		log.info("*****Before -  is authenticated {}",holder.isAuthenticated());//false
 		/*
 		 * Call AuthenticationMgr's authenticate method

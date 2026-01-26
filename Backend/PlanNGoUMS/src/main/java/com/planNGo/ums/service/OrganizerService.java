@@ -5,27 +5,25 @@ import java.util.List;
 import com.planNGo.ums.dtos.ApiResponse;
 import com.planNGo.ums.dtos.AuthRequest;
 import com.planNGo.ums.dtos.AuthResp;
+import com.planNGo.ums.dtos.OrganizerDTO;
 import com.planNGo.ums.dtos.UserDTO;
 import com.planNGo.ums.dtos.UserRegDTO;
+import com.planNGo.ums.entities.Organizer;
 import com.planNGo.ums.entities.User;
 
-public interface UserService {
+public interface OrganizerService {
 //get all users
-	List<UserDTO> getAllUsers();
+	List<OrganizerDTO> getAllOrganizers();
 
-	String addUser(User user);
+	String addOrganizer(User user);
 
-	ApiResponse deleteUserDetails(Long userId);
+	ApiResponse deleteOrganizerDetails(Long organizerId);
 
-	User getUserDetails(Long userId);
+	User getOrganizerDetails(Long userId);
 
-	ApiResponse updateDetails(Long id, User user);
+	ApiResponse updateDetails(Long id, Organizer organizer);
 
 	//AuthResp googleSignIn(OAuth2UserRequest userRequest);
 	
-	ApiResponse register(UserRegDTO dto);
 	
-	AuthResp authenticate(AuthRequest request);
-	
-	ApiResponse encryptPasswords();
 }
