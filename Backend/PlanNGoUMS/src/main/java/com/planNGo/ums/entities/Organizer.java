@@ -26,8 +26,7 @@ import lombok.Setter;
 
 public class Organizer extends BaseEntity  {
 
-	 @Column(nullable = true, length = 160)
-	 private String bio;
+	 
 	 
 	 @Column(nullable = true, length = 60)
 	 private String organization;

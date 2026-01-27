@@ -6,8 +6,14 @@ export const usersService = {
     return await apiClient.get(API_ENDPOINTS.USER_PROFILE);
   },
 
-  updateUserProfile: async (userData) => {
-    return await apiClient.put(API_ENDPOINTS.USER_PROFILE, userData);
+  updateUserProfile: async (userId, userData) => {
+    const processedData = {
+      ...userData.user,
+      dob: userData.user.dob === '' ? null : userData.user.dob,
+      pfp: userData.user.pfp || null
+    };
+    console.log("Sending userData to backend:", processedData);
+    return await apiClient.put(`/users/customer/profile/${userId}`, processedData);
   },
 
   getUserById: async (id) => {

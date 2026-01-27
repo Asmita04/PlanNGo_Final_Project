@@ -1,7 +1,6 @@
 package com.planNGo.ums.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +16,8 @@ import com.planNGo.ums.custom_exceptions.ResourceNotFoundException;
 import com.planNGo.ums.dtos.ApiResponse;
 import com.planNGo.ums.dtos.AuthRequest;
 import com.planNGo.ums.dtos.AuthResp;
+import com.planNGo.ums.dtos.UpdateCustomer;
+import com.planNGo.ums.dtos.UpdateOrganizer;
 import com.planNGo.ums.dtos.UserDTO;
 import com.planNGo.ums.dtos.UserRegDTO;
 import com.planNGo.ums.entities.Customer;
@@ -68,9 +69,25 @@ public class UserServiceImpl extends DefaultOAuth2UserService  implements UserSe
 		UserPrincipal principal=(UserPrincipal) fullyAuth.getPrincipal();
 		User user= userRepository.findById(principal.getUserId()) //Optional<User>
 				.orElseThrow(() -> new ResourceNotFoundException("Invalid user id !!!!!"));
-		UserDTO userDTO= UserDTO.fromEntity(user);
 		
-			return new AuthResp(jwtUtils.generateToken(principal),userDTO,"Successful Login");		
+		if(user.getUserRole().equals(UserRole.ROLE_CUSTOMER)) {
+			
+			Customer customer = customerRepository.findByUserDetails(user)
+					.orElseThrow(() -> new ResourceNotFoundException("Invalid user id !!!!!"));
+			
+			
+			return new AuthResp(jwtUtils.generateToken(principal),UserDTO.fromCustomer(customer),"Successful Login");
+		}
+		else if(user.getUserRole().equals(UserRole.ROLE_ORGANIZER)){
+			Organizer organizer = organizerRepository.findByUserDetails(user)
+					.orElseThrow(() -> new ResourceNotFoundException("Invalid user id !!!!!"));
+			
+			
+			return new AuthResp(jwtUtils.generateToken(principal),UserDTO.fromOrganizer(organizer),"Successful Login");
+		}
+		
+		return new AuthResp(jwtUtils.generateToken(principal),UserDTO.fromAdmin(user),"Successful Login");
+			
 	
 	}
 
@@ -179,14 +196,25 @@ public class UserServiceImpl extends DefaultOAuth2UserService  implements UserSe
 	}
 
 	@Override
-	public ApiResponse updateDetails(Long id, User user) {
+	public ApiResponse updateCustomerDetails(Long id, UpdateCustomer user) {
 		// 1. get user details by id
 		User persistentUser=getUserDetails(id);
 		//2 . call setters
-		persistentUser.setDob(user.getDob());
-		persistentUser.setFirstName(user.getFirstName());
-		persistentUser.setLastName(user.getLastName());
-		persistentUser.setPassword(user.getPassword());
+		
+		persistentUser.setFirstName(user.firstName());
+		persistentUser.setLastName(user.lastName());
+		persistentUser.setBio(user.bio());
+		persistentUser.setPhone(user.phone());
+		persistentUser.setPfp(user.pfp());
+		//dob
+		Customer customer = customerRepository.findByUserDetails(persistentUser)
+		.orElseThrow(() -> new ResourceNotFoundException("Invalid user id !!!!!"));
+		
+		customer.setDob(user.dob());
+		customer.setGender(user.gender());
+		
+		userRepository.save(persistentUser);
+		customerRepository.save(customer);
 		
 		//similarly call other setters		
 		return new ApiResponse("Success", "Updated user details");
@@ -201,6 +229,33 @@ public class UserServiceImpl extends DefaultOAuth2UserService  implements UserSe
 		users.forEach(user ->
 		 user.setPassword(passwordEncoder.encode(user.getPassword())));
 		return new ApiResponse("Password encrypted", "Success");
+	}
+
+	@Override
+	public ApiResponse updateOrganizerDetails(Long id, UpdateOrganizer user) {
+		// 1. get user details by id
+				User persistentUser=getUserDetails(id);
+				//2 . call setters
+
+				persistentUser.setFirstName(user.firstName());
+				persistentUser.setLastName(user.lastName());
+				persistentUser.setBio(user.bio());
+				persistentUser.setPhone(user.phone());
+				persistentUser.setPfp(user.pfp());
+				persistentUser.setAddress(user.address());
+				
+				
+				Organizer organizer= organizerRepository.findByUserDetails(persistentUser)
+						.orElseThrow(() -> new ResourceNotFoundException("Invalid user id !!!!!"));
+				
+				organizer.setOrganization(user.organization());
+				
+				
+				userRepository.save(persistentUser);
+				organizerRepository.save(organizer);
+				
+				//similarly call other setters		
+				return new ApiResponse("Success", "Updated user details");
 	}
 
 

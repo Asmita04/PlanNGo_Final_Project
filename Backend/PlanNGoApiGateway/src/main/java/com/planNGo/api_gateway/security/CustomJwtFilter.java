@@ -54,12 +54,13 @@ public class CustomJwtFilter implements WebFilter {
 
             String email = claims.getSubject();//can also be added 
             String role = claims.get("user_role", String.class);
-           String userId=claims.get("user_id", String.class);
+            Long userId = claims.get("user_id", Long.class);
+
             
             //  Add custom headers for downstream services
             ServerHttpRequest mutatedRequest = exchange.getRequest()
                     .mutate()
-                    .header("X-User-Id", userId)
+                    .header("X-User-Id", String.valueOf(userId))
                     .header("X-Role", role)
                     .build();
             log.info("added custom headers ");

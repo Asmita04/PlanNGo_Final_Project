@@ -1,13 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { api } from '../services';
-import { User, Mail, Phone, Calendar, Edit2, Save, X, Award, Ticket, Heart, MapPin } from 'lucide-react';
+import { User, Mail, Phone, Calendar, Edit2, Save, X, Award, Ticket, Heart, MapPin, Camera } from 'lucide-react';
 import './ClientProfile.css';
 
 const ClientProfile = () => {
   const { user, updateUser, addNotification } = useApp();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
+  const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -39,7 +42,10 @@ const ClientProfile = () => {
   };
 
   useEffect(() => {
-    if (userData) {
+    const storedUser = localStorage.getItem('user');
+    const userData = storedUser ? JSON.parse(storedUser) : user;
+    
+    if (userData && !isEditing) {
       setFormData({
         firstName: userData.firstName || '',
         lastName: userData.lastName || '',
@@ -49,7 +55,7 @@ const ClientProfile = () => {
         bio: userData.bio || user?.bio || ''
       });
     }
-  }, [userData, user]);
+  }, [user, isEditing]);
 
   const handleChange = (e) => {
     setFormData({
@@ -58,23 +64,71 @@ const ClientProfile = () => {
     });
   };
 
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfilePhoto(file);
+      const reader = new FileReader();
+      reader.onload = (e) => setProfilePhotoPreview(e.target.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const savePhotoToLocal = async (file, userId) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const photoPath = `cdn/user_pfp/${userId}.jpg`;
+        localStorage.setItem(`profilePhoto_${userId}`, reader.result);
+        resolve(photoPath);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleSave = async () => {
     setLoading(true);
     try {
-      // Combine first and last name back to full name for backend
+      const userId = userData?.id || user?.id;
+      let pfpPath = null;
+      
+      // Save photo if selected
+      if (profilePhoto) {
+        pfpPath = await savePhotoToLocal(profilePhoto, userId);
+      }
+      
       const profileData = {
-        ...formData,
-        name: `${formData.firstName} ${formData.lastName}`.trim()
+        user: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phoneNumber,
+          dob: formData.dateOfBirth,
+          bio: formData.bio,
+          ...(pfpPath && { pfp: pfpPath })
+        }
       };
       
-      // Remove firstName and lastName as backend expects 'name'
-      delete profileData.firstName;
-      delete profileData.lastName;
+      const response = await api.updateUserProfile(userId, profileData);
       
-      const response = await api.updateUserProfile(profileData);
-      updateUser(response.user || response);
+      // Update localStorage with new data
+      const updatedUser = {
+        ...userData,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phoneNumber,
+        dob: formData.dateOfBirth,
+        bio: formData.bio,
+        ...(pfpPath && { pfp: pfpPath })
+      };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      updateUser(response.user || updatedUser);
       addNotification({ message: 'Profile updated successfully! 🎉', type: 'success' });
       setIsEditing(false);
+      setProfilePhoto(null);
+      setProfilePhotoPreview(null);
     } catch (error) {
       console.error('Profile update error:', error);
       addNotification({ 
@@ -95,7 +149,22 @@ const ClientProfile = () => {
       dateOfBirth: userData?.dob || user?.dateOfBirth || '',
       bio: userData?.bio || user?.bio || ''
     });
+    setProfilePhoto(null);
+    setProfilePhotoPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
     setIsEditing(false);
+  };
+
+  const getProfilePhotoSrc = () => {
+    const userId = userData?.id || user?.id;
+    if (profilePhotoPreview) return profilePhotoPreview;
+    
+    const savedPhoto = localStorage.getItem(`profilePhoto_${userId}`);
+    if (savedPhoto) return savedPhoto;
+    
+    return 'cdn/user_pfp/NotFound.jpg';
   };
 
   return (
@@ -104,9 +173,32 @@ const ClientProfile = () => {
         {/* Header Card */}
         <div className="profile-header">
           <div className="header-content">
-            <div className="profile-avatar">
-              <User size={56} strokeWidth={2} />
+            <div className="profile-avatar" onClick={() => isEditing && fileInputRef.current?.click()}>
+              {profilePhotoPreview || localStorage.getItem(`profilePhoto_${userData?.id || user?.id}`) ? (
+                <img 
+                  src={getProfilePhotoSrc()} 
+                  alt="Profile" 
+                  className="profile-photo"
+                  onError={(e) => {
+                    e.target.src = 'cdn/user_pfp/NotFound.jpg';
+                  }}
+                />
+              ) : (
+                <User size={56} strokeWidth={2} />
+              )}
+              {isEditing && (
+                <div className="photo-overlay">
+                  <Camera size={24} />
+                </div>
+              )}
             </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoChange}
+              style={{ display: 'none' }}
+            />
             <div className="profile-info">
               <h1>{userData?.firstName && userData?.lastName ? `${userData.firstName} ${userData.lastName}` : user?.name || 'User Name'}</h1>
               <p className="profile-role">

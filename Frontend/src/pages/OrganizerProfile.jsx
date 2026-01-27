@@ -1,19 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { api } from '../services/api';
-import { User, Mail, Phone, MapPin, Upload, Camera, Save, FileText, CheckCircle, AlertCircle } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Upload, Camera, Save, FileText, CheckCircle, AlertCircle, Edit2, X, Map, Plus, ExternalLink } from 'lucide-react';
 import Button from '../components/Button';
+import { useNavigate } from 'react-router-dom';
 import './OrganizerProfile.css';
 
 const OrganizerProfile = () => {
   const { user, updateUser, addNotification } = useApp();
+  const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
-    name: user?.name || '',
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
     phone: user?.phone || '',
     bio: '',
     company: '',
-    website: '',
-    location: '',
+    address: '',
+    profilePicture: user?.avatar || '',
+    verificationStatus: 'pending'
+  });
+  const [originalProfile, setOriginalProfile] = useState({
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    phone: user?.phone || '',
+    bio: '',
+    company: '',
+    address: '',
     profilePicture: user?.avatar || '',
     verificationStatus: 'pending'
   });
@@ -21,6 +34,30 @@ const OrganizerProfile = () => {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
+  const fileInputRef = useRef(null);
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [locationForm, setLocationForm] = useState({
+    street: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    country: 'India'
+  });
+
+  const indianStates = {
+    'Andhra Pradesh': ['Visakhapatnam', 'Vijayawada', 'Guntur', 'Nellore', 'Kurnool'],
+    'Karnataka': ['Bangalore', 'Mysore', 'Hubli', 'Mangalore', 'Belgaum'],
+    'Maharashtra': ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Aurangabad'],
+    'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli', 'Salem'],
+    'Gujarat': ['Ahmedabad', 'Surat', 'Vadodara', 'Rajkot', 'Bhavnagar'],
+    'Rajasthan': ['Jaipur', 'Jodhpur', 'Kota', 'Bikaner', 'Udaipur'],
+    'West Bengal': ['Kolkata', 'Howrah', 'Durgapur', 'Asansol', 'Siliguri'],
+    'Uttar Pradesh': ['Lucknow', 'Kanpur', 'Ghaziabad', 'Agra', 'Varanasi'],
+    'Delhi': ['New Delhi', 'Delhi Cantonment', 'Karol Bagh', 'Lajpat Nagar'],
+    'Kerala': ['Kochi', 'Thiruvananthapuram', 'Kozhikode', 'Thrissur', 'Kollam']
+  };
 
   useEffect(() => {
     if (user?.id) {
@@ -32,7 +69,9 @@ const OrganizerProfile = () => {
   const loadProfile = async () => {
     try {
       const profileData = await api.getOrganizerProfile(user.id);
-      setProfile(prev => ({ ...prev, ...profileData }));
+      const updatedProfile = { ...profile, ...profileData };
+      setProfile(updatedProfile);
+      setOriginalProfile(updatedProfile);
       setDocuments(profileData.documents || []);
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -48,12 +87,61 @@ const OrganizerProfile = () => {
     }
   };
 
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfilePhoto(file);
+      const reader = new FileReader();
+      reader.onload = (e) => setProfilePhotoPreview(e.target.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const savePhotoToLocal = async (file, userId) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const photoPath = `cdn/user_pfp/${userId}.jpg`;
+        localStorage.setItem(`profilePhoto_${userId}`, reader.result);
+        resolve(photoPath);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const getProfilePhotoSrc = () => {
+    const userId = user?.id;
+    if (profilePhotoPreview) return profilePhotoPreview;
+    
+    const savedPhoto = localStorage.getItem(`profilePhoto_${userId}`);
+    if (savedPhoto) return savedPhoto;
+    
+    return 'cdn/user_pfp/NotFound.jpg';
+  };
+
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const updatedProfile = await api.updateOrganizerProfile(user.id, profile);
-      updateUser({ ...user, ...updatedProfile });
+      const userId = user?.id;
+      let pfpPath = null;
+      
+      // Save photo if selected
+      if (profilePhoto) {
+        pfpPath = await savePhotoToLocal(profilePhoto, userId);
+      }
+      
+      const profileData = {
+        ...profile,
+        ...(pfpPath && { pfp: pfpPath })
+      };
+      
+      const response = await api.put(`/users/organizer/profile/${userId}`, profileData);
+      updateUser({ ...user, ...response.data });
+      setOriginalProfile(profile);
+      setIsEditing(false);
+      setProfilePhoto(null);
+      setProfilePhotoPreview(null);
       addNotification({ message: 'Profile updated successfully!', type: 'success' });
     } catch (error) {
       addNotification({ message: 'Failed to update profile', type: 'error' });
@@ -62,20 +150,27 @@ const OrganizerProfile = () => {
     }
   };
 
-  const handleProfilePictureUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const handleAddLocation = () => {
+    const fullAddress = `${locationForm.street}, ${locationForm.city}, ${locationForm.state} ${locationForm.zipCode}, ${locationForm.country}`;
+    const locationUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
+    
+    setProfile({
+      ...profile,
+      address: locationUrl
+    });
+    
+    setShowLocationModal(false);
+    setLocationForm({ street: '', city: '', state: '', zipCode: '', country: 'India' });
+  };
 
-    const formData = new FormData();
-    formData.append('profilePicture', file);
-
-    try {
-      const response = await api.uploadProfilePicture(user.id, formData);
-      setProfile({ ...profile, profilePicture: response.url });
-      addNotification({ message: 'Profile picture updated!', type: 'success' });
-    } catch (error) {
-      addNotification({ message: 'Failed to upload image', type: 'error' });
+  const handleCancel = () => {
+    setProfile({ ...originalProfile });
+    setProfilePhoto(null);
+    setProfilePhotoPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
+    setIsEditing(false);
   };
 
   const handleDocumentUpload = async (e) => {
@@ -107,21 +202,58 @@ const OrganizerProfile = () => {
     <div className="profile-page">
       <div className="container">
         <div className="profile-header">
-          <div className="profile-avatar">
-            <img src={profile.profilePicture} alt={profile.name} />
-            <label className="avatar-upload">
-              <Camera size={20} />
-              <input type="file" accept="image/*" onChange={handleProfilePictureUpload} hidden />
-            </label>
+          <div className={`profile-avatar ${isEditing ? 'editing' : ''}`} onClick={() => isEditing && fileInputRef.current?.click()}>
+            {profilePhotoPreview || localStorage.getItem(`profilePhoto_${user?.id}`) ? (
+              <img 
+                src={getProfilePhotoSrc()} 
+                alt="Profile" 
+                className="profile-photo"
+                onError={(e) => {
+                  e.target.src = 'cdn/user_pfp/NotFound.jpg';
+                }}
+              />
+            ) : (
+              <User size={56} strokeWidth={2} />
+            )}
+            {isEditing && (
+              <div className="photo-overlay">
+                <Camera size={24} />
+                <span>Change Photo</span>
+              </div>
+            )}
           </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handlePhotoChange}
+            style={{ display: 'none' }}
+          />
           <div className="profile-info">
-            <h1>{profile.name}</h1>
+            <h1>{(profile.firstName && profile.lastName) ? `${profile.firstName} ${profile.lastName}` : (user?.firstName && user?.lastName) ? `${user.firstName} ${user.lastName}` : 'Organizer Name'}</h1>
             <p>{profile.company}</p>
             <div className="verification-status">
               {getVerificationStatusIcon(profile.verificationStatus)}
               <span>Verification Status: {profile.verificationStatus}</span>
             </div>
           </div>
+          <button 
+            className={`edit-btn-circle ${isEditing ? 'editing' : ''}`}
+            onClick={() => isEditing ? handleCancel() : setIsEditing(true)}
+            aria-label={isEditing ? 'Cancel editing' : 'Edit profile'}
+          >
+            {isEditing ? (
+              <>
+                <X size={16} strokeWidth={2.5} />
+                <span>Cancel</span>
+              </>
+            ) : (
+              <>
+                <Edit2 size={16} strokeWidth={2.5} />
+                <span>Edit</span>
+              </>
+            )}
+          </button>
         </div>
 
         <div className="profile-tabs">
@@ -148,59 +280,80 @@ const OrganizerProfile = () => {
                 <h3>Basic Information</h3>
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Full Name</label>
-                    <div className="input-wrapper">
-                      <User size={20} />
-                      <input
-                        type="text"
-                        value={profile.name}
-                        onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                        required
-                      />
-                    </div>
+                    <label>First Name</label>
+                    <input
+                      type="text"
+                      value={profile.firstName}
+                      onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
+                      disabled={!isEditing}
+                      required
+                    />
                   </div>
                   <div className="form-group">
-                    <label>Email Address</label>
-                    <div className="input-wrapper disabled">
-                      <Mail size={20} />
-                      <input
-                        type="email"
-                        value={user.email}
-                        disabled
-                        title="Email cannot be changed"
-                      />
-                    </div>
+                    <label>Last Name</label>
+                    <input
+                      type="text"
+                      value={profile.lastName}
+                      onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
+                      disabled={!isEditing}
+                      required
+                    />
                   </div>
                 </div>
                 <div className="form-row">
                   <div className="form-group">
                     <label>Phone Number</label>
-                    <div className="input-wrapper">
-                      <Phone size={20} />
-                      <input
-                        type="tel"
-                        value={profile.phone}
-                        onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                        required
-                      />
-                    </div>
+                    <input
+                      type="tel"
+                      value={profile.phone}
+                      onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                      disabled={!isEditing}
+                      required
+                    />
                   </div>
                   <div className="form-group">
                     <label>Location</label>
-                    <div className="input-wrapper">
-                      <MapPin size={20} />
-                      <select
-                        value={profile.location}
-                        onChange={(e) => setProfile({ ...profile, location: e.target.value })}
-                      >
-                        <option value="">Select Location</option>
-                        {locations.map(location => (
-                          <option key={location.id} value={location.name}>
-                            {location.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                    {profile.address ? (
+                      <div className="location-display">
+                        <MapPin size={20} />
+                        <a 
+                          href={profile.address} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="location-link"
+                        >
+                          View Location
+                          <ExternalLink size={16} />
+                        </a>
+                        {isEditing && (
+                          <button 
+                            type="button" 
+                            onClick={() => setShowLocationModal(true)}
+                            className="edit-location-btn"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="location-empty">
+                        {isEditing ? (
+                          <button 
+                            type="button" 
+                            onClick={() => setShowLocationModal(true)}
+                            className="add-location-btn"
+                          >
+                            <Plus size={20} />
+                            Add Location
+                          </button>
+                        ) : (
+                          <div className="no-location">
+                            <MapPin size={20} />
+                            No location added
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -215,15 +368,7 @@ const OrganizerProfile = () => {
                       value={profile.company}
                       onChange={(e) => setProfile({ ...profile, company: e.target.value })}
                       placeholder="Your company name"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Website</label>
-                    <input
-                      type="url"
-                      value={profile.website}
-                      onChange={(e) => setProfile({ ...profile, website: e.target.value })}
-                      placeholder="https://yourwebsite.com"
+                      disabled={!isEditing}
                     />
                   </div>
                 </div>
@@ -234,13 +379,21 @@ const OrganizerProfile = () => {
                     onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                     placeholder="Tell us about yourself and your event organizing experience..."
                     rows="4"
+                    disabled={!isEditing}
                   />
                 </div>
               </div>
 
-              <Button type="submit" disabled={loading} icon={<Save size={20} />}>
-                {loading ? 'Saving...' : 'Save Changes'}
-              </Button>
+              {isEditing && (
+                <div className="form-actions">
+                  <Button type="submit" disabled={loading} icon={<Save size={20} />}>
+                    {loading ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                  <Button type="button" onClick={handleCancel} variant="secondary" icon={<X size={20} />}>
+                    Cancel
+                  </Button>
+                </div>
+              )}
             </form>
           )}
 
@@ -294,6 +447,86 @@ const OrganizerProfile = () => {
           )}
         </div>
       </div>
+
+      {/* Location Modal */}
+      {showLocationModal && (
+        <div className="modal-overlay" onClick={() => setShowLocationModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Add Location</h3>
+              <button onClick={() => setShowLocationModal(false)}>
+                <X size={24} />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label>Street Address</label>
+                <input
+                  type="text"
+                  value={locationForm.street}
+                  onChange={(e) => setLocationForm({ ...locationForm, street: e.target.value })}
+                  placeholder="123 Main Street"
+                />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>State</label>
+                  <select
+                    value={locationForm.state}
+                    onChange={(e) => setLocationForm({ ...locationForm, state: e.target.value, city: '' })}
+                  >
+                    <option value="">Select State</option>
+                    {Object.keys(indianStates).map(state => (
+                      <option key={state} value={state}>{state}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>City</label>
+                  <select
+                    value={locationForm.city}
+                    onChange={(e) => setLocationForm({ ...locationForm, city: e.target.value })}
+                    disabled={!locationForm.state}
+                  >
+                    <option value="">Select City</option>
+                    {locationForm.state && indianStates[locationForm.state]?.map(city => (
+                      <option key={city} value={city}>{city}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>ZIP Code</label>
+                  <input
+                    type="text"
+                    value={locationForm.zipCode}
+                    onChange={(e) => setLocationForm({ ...locationForm, zipCode: e.target.value })}
+                    placeholder="10001"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Country</label>
+                  <input
+                    type="text"
+                    value={locationForm.country}
+                    disabled
+                    style={{ background: '#f9fafb', color: '#6b7280' }}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <Button onClick={handleAddLocation} disabled={!locationForm.city || !locationForm.state}>
+                Add Location
+              </Button>
+              <Button onClick={() => setShowLocationModal(false)} variant="secondary">
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
