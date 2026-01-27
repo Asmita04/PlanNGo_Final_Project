@@ -17,9 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.planNGo.ums.dtos.AuthRequest;
+import com.planNGo.ums.dtos.UpdateCustomer;
+import com.planNGo.ums.dtos.UpdateOrganizer;
 import com.planNGo.ums.dtos.UserDTO;
 import com.planNGo.ums.dtos.UserRegDTO;
-import com.planNGo.ums.entities.User;
 import com.planNGo.ums.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,15 +60,27 @@ public class UserController {
 					userService.getUserDetails(userId));
 		
 	}
-	
-	@PutMapping("/{id}")
+	 
+	@PutMapping("/customer/profile/{userId}")
 	//swagger annotation - use till testing phase
-	@Operation(description ="Complete Update user details")
-	public ResponseEntity<?> updateUserDetails(@PathVariable Long id,@RequestBody User user) {
-		System.out.println("in update "+id+" "+user);
-	
-			return ResponseEntity.ok(userService.updateDetails(id,user)
-					);
+	@Operation(description ="Complete Update customer details")
+	public ResponseEntity<?> updateCustomerDetails(@PathVariable Long userId,@RequestBody UpdateCustomer user) {
+		log.info("***** in user update{} ",user);
+
+		System.out.println("in update "+userId+" "+user);
+		
+			return ResponseEntity.ok(userService.updateCustomerDetails(userId,user));
+		
+	}
+	@PutMapping("/organizer/profile/{userId}")
+	//swagger annotation - use till testing phase
+	@Operation(description ="Complete Update organizer details")
+	public ResponseEntity<?> updateOrganizerDetails(@PathVariable Long userId,@RequestBody UpdateOrganizer user) {
+		log.info("***** in user update{} ",user);
+
+		System.out.println("in update "+userId+" "+user);
+		
+			return ResponseEntity.ok(userService.updateOrganizerDetails(userId,user));
 		
 	}
 

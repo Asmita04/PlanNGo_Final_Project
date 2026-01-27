@@ -1,31 +1,20 @@
 package com.planNGo.ums.controller;
 
 
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.planNGo.ums.dtos.AuthRequest;
-import com.planNGo.ums.dtos.OrganizerDTO;
-import com.planNGo.ums.dtos.UserDTO;
-import com.planNGo.ums.dtos.UserRegDTO;
 import com.planNGo.ums.entities.Organizer;
-import com.planNGo.ums.entities.User;
 import com.planNGo.ums.service.OrganizerService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -42,16 +31,16 @@ public class OrganizerController {
 	private final OrganizerService 	organizerService;
 	
 
-	@GetMapping
-	public /* @ResponseBody */  ResponseEntity<?> renderOrgainzerList() {
-		System.out.println("in render user list");
-		List<OrganizerDTO> list = organizerService.getAllOrganizers();
-		if(list.isEmpty())
-			return ResponseEntity.status(HttpStatus.NO_CONTENT)
-					.build(); //only status code : 204
-		//=> non empty body
-		return ResponseEntity.ok(list); //SC 200 + List -> Json[]
-	}
+//	@GetMapping
+//	public /* @ResponseBody */  ResponseEntity<?> renderOrgainzerList() {
+//		System.out.println("in render user list");
+//		List<OrganizerDTO> list = organizerService.getAllOrganizers();
+//		if(list.isEmpty())
+//			return ResponseEntity.status(HttpStatus.NO_CONTENT)
+//					.build(); //only status code : 204
+//		//=> non empty body
+//		return ResponseEntity.ok(list); //SC 200 + List -> Json[]
+//	}
 	
 	@GetMapping("/{organizerId}")
 	public ResponseEntity<?> getOrganizerDetails(@PathVariable  @Min(1) @Max(100) Long organizerId) {

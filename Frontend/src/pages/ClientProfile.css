@@ -63,6 +63,35 @@
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
   border: 3px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.profile-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.photo-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+  border-radius: 50%;
+}
+
+.profile-avatar:hover .photo-overlay {
+  opacity: 1;
 }
 
 .profile-info {

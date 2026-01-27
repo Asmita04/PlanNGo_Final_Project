@@ -45,8 +45,7 @@ public class User extends BaseEntity  {
 	// not null constraint
 	@Column(nullable = false)
 	private String password;
-	@Column(nullable = true)
-	private LocalDate dob;
+	
 	
 	@Enumerated(EnumType.STRING) // column type - varchar | Enum
 	@Column(name = "user_role")
@@ -57,7 +56,8 @@ public class User extends BaseEntity  {
 	private String pfp;
 	
 	private Boolean isEmailVerified;
-	
+	@Column(nullable = true)
+	private String bio;
 
 
 	public User(String firstName, String lastName, String email, String password, LocalDate dob, UserRole userRole,
@@ -67,7 +67,7 @@ public class User extends BaseEntity  {
 		this.lastName = lastName;
 		this.email = email;
 		this.password = password;
-		this.dob = dob;
+		
 		
 		this.phone = phone;
 		this.pfp = pfp;
