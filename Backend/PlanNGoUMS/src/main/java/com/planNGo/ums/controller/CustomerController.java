@@ -11,23 +11,23 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.planNGo.ums.dtos.OrganizerResp;
-import com.planNGo.ums.dtos.UpdateOrganizer;
-import com.planNGo.ums.service.OrganizerService;
+import com.planNGo.ums.dtos.CustomerResp;
+import com.planNGo.ums.dtos.UpdateCustomer;
+import com.planNGo.ums.service.CustomerService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController //= @Controller + @ResponseBody
-@RequestMapping("/organizer")  //base url-pattern
+@RequestMapping("/customer")  //base url-pattern
 @CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor //Creates a parameterized ctor having final & non null fields
 @Validated
 @Slf4j
-public class OrganizerController {
+public class CustomerController {
 	//depcy 	
-	private final OrganizerService 	organizerService;
+	private final CustomerService customerService;
 	
 
 //	@GetMapping
@@ -44,26 +44,26 @@ public class OrganizerController {
 	
 	
 	
-	@GetMapping("/{organizerId}")
-	public ResponseEntity<OrganizerResp> getOrganizerDetails(@PathVariable Long organizerId) {
-		System.out.println("in get organizer details "+organizerId);
+	@GetMapping("/{customerId}")
+	public ResponseEntity<CustomerResp> getCustomerDetails(@PathVariable Long customerId) {
+		System.out.println("in get organizer details "+customerId);
 	
 			return ResponseEntity.ok(
-					organizerService.getOrganizerDetails(organizerId));
+					customerService.getCustomerDetails(customerId));
 		
 	}
 	
 
 
-	@PutMapping("/profile/{userId}")
+	@PutMapping("/profile/{Id}")
 	//swagger annotation - use till testing phase
-	@Operation(description ="Complete Update organizer details")
-	public ResponseEntity<?> updateOrganizerDetails(@PathVariable Long userId,@RequestBody UpdateOrganizer user) {
-		log.info("***** in organizer update{} ",user);
+	@Operation(description ="Complete Update customer details")
+	public ResponseEntity<?> updateCustomerDetails(@PathVariable Long Id,@RequestBody UpdateCustomer user) {
+		log.info("***** in customer update{} ",user);
 
-		System.out.println("in update "+userId+" "+user);
+		System.out.println("in update "+Id+" "+user);
 		
-			return ResponseEntity.ok(organizerService.updateDetails(userId,user));
+			return ResponseEntity.ok(customerService.updateDetails(Id,user));
 		
 	}
 	

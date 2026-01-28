@@ -69,6 +69,7 @@ public class UserServiceImpl extends DefaultOAuth2UserService  implements UserSe
 		UserPrincipal principal=(UserPrincipal) fullyAuth.getPrincipal();
 		User user= userRepository.findById(principal.getUserId()) //Optional<User>
 				.orElseThrow(() -> new ResourceNotFoundException("Invalid user id !!!!!"));
+
 		
 		if(user.getUserRole().equals(UserRole.ROLE_CUSTOMER)) {
 			
@@ -132,7 +133,7 @@ public class UserServiceImpl extends DefaultOAuth2UserService  implements UserSe
 			throw new InvalidInputException("Dup email or phone !!!!!!!!");
 		}
 		user.setIsEmailVerified(false);
-		
+		user.setIsActive(true);
 		
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		
