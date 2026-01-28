@@ -2,8 +2,6 @@ package com.planNGo.ums.service;
 
 import java.util.List;
 
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-
 import com.planNGo.ums.dtos.ApiResponse;
 import com.planNGo.ums.dtos.AuthRequest;
 import com.planNGo.ums.dtos.AuthResp;

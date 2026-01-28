@@ -14,10 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.planNGo.ums.dtos.AuthRequest;
 import com.planNGo.ums.dtos.UpdateCustomer;
@@ -64,30 +61,7 @@ public class UserController {
 		
 	}
 	 
-	@PutMapping("/customer/profile/{userId}")
-	//swagger annotation - use till testing phase
-	@Operation(description ="Complete Update customer details")
-	public ResponseEntity<?> updateCustomerDetails( @PathVariable Long userId,@RequestBody UpdateCustomer user) {
-		log.info("****** in user update{} ",user);
 
-		 
-		    
-		System.out.println("in update "+userId+" "+user);
-		
-			return ResponseEntity.ok(userService.updateCustomerDetails(userId,user));
-		
-	}
-	@PutMapping("/organizer/profile/{userId}")
-	//swagger annotation - use till testing phase
-	@Operation(description ="Complete Update organizer details")
-	public ResponseEntity<?> updateOrganizerDetails(@PathVariable Long userId,@RequestBody UpdateOrganizer user) {
-		log.info("***** in user update{} ",user);
-
-		System.out.println("in update "+userId+" "+user);
-		
-			return ResponseEntity.ok(userService.updateOrganizerDetails(userId,user));
-		
-	}
 
 	@PostMapping("/signin")
 	@Operation(description = "User Login")
@@ -111,5 +85,33 @@ public class UserController {
 		return ResponseEntity.ok(userService.encryptPasswords());
 
 	}
+	
+	
+	
+	// Moved to organizer and customer controller
+//	@PutMapping("/customer/profile/{userId}")
+//	//swagger annotation - use till testing phase
+//	@Operation(description ="Complete Update customer details")
+//	public ResponseEntity<?> updateCustomerDetails( @PathVariable Long userId,@RequestBody UpdateCustomer user) {
+//		log.info("****** in user update{} ",user);
+//
+//		 
+//		    
+//		System.out.println("in update "+userId+" "+user);
+//		
+//			return ResponseEntity.ok(userService.updateCustomerDetails(userId,user));
+//		
+//	}
+//	@PutMapping("/organizer/profile/{userId}")
+//	//swagger annotation - use till testing phase
+//	@Operation(description ="Complete Update organizer details")
+//	public ResponseEntity<?> updateOrganizerDetails(@PathVariable Long userId,@RequestBody UpdateOrganizer user) {
+//		log.info("***** in user update{} ",user);
+//
+//		System.out.println("in update "+userId+" "+user);
+//		
+//			return ResponseEntity.ok(userService.updateOrganizerDetails(userId,user));
+//		
+//	}
 
 }

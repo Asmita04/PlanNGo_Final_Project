@@ -88,23 +88,17 @@ const ClientProfile = () => {
     try {
       const userId = userData?.id || user?.id;
       
-      const formDataToSend = new FormData();
-      const userJson = JSON.stringify({
+      const profileData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
         phone: formData.phoneNumber,
         dob: formData.dateOfBirth,
         bio: formData.bio
-      });
-      formDataToSend.append('user', userJson);
+      };
       
-      if (profilePhoto) {
-        formDataToSend.append('image', profilePhoto);
-      }
-      
-      const response = await apiClient.put(`/users/customer/profile/${userId}`, formDataToSend, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      const response = await apiClient.put(`/customer/profile/${userId}`, profileData, {
+        headers: { 'Content-Type': 'application/json' }
       });
       
       // Update localStorage with new data

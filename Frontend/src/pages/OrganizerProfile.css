@@ -337,7 +337,26 @@
   padding: 12px;
   border: 2px solid #e5e7eb;
   border-radius: 8px;
-  background: white;
+  background: #0F172A !important;
+  color: #f3f4f6 !important;
+  cursor: not-allowed;
+  transition: all 0.3s ease !important;
+}
+
+.location-display.editing {
+  background: #f3f4f6 !important;
+  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.1) !important;
+  border-color: #d1d5db !important;
+  color: #000000 !important;
+  cursor: default;
+}
+
+.location-display .location-link {
+  color: inherit !important;
+}
+
+.location-display.editing .location-link {
+  color: #6366f1 !important;
 }
 
 .location-link {

@@ -55,6 +55,8 @@ public class User extends BaseEntity  {
 	@Column(nullable = true)
 	private String pfp;
 	
+	private Boolean isActive;
+	
 	private Boolean isEmailVerified;
 	@Column(nullable = true)
 	private String bio;

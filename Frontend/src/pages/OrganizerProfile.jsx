@@ -15,20 +15,18 @@ const OrganizerProfile = () => {
     lastName: user?.lastName || '',
     phone: user?.phone || '',
     bio: '',
-    company: '',
+    organization: '',
     address: '',
-    profilePicture: user?.avatar || '',
-    verificationStatus: 'pending'
+    pfp: user?.avatar || ''
   });
   const [originalProfile, setOriginalProfile] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
     phone: user?.phone || '',
     bio: '',
-    company: '',
+    organization: '',
     address: '',
-    profilePicture: user?.avatar || '',
-    verificationStatus: 'pending'
+    pfp: user?.avatar || ''
   });
   const [documents, setDocuments] = useState([]);
   const [locations, setLocations] = useState([]);
@@ -65,6 +63,23 @@ const OrganizerProfile = () => {
       loadLocations();
     }
   }, [user?.id]);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    const userData = storedUser ? JSON.parse(storedUser) : user;
+    
+    if (userData && !isEditing) {
+      setProfile({
+        firstName: userData.firstName || user?.firstName || '',
+        lastName: userData.lastName || user?.lastName || '',
+        phone: userData.phone || user?.phone || '',
+        bio: userData.bio || '',
+        organization: userData.organization || '',
+        address: userData.address || '',
+        pfp: userData.pfp || user?.avatar || ''
+      });
+    }
+  }, [user, isEditing]);
 
   const loadProfile = async () => {
     try {
@@ -126,15 +141,41 @@ const OrganizerProfile = () => {
       const userId = user?.id;
       
       const profileData = {
-        ...profile
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        phone: profile.phone,
+        bio: profile.bio,
+        organization: profile.organization,
+        address: profile.address,
+        pfp: profile.pfp
       };
       
-      const response = await api.put(`/organizer/profile/${userId}`, profileData);
+      console.log('Sending profile data:', profileData);
+      
+      const response = await apiClient.put(`/organizer/profile/${userId}`, profileData, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      // Update localStorage with new data
+      const updatedUser = {
+        ...user,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        phone: profile.phone,
+        bio: profile.bio,
+        organization: profile.organization,
+        address: profile.address,
+        pfp: profile.pfp
+      };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      console.log('Updated localStorage:', updatedUser);
+      
       updateUser({ ...user, ...response.data });
       setOriginalProfile(profile);
       setIsEditing(false);
       addNotification({ message: 'Profile updated successfully!', type: 'success' });
     } catch (error) {
+      console.error('Profile update error:', error);
       addNotification({ message: 'Failed to update profile', type: 'error' });
     } finally {
       setLoading(false);
@@ -147,11 +188,21 @@ const OrganizerProfile = () => {
     
     setProfile({
       ...profile,
-      address: locationUrl
+      address: locationUrl,
+      locationText: fullAddress
     });
     
     setShowLocationModal(false);
     setLocationForm({ street: '', city: '', state: '', zipCode: '', country: 'India' });
+  };
+
+  const getLocationText = () => {
+    if (profile.locationText) return profile.locationText;
+    if (profile.address && profile.address.includes('google.com/maps')) {
+      const urlParams = new URLSearchParams(profile.address.split('?')[1]);
+      return decodeURIComponent(urlParams.get('query') || 'View Location');
+    }
+    return profile.address || 'View Location';
   };
 
   const handleCancel = () => {
@@ -217,7 +268,7 @@ const OrganizerProfile = () => {
           />
           <div className="profile-info">
             <h1>{(profile.firstName && profile.lastName) ? `${profile.firstName} ${profile.lastName}` : (user?.firstName && user?.lastName) ? `${user.firstName} ${user.lastName}` : 'Organizer Name'}</h1>
-            <p>{profile.company}</p>
+            <p>{profile.organization}</p>
             <div className="verification-status">
               {getVerificationStatusIcon(profile.verificationStatus)}
               <span>Verification Status: {profile.verificationStatus}</span>
@@ -300,7 +351,7 @@ const OrganizerProfile = () => {
                   <div className="form-group">
                     <label>Location</label>
                     {profile.address ? (
-                      <div className="location-display">
+                      <div className={`location-display ${isEditing ? 'editing' : ''}`}>
                         <MapPin size={20} />
                         <a 
                           href={profile.address} 
@@ -308,7 +359,7 @@ const OrganizerProfile = () => {
                           rel="noopener noreferrer"
                           className="location-link"
                         >
-                          View Location
+                          {getLocationText()}
                           <ExternalLink size={16} />
                         </a>
                         {isEditing && (
@@ -351,9 +402,9 @@ const OrganizerProfile = () => {
                     <label>Company/Organization</label>
                     <input
                       type="text"
-                      value={profile.company}
-                      onChange={(e) => setProfile({ ...profile, company: e.target.value })}
-                      placeholder="Your company name"
+                      value={profile.organization}
+                      onChange={(e) => setProfile({ ...profile, organization: e.target.value })}
+                      placeholder="Your organization name"
                       disabled={!isEditing}
                     />
                   </div>

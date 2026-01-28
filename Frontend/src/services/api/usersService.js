@@ -13,7 +13,7 @@ export const usersService = {
       pfp: userData.user.pfp || null
     };
     console.log("Sending userData to backend:", processedData);
-    return await apiClient.put(`/users/customer/profile/${userId}`, processedData);
+    return await apiClient.put(`/customer/profile/${userId}`, processedData);
   },
 
   getUserById: async (id) => {
