@@ -10,4 +10,5 @@ import com.planNGo.ums.entities.User;
 
 public interface OrganizerRepository extends JpaRepository<Organizer, Long> {
 	Optional<Organizer> findByUserDetails(User user);
+	Optional<Organizer> findByUserDetails_Id(Long userId);
 }

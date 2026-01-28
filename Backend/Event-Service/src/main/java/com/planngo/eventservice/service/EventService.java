@@ -10,7 +10,7 @@ import java.util.List;
 public interface EventService {
 
     //to create Event
-    ApiResponse createEvent(EventRequest eventRequest);
+    ApiResponse createEvent(Long organizerId, EventRequest eventRequest);
 
     //To get all the events
     List<EventResponse> getAllEvents();
@@ -19,11 +19,11 @@ public interface EventService {
     EventResponse getEventDetails(int EventId);
 
     //updateEventDetails
-    ApiResponse updateEvent(int eventId, Event event);
+    ApiResponse updateEvent(int eventId, EventRequest eventRequest);
 
     //delete Event
     ApiResponse deleteEvent(int EventId);
 
     //is Event expire
-    boolean isEventExpired(Event event);
+    boolean isEventExpired(EventRequest eventRequest);
 }
