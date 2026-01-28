@@ -39,6 +39,7 @@ public record UserDTO (
 		return new UserDTO(
 				customer.getUserDetails().getId(),
 				customer.getId(),
+				//org id
 				null,
 				customer.getUserDetails().getFirstName(),
 				customer.getUserDetails().getLastName(),

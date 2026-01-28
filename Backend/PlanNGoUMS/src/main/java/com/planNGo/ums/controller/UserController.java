@@ -68,7 +68,7 @@ public class UserController {
 	//swagger annotation - use till testing phase
 	@Operation(description ="Complete Update customer details")
 	public ResponseEntity<?> updateCustomerDetails( @PathVariable Long userId,@RequestBody UpdateCustomer user) {
-		log.info("***** in user update{} ",user);
+		log.info("****** in user update{} ",user);
 
 		 
 		    

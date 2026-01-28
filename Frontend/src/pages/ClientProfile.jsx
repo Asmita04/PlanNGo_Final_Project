@@ -213,7 +213,7 @@ const ClientProfile = () => {
           </button>
         </div>
 
-        {/* Main Content Grid */}
+        {/* Main Content  Grid */}
         <div className="profile-content">
           {/* Personal Information Section */}
           <div className="profile-section">

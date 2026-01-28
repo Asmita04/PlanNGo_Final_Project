@@ -55,7 +55,7 @@ public class OrganizerController {
 	
 	@PutMapping("/{id}")
 	//swagger annotation - use till testing phase
-	@Operation(description ="Complete Update organizer details")
+	@Operation(description ="Complete Update  organizer details")
 	public ResponseEntity<?> updateUserDetails(@PathVariable Long id,@RequestBody Organizer organizer) {
 		System.out.println("in update "+id+" "+organizer);
 	

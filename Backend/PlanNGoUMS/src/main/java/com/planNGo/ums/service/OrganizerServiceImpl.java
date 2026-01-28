@@ -27,7 +27,7 @@ public class OrganizerServiceImpl implements OrganizerService {
 
 	@Override
 	public ApiResponse deleteOrganizerDetails(Long userId) {
-		// TODO Auto-generated method stub
+	
 		return null;
 	}
 

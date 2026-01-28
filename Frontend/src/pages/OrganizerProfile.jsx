@@ -97,6 +97,7 @@ const OrganizerProfile = () => {
     }
   };
 
+  
   const savePhotoLocally = (file, userId) => {
     const reader = new FileReader();
     reader.onload = () => {

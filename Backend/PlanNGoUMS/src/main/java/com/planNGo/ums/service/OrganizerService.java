@@ -8,7 +8,7 @@ import com.planNGo.ums.entities.User;
 public interface OrganizerService {
 //get all users
 	//List<OrganizerDTO> getAllOrganizers();
-
+	
 	String addOrganizer(User user);
 
 	ApiResponse deleteOrganizerDetails(Long organizerId);
@@ -17,9 +17,6 @@ public interface OrganizerService {
 
 	ApiResponse updateDetails(Long id, Organizer organizer);
 	
-	
-
-	//AuthResp googleSignIn(OAuth2UserRequest userRequest);
 	
 	
 }
