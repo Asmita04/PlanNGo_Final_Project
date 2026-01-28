@@ -21,17 +21,19 @@ public class Venue {
     @Column(name = "venue_name", nullable = false, length = 150)
     private String venueName;
 
+    // city
+    @Column(nullable = false, length = 50)
+    private String city;
+
     @Column(nullable = false, length = 200)
     private String location;
+
+    @Column(nullable = false, length = 200, name = "location_url")
+    private String locationURL;
 
     @Column(nullable = false)
     private Integer capacity;
 
-    @Column(name = "is_approved")
-    private Boolean isApproved;
-
-    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private List<Event> events;
+    @Column(name = "is_available")
+    private Boolean isAvailable;
 }

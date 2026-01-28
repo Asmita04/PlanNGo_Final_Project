@@ -13,16 +13,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/event")
+@RequestMapping("/event")
 @RequiredArgsConstructor
 public class EventController {
 
     private final EventService eventService;
 
     // Create new event
-    @PostMapping("/register")
-    public ResponseEntity<ApiResponse> createEvent(@RequestBody EventRequest eventRequest) {
-        ApiResponse response = eventService.createEvent(eventRequest);
+    @PostMapping("/register/{userId}")
+    public ResponseEntity<ApiResponse> createEvent(@PathVariable Long userId, @RequestBody EventRequest eventRequest) {
+        ApiResponse response = eventService.createEvent(userId, eventRequest);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -42,8 +42,8 @@ public class EventController {
     @PutMapping("/{eventId}")
     public ResponseEntity<ApiResponse> updateEvent(
             @PathVariable int eventId,
-            @RequestBody Event event) {
-        ApiResponse response = eventService.updateEvent(eventId, event);
+            @RequestBody EventRequest eventRequest) {
+        ApiResponse response = eventService.updateEvent(eventId, eventRequest);
         return ResponseEntity.ok(response);
     }
 

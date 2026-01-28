@@ -1,9 +1,11 @@
 package com.planngo.eventservice.service;
 
+import com.planngo.eventservice.client.OrganizerClient;
 import com.planngo.eventservice.custom_exceptions.ResourceNotFoundException;
 import com.planngo.eventservice.dto.ApiResponse;
 import com.planngo.eventservice.dto.EventRequest;
 import com.planngo.eventservice.dto.EventResponse;
+import com.planngo.eventservice.dto.OrganizerResp;
 import com.planngo.eventservice.model.Event;
 import com.planngo.eventservice.model.Venue;
 import com.planngo.eventservice.repository.EventRepository;
@@ -24,9 +26,20 @@ public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
     private final VenueRepository venueRepository;
+    private final OrganizerClient organizerClient;
 
     @Override
-    public ApiResponse createEvent(EventRequest eventRequest) {
+    public ApiResponse createEvent(Long userId, EventRequest eventRequest) {
+        //TODO: if organizer is valid then only can create event
+        OrganizerResp organizer =
+                organizerClient.getOrganizerStatus(userId);
+
+        if (organizer.getIsVerified() == null || !organizer.getIsVerified()) {
+            throw new IllegalStateException(
+                    "Only verified organizers can create events"
+            );
+        }
+
         Venue venue = venueRepository.findById(eventRequest.getVenueId())
                 .orElseThrow(() -> new ResourceNotFoundException("Venue not found"));
 
@@ -64,7 +77,10 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public ApiResponse updateEvent(int eventId, Event event) {
+    public ApiResponse updateEvent(int eventId, EventRequest eventRequest) {
+        Venue venue = venueRepository.findById(eventRequest.getVenueId())
+                .orElseThrow(() -> new ResourceNotFoundException("Venue not found"));
+
         Event persistentEvent = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
@@ -73,17 +89,17 @@ public class EventServiceImpl implements EventService {
         }
 
         // Update all mutable fields
-        persistentEvent.setTitle(event.getTitle());
-        persistentEvent.setDescription(event.getDescription());
-        persistentEvent.setStartDate(event.getStartDate());
-        persistentEvent.setEndDate(event.getEndDate());
-        persistentEvent.setEventImage(event.getEventImage());
-        persistentEvent.setVenue(event.getVenue());
-        persistentEvent.setCategory(event.getCategory());
-        persistentEvent.setIsApproved(event.getIsApproved());
+        persistentEvent.setTitle(eventRequest.getTitle());
+        persistentEvent.setDescription(eventRequest.getDescription());
+        persistentEvent.setStartDate(eventRequest.getStartDate());
+        persistentEvent.setEndDate(eventRequest.getEndDate());
+        persistentEvent.setEventImage(eventRequest.getEventImage());
+        persistentEvent.setVenue(venue);
+        persistentEvent.setCategory(eventRequest.getCategory());
+        persistentEvent.setIsApproved(eventRequest.getIsApproved());
 
         eventRepository.save(persistentEvent);
-        return new ApiResponse("Success", "Event updated!");
+        return new ApiResponse("Success", "Event updated! for Event Id "+persistentEvent.getEventId());
     }
 
     @Override
@@ -96,7 +112,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public boolean isEventExpired(Event event) {
-        return event.getEndDate().isBefore(LocalDateTime.now());
+    public boolean isEventExpired(EventRequest eventRequest) {
+        return eventRequest.getEndDate().isBefore(LocalDateTime.now());
     }
 }

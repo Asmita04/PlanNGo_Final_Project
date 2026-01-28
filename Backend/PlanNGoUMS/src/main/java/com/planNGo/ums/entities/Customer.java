@@ -26,20 +26,14 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-
-
 public class Customer extends BaseEntity  {
 
 	private LocalDate dob;
-	
-	
+
 	@Enumerated(EnumType.STRING) // column type - varchar | Enum
 	private Gender gender;
-	
-	 
+
 	 @OneToOne //mandatory
 	 @JoinColumn(name="user_id",nullable = false)
 	 private User userDetails;
-
-	
 }

@@ -5,19 +5,21 @@ import lombok.Builder;
 
 @Builder
 public record VenueResponse(
-        Integer venueId,
         String venueName,
+        String city,
         String location,
+        String locationURL,
         Integer capacity,
-        Boolean isApproved
+        Boolean isAvailable
 ) {
     public static VenueResponse fromEntity(Venue venue) {
         return new VenueResponse(
-                venue.getVenueId(),
                 venue.getVenueName(),
+                venue.getCity(),
                 venue.getLocation(),
+                venue.getLocationURL(),
                 venue.getCapacity(),
-                venue.getIsApproved()
+                venue.getIsAvailable()
         );
     }
 }

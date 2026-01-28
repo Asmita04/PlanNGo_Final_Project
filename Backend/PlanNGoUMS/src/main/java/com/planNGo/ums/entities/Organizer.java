@@ -22,16 +22,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-
-
 public class Organizer extends BaseEntity  {
 
-	 
-	 
 	 @Column(nullable = true, length = 60)
 	 private String organization;
-	 
-	 
+
 	 private Boolean isVerified;
 	 
 	 @Column(nullable = true)
@@ -40,5 +35,4 @@ public class Organizer extends BaseEntity  {
 	 @OneToOne //mandatory
 	 @JoinColumn(name="user_id",nullable = false)
 	 private User userDetails;
-	
 }

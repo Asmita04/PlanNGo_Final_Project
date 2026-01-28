@@ -40,10 +40,23 @@ public class OrganizerController {
 //		//=> non empty body
 //		return ResponseEntity.ok(list); //SC 200 + List -> Json[]
 //	}
-	
-	
-	
-	
+
+	// Feign will call THIS
+	@GetMapping("/status/{userId}")
+	public ResponseEntity<OrganizerResp> getOrganizerStatus(@PathVariable Long userId) {
+
+		OrganizerResp resp = organizerService.getOrganizerDetails(userId);
+
+		return ResponseEntity.ok(
+				OrganizerResp.builder()
+						.organizerId(resp.getOrganizerId())
+						.isVerified(resp.getIsVerified())
+						.build()
+		);
+	}
+
+
+
 	@GetMapping("/{organizerId}")
 	public ResponseEntity<OrganizerResp> getOrganizerDetails(@PathVariable Long organizerId) {
 		System.out.println("in get organizer details "+organizerId);

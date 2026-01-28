@@ -37,11 +37,14 @@ public class OrganizerServiceImpl implements OrganizerService {
 	}
 
 	@Override
-	public OrganizerResp getOrganizerDetails(Long organizerId) {
-	    Organizer organizer=organizerRepository.findById(organizerId)
-	    		.orElseThrow(() -> new ResourceNotFoundException("Invalid user id !!!!!"));
-	    
-	    
+	public OrganizerResp getOrganizerDetails(Long userId) {
+
+		Organizer organizer = organizerRepository
+				.findByUserDetails_Id(userId)
+				.orElseThrow(() ->
+						new ResourceNotFoundException("Organizer not found for user id: " + userId)
+				);
+
 		return OrganizerResp.fromOrganizer(organizer);
 	}
 
