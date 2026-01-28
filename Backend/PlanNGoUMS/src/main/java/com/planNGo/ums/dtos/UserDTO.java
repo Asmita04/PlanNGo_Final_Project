@@ -12,7 +12,9 @@ import lombok.Builder;
 
 @Builder
 public record UserDTO (
-	Long id,	
+	Long id,
+	Long customerId,
+	Long organizerId,
 	String firstName,
 	String lastName,
 	String phone,
@@ -36,6 +38,8 @@ public record UserDTO (
 	public static UserDTO fromCustomer(Customer customer) {
 		return new UserDTO(
 				customer.getUserDetails().getId(),
+				customer.getId(),
+				null,
 				customer.getUserDetails().getFirstName(),
 				customer.getUserDetails().getLastName(),
 				customer.getUserDetails().getPhone(),
@@ -57,6 +61,8 @@ public record UserDTO (
 	public static UserDTO fromOrganizer(Organizer organizer) {
 		return new UserDTO(
 				organizer.getUserDetails().getId(),
+				null,
+				organizer.getId(),
 				organizer.getUserDetails().getFirstName(),
 				organizer.getUserDetails().getLastName(),
 				organizer.getUserDetails().getPhone(),
@@ -78,6 +84,8 @@ public record UserDTO (
 	public static UserDTO fromAdmin(User user) {
 		return new UserDTO(
 				user.getId(),
+				null,
+				null,
 				user.getFirstName(),
 				user.getLastName(),
 				user.getPhone(),

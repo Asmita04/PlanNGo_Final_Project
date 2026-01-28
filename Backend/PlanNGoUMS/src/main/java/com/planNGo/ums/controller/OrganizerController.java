@@ -11,12 +11,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.planNGo.ums.dtos.OrganizerResp;
 import com.planNGo.ums.entities.Organizer;
 import com.planNGo.ums.service.OrganizerService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,8 +41,11 @@ public class OrganizerController {
 //		return ResponseEntity.ok(list); //SC 200 + List -> Json[]
 //	}
 	
+	
+	
+	
 	@GetMapping("/{organizerId}")
-	public ResponseEntity<?> getOrganizerDetails(@PathVariable  @Min(1) @Max(100) Long organizerId) {
+	public ResponseEntity<OrganizerResp> getOrganizerDetails(@PathVariable Long organizerId) {
 		System.out.println("in get organizer details "+organizerId);
 	
 			return ResponseEntity.ok(

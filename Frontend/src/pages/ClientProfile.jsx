@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { api } from '../services';
+import { api, apiClient } from '../services';
 import { User, Mail, Phone, Calendar, Edit2, Save, X, Award, Ticket, Heart, MapPin, Camera } from 'lucide-react';
 import './ClientProfile.css';
 
@@ -74,42 +74,38 @@ const ClientProfile = () => {
     }
   };
 
-  const savePhotoToLocal = async (file, userId) => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const photoPath = `cdn/user_pfp/${userId}.jpg`;
-        localStorage.setItem(`profilePhoto_${userId}`, reader.result);
-        resolve(photoPath);
-      };
-      reader.readAsDataURL(file);
-    });
+  const savePhotoLocally = (file, userId) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      localStorage.setItem(`profilePhoto_${userId}`, reader.result);
+    };
+    reader.readAsDataURL(file);
+    return `cdn/user_pfp/${userId}.jpg`;
   };
 
   const handleSave = async () => {
     setLoading(true);
     try {
       const userId = userData?.id || user?.id;
-      let pfpPath = null;
       
-      // Save photo if selected
+      const formDataToSend = new FormData();
+      const userJson = JSON.stringify({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phoneNumber,
+        dob: formData.dateOfBirth,
+        bio: formData.bio
+      });
+      formDataToSend.append('user', userJson);
+      
       if (profilePhoto) {
-        pfpPath = await savePhotoToLocal(profilePhoto, userId);
+        formDataToSend.append('image', profilePhoto);
       }
       
-      const profileData = {
-        user: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phone: formData.phoneNumber,
-          dob: formData.dateOfBirth,
-          bio: formData.bio,
-          ...(pfpPath && { pfp: pfpPath })
-        }
-      };
-      
-      const response = await api.updateUserProfile(userId, profileData);
+      const response = await apiClient.put(`/users/customer/profile/${userId}`, formDataToSend, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       
       // Update localStorage with new data
       const updatedUser = {
@@ -119,8 +115,7 @@ const ClientProfile = () => {
         email: formData.email,
         phone: formData.phoneNumber,
         dob: formData.dateOfBirth,
-        bio: formData.bio,
-        ...(pfpPath && { pfp: pfpPath })
+        bio: formData.bio
       };
       localStorage.setItem('user', JSON.stringify(updatedUser));
       
@@ -164,6 +159,8 @@ const ClientProfile = () => {
     const savedPhoto = localStorage.getItem(`profilePhoto_${userId}`);
     if (savedPhoto) return savedPhoto;
     
+    if (userData?.pfp) return userData.pfp;
+    
     return 'cdn/user_pfp/NotFound.jpg';
   };
 
@@ -174,7 +171,7 @@ const ClientProfile = () => {
         <div className="profile-header">
           <div className="header-content">
             <div className="profile-avatar" onClick={() => isEditing && fileInputRef.current?.click()}>
-              {profilePhotoPreview || localStorage.getItem(`profilePhoto_${userData?.id || user?.id}`) ? (
+              {profilePhotoPreview || localStorage.getItem(`profilePhoto_${userData?.id || user?.id}`) || userData?.pfp ? (
                 <img 
                   src={getProfilePhotoSrc()} 
                   alt="Profile" 
