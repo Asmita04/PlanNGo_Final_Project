@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { api } from '../services/api';
+import { api, apiClient } from '../services/api';
 import { User, Mail, Phone, MapPin, Upload, Camera, Save, FileText, CheckCircle, AlertCircle, Edit2, X, Map, Plus, ExternalLink } from 'lucide-react';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
@@ -97,16 +97,14 @@ const OrganizerProfile = () => {
     }
   };
 
-  const savePhotoToLocal = async (file, userId) => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const photoPath = `cdn/user_pfp/${userId}.jpg`;
-        localStorage.setItem(`profilePhoto_${userId}`, reader.result);
-        resolve(photoPath);
-      };
-      reader.readAsDataURL(file);
-    });
+  
+  const savePhotoLocally = (file, userId) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      localStorage.setItem(`profilePhoto_${userId}`, reader.result);
+    };
+    reader.readAsDataURL(file);
+    return `cdn/user_pfp/${userId}.jpg`;
   };
 
   const getProfilePhotoSrc = () => {
@@ -116,6 +114,8 @@ const OrganizerProfile = () => {
     const savedPhoto = localStorage.getItem(`profilePhoto_${userId}`);
     if (savedPhoto) return savedPhoto;
     
+    if (profile.pfp) return profile.pfp;
+    
     return 'cdn/user_pfp/NotFound.jpg';
   };
 
@@ -124,24 +124,15 @@ const OrganizerProfile = () => {
     setLoading(true);
     try {
       const userId = user?.id;
-      let pfpPath = null;
-      
-      // Save photo if selected
-      if (profilePhoto) {
-        pfpPath = await savePhotoToLocal(profilePhoto, userId);
-      }
       
       const profileData = {
-        ...profile,
-        ...(pfpPath && { pfp: pfpPath })
+        ...profile
       };
       
-      const response = await api.put(`/users/organizer/profile/${userId}`, profileData);
+      const response = await api.put(`/organizer/profile/${userId}`, profileData);
       updateUser({ ...user, ...response.data });
       setOriginalProfile(profile);
       setIsEditing(false);
-      setProfilePhoto(null);
-      setProfilePhotoPreview(null);
       addNotification({ message: 'Profile updated successfully!', type: 'success' });
     } catch (error) {
       addNotification({ message: 'Failed to update profile', type: 'error' });
@@ -165,11 +156,6 @@ const OrganizerProfile = () => {
 
   const handleCancel = () => {
     setProfile({ ...originalProfile });
-    setProfilePhoto(null);
-    setProfilePhotoPreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
     setIsEditing(false);
   };
 
@@ -203,7 +189,7 @@ const OrganizerProfile = () => {
       <div className="container">
         <div className="profile-header">
           <div className={`profile-avatar ${isEditing ? 'editing' : ''}`} onClick={() => isEditing && fileInputRef.current?.click()}>
-            {profilePhotoPreview || localStorage.getItem(`profilePhoto_${user?.id}`) ? (
+            {profilePhotoPreview || localStorage.getItem(`profilePhoto_${user?.id}`) || profile.pfp ? (
               <img 
                 src={getProfilePhotoSrc()} 
                 alt="Profile" 

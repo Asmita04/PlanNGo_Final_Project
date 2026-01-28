@@ -38,7 +38,7 @@ export const AppProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
+    localStorage.clear();
     setCart([]);
   };
 
@@ -78,7 +78,7 @@ export const AppProvider = ({ children }) => {
     const newBookingState = { event, quantity, totalPrice };
     console.log('Updating booking state:', newBookingState);
     setBookingState(newBookingState);
-    // Also save to localStorage for persistence
+    // Also  save to localStorage for persistence
     localStorage.setItem('bookingState', JSON.stringify(newBookingState));
   };
 
