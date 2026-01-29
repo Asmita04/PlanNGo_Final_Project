@@ -77,6 +77,12 @@ public class SecurityConfig {
                                 "/bookings/organizers/**"
                         ).hasAnyRole("ADMIN", "ORGANIZER")
 
+                        // 🔹 Public endpoints (Event-Service)
+                        .pathMatchers(
+                                "/venues/**",
+                                "/event/**"
+                        ).permitAll()
+
                         // 🔹 Everything else requires authentication
                         .anyExchange().authenticated()
                 )

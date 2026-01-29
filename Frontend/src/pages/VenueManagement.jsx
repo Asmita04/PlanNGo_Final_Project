@@ -15,26 +15,21 @@ const VenueManagement = () => {
     location: '',
     capacity: '',
     isAvailable: true,
-    googleMapsUrl: '',
-    address: '',
     city: '',
-    state: '',
-    country: 'India',
-    postalCode: '',
-    contactPhone: '',
-    contactEmail: '',
-    description: '',
-    amenities: ''
+    locationURL: '',
   });
 
   useEffect(() => {
     fetchVenues();
+     console.log('Fetched venues:', fetchVenues());
   }, []);
+
 
   const fetchVenues = async () => {
     try {
       setLoading(true);
       const data = await api.getAllVenues();
+      console.log('Fetched venues:', data);
       setVenues(data);
       setError('');
     } catch (error) {
@@ -422,15 +417,7 @@ const VenueManagement = () => {
                 />
               </div>
 
-              <div className="form-group">
-                <label>Amenities</label>
-                <input
-                  type="text"
-                  value={formData.amenities}
-                  onChange={(e) => setFormData({ ...formData, amenities: e.target.value })}
-                  placeholder="e.g., Parking, AC, WiFi, Catering"
-                />
-              </div>
+
 
               <div className="form-group">
                 <label className="checkbox-label">
@@ -455,7 +442,7 @@ const VenueManagement = () => {
                   Cancel
                 </button>
                 <button type="submit" className="btn-primary">
-                  {editingVenue ? 'Update Venue' : 'Create Venue'}
+                  Submit
                 </button>
               </div>
             </form>

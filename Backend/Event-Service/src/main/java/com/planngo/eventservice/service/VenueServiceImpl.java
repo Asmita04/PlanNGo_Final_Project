@@ -1,11 +1,9 @@
 package com.planngo.eventservice.service;
 
-import com.planngo.eventservice.custom_exceptions.ResourceNotFoundException;
+import com.planngo.eventservice.exceptions.ResourceNotFoundException;
 import com.planngo.eventservice.dto.ApiResponse;
-import com.planngo.eventservice.dto.EventResponse;
 import com.planngo.eventservice.dto.VenueRequest;
 import com.planngo.eventservice.dto.VenueResponse;
-import com.planngo.eventservice.model.Event;
 import com.planngo.eventservice.model.Venue;
 import com.planngo.eventservice.repository.VenueRepository;
 import jakarta.transaction.Transactional;
@@ -26,12 +24,20 @@ public class VenueServiceImpl implements VenueService{
 
         Venue venue = Venue.builder()
                 .venueName(venueRequest.getVenueName())
-                .city(venueRequest.getCity())
-                .location(venueRequest.getLocation())
-                .locationURL(venueRequest.getLocationURL())
                 .capacity(venueRequest.getCapacity())
+                .location(venueRequest.getLocation())
+                .address(venueRequest.getAddress())
+                .city(venueRequest.getCity())
+                .state(venueRequest.getState())
+                .country(venueRequest.getCountry())
+                .postalCode(venueRequest.getPostalCode())
+                .contactPhone(venueRequest.getContactPhone())
+                .contactEmail(venueRequest.getContactEmail())
+                .googleMapsUrl(venueRequest.getGoogleMapsUrl())
+                .description(venueRequest.getDescription())
                 .isAvailable(venueRequest.getIsAvailable())
                 .build();
+
 
         Venue persistedVenue = venueRepository.save(venue);
 
@@ -45,11 +51,19 @@ public class VenueServiceImpl implements VenueService{
 
         // Update all mutable fields
         venue.setVenueName(venueRequest.getVenueName());
-        venue.setCity(venue.getCity());
-        venue.setLocation(venueRequest.getLocation());
-        venue.setLocationURL(venueRequest.getLocationURL());
         venue.setCapacity(venueRequest.getCapacity());
+        venue.setLocation(venueRequest.getLocation());
+        venue.setAddress(venueRequest.getAddress());
+        venue.setCity(venueRequest.getCity());
+        venue.setState(venueRequest.getState());
+        venue.setCountry(venueRequest.getCountry());
+        venue.setPostalCode(venueRequest.getPostalCode());
+        venue.setContactPhone(venueRequest.getContactPhone());
+        venue.setContactEmail(venueRequest.getContactEmail());
+        venue.setGoogleMapsUrl(venueRequest.getGoogleMapsUrl());
+        venue.setDescription(venueRequest.getDescription());
         venue.setIsAvailable(venueRequest.getIsAvailable());
+
 
         venueRepository.save(venue);
         return new ApiResponse("Success", "venue updated! for venue Id "+venue.getVenueId());

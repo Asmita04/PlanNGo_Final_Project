@@ -53,7 +53,7 @@ export const api = {
 
   // Venues methods
   getAllVenues: venuesService.getAllVenues,
-  getAvailableVenues: venuesService.getAvailableVenues,
+ // getAvailableVenues: venuesService.getAvailableVenues,
   getVenueById: venuesService.getVenueById,
   createVenue: venuesService.createVenue,
   updateVenue: venuesService.updateVenue,

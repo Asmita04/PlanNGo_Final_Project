@@ -12,22 +12,29 @@ const OrganizerDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [events, setEvents] = useState([]);
   const [analytics, setAnalytics] = useState(null);
-  const [locations, setLocations] = useState([]);
   const [venues, setVenues] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
+  const [step, setStep] = useState(1); // 1 = Event details, 2 = Ticket details
+
+  // Event state
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     category: 'Technology',
-    date: '',
-    time: '',
+    startDateTime: '',
+    endDateTime: '',
     venue: '',
-    price: '',
-    capacity: '',
     image: ''
   });
+
+  // Ticket state
+  const [tickets, setTickets] = useState([
+    { type: 'GOLD', price: '', quantity: '' },
+    { type: 'SILVER', price: '', quantity: '' },
+    { type: 'PLATINUM', price: '', quantity: '' }
+  ]);
 
   useEffect(() => {
     loadData();
@@ -35,13 +42,11 @@ const OrganizerDashboard = () => {
 
   const loadData = async () => {
     try {
-      // Get organizer ID from user context or fetch organizer data
-      const organizerId = user.organizerId || 1; // Use actual organizer ID
+      const organizerId = user.organizerId || 1;
       const organizerEvents = await api.getEventsByOrganizer(organizerId);
       setEvents(organizerEvents);
       
-      // Fetch available venues
-      const venuesData = await api.getAvailableVenues();
+      const venuesData = await api.getAllVenues();
       setVenues(venuesData);
     } catch (error) {
       console.error('Error loading data:', error);
@@ -49,57 +54,13 @@ const OrganizerDashboard = () => {
   };
 
   const handleVenueChange = (venueId) => {
-    const selectedVenue = venues.find(v => v.venueId === parseInt(venueId));
-    setFormData({ 
-      ...formData, 
-      venue: venueId,
-      capacity: selectedVenue ? selectedVenue.capacity.toString() : ''
-    });
+    setFormData({ ...formData, venue: venueId });
   };
 
-  const handleEditEvent = (event) => {
-    setEditingEvent(event);
-    const selectedVenue = venues.find(v => v.venueName === event.venueName);
-    setFormData({
-      title: event.title,
-      description: event.description,
-      category: event.category,
-      date: new Date(event.startDate).toISOString().split('T')[0],
-      time: new Date(event.startDate).toTimeString().slice(0, 5),
-      venue: selectedVenue ? selectedVenue.venueId.toString() : '',
-      price: event.ticketPrice?.toString() || '',
-      capacity: event.availableTickets?.toString() || '',
-      image: event.eventImage || ''
-    });
-    setShowEditModal(true);
-  };
-
-  const handleUpdateEvent = async (e) => {
-    e.preventDefault();
-    try {
-      const eventData = {
-        title: formData.title,
-        description: formData.description,
-        category: formData.category,
-        startDate: new Date(`${formData.date}T${formData.time}`).toISOString(),
-        endDate: new Date(`${formData.date}T${formData.time}`).toISOString(),
-        venueId: parseInt(formData.venue),
-        ticketPrice: parseFloat(formData.price),
-        availableTickets: parseInt(formData.capacity),
-        eventImage: formData.image
-      };
-      
-      console.log('Updating event:', editingEvent.eventId, eventData);
-      await api.updateEvent(editingEvent.eventId, eventData);
-      addNotification({ message: 'Event updated successfully!', type: 'success' });
-      setShowEditModal(false);
-      setEditingEvent(null);
-      loadData();
-      resetForm();
-    } catch (error) {
-      console.error('Update error:', error);
-      addNotification({ message: `Failed to update event: ${error.message}`, type: 'error' });
-    }
+  const handleTicketChange = (index, field, value) => {
+    const updated = [...tickets];
+    updated[index][field] = value;
+    setTickets(updated);
   };
 
   const resetForm = () => {
@@ -107,13 +68,17 @@ const OrganizerDashboard = () => {
       title: '',
       description: '',
       category: 'Technology',
-      date: '',
-      time: '',
+      startDateTime: '',
+      endDateTime: '',
       venue: '',
-      price: '',
-      capacity: '',
       image: ''
     });
+    setTickets([
+      { type: 'GOLD', price: '', quantity: '' },
+      { type: 'SILVER', price: '', quantity: '' },
+      { type: 'PLATINUM', price: '', quantity: '' }
+    ]);
+    setStep(1);
   };
 
   const handleCreateEvent = async (e) => {
@@ -123,28 +88,91 @@ const OrganizerDashboard = () => {
         title: formData.title,
         description: formData.description,
         category: formData.category,
-        startDate: new Date(`${formData.date}T${formData.time}`).toISOString(),
-        endDate: new Date(`${formData.date}T${formData.time}`).toISOString(),
-        venueId: parseInt(formData.venue),
-        ticketPrice: parseFloat(formData.price),
-        availableTickets: parseInt(formData.capacity),
-        eventImage: formData.image
+        startDate: new Date(formData.startDateTime).toISOString(),
+        endDate: new Date(formData.endDateTime).toISOString(),
+        venueId: Number(formData.venue),
+        eventImage: formData.image,
+        tickets: tickets.map(t => ({
+          ticketType: t.type,
+          price: Number(t.price),
+          totalQuantity: Number(t.quantity)
+        }))
       };
-      
+
+      console.log("Final Event Payload:", eventData);
+
       await api.createEvent(eventData);
       addNotification({ message: 'Event created successfully!', type: 'success' });
+
       setShowCreateModal(false);
-      loadData();
       resetForm();
+      loadData();
     } catch (error) {
+      console.error("Create Event Error:", error);
       addNotification({ message: 'Failed to create event', type: 'error' });
+    }
+  };
+
+  const handleEditEvent = (event) => {
+    setEditingEvent(event);
+    const selectedVenue = venues.find(v => v.venueName === event.venueName);
+    setFormData({
+      title: event.title,
+      description: event.description,
+      category: event.category,
+      startDateTime: new Date(event.startDate).toISOString().slice(0,16),
+      endDateTime: new Date(event.endDate).toISOString().slice(0,16),
+      venue: selectedVenue ? selectedVenue.venueId.toString() : '',
+      image: event.eventImage || ''
+    });
+
+    // Pre-fill tickets if available
+    if(event.tickets && event.tickets.length > 0){
+      const updatedTickets = tickets.map(t => {
+        const existing = event.tickets.find(et => et.ticketType === t.type);
+        return existing ? { ...t, price: existing.price, quantity: existing.totalQuantity } : t;
+      });
+      setTickets(updatedTickets);
+    }
+
+    setShowEditModal(true);
+    setStep(1);
+  };
+
+  const handleUpdateEvent = async (e) => {
+    e.preventDefault();
+    try {
+      const eventData = {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        startDate: new Date(formData.startDateTime).toISOString(),
+        endDate: new Date(formData.endDateTime).toISOString(),
+        venueId: Number(formData.venue),
+        eventImage: formData.image,
+        tickets: tickets.map(t => ({
+          ticketType: t.type,
+          price: Number(t.price),
+          totalQuantity: Number(t.quantity)
+        }))
+      };
+
+      await api.updateEvent(editingEvent.eventId, eventData);
+      addNotification({ message: 'Event updated successfully!', type: 'success' });
+
+      setShowEditModal(false);
+      setEditingEvent(null);
+      resetForm();
+      loadData();
+    } catch (error) {
+      console.error("Update Event Error:", error);
+      addNotification({ message: 'Failed to update event', type: 'error' });
     }
   };
 
   const handleDeleteEvent = async (id) => {
     if (window.confirm('Are you sure you want to delete this event?')) {
       try {
-        console.log('Deleting event:', id);
         await api.deleteEvent(id);
         addNotification({ message: 'Event deleted successfully!', type: 'success' });
         loadData();
@@ -163,19 +191,28 @@ const OrganizerDashboard = () => {
             <h1>Organizer Dashboard</h1>
             <p>Manage your events and track performance</p>
           </div>
-          <Button icon={<Plus size={20} />} onClick={() => setShowCreateModal(true)}>
+          <Button
+            icon={<Plus size={20} />}
+            onClick={async () => {
+              try {
+                const venuesData = await api.getAllVenues();
+                setVenues(venuesData);
+                setShowCreateModal(true);
+              } catch (err) {
+                addNotification({ message: 'Failed to load venues', type: 'error' });
+              }
+            }}
+          >
             Create Event
           </Button>
         </div>
 
         <div className="dashboard-tabs">
           <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>
-            <TrendingUp size={20} />
-            Overview
+            <TrendingUp size={20} /> Overview
           </button>
           <button className={activeTab === 'events' ? 'active' : ''} onClick={() => setActiveTab('events')}>
-            <Calendar size={20} />
-            My Events
+            <Calendar size={20} /> My Events
           </button>
         </div>
 
@@ -219,19 +256,6 @@ const OrganizerDashboard = () => {
                     <h3>{analytics.averageRating}</h3>
                   </div>
                 </div>
-              </div>
-
-              <div className="chart-section">
-                <h3>Revenue Trend</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={analytics.monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
               </div>
             </div>
           )}
@@ -299,80 +323,97 @@ const OrganizerDashboard = () => {
         </div>
       </div>
 
+      {/* ================= MODAL ================= */}
       {(showCreateModal || showEditModal) && (
-        <div className="modal-overlay" onClick={() => {
-          setShowCreateModal(false);
-          setShowEditModal(false);
-          setEditingEvent(null);
-        }}>
+        <div className="modal-overlay" onClick={() => { resetForm(); setShowCreateModal(false); setShowEditModal(false); setEditingEvent(null); }}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>{editingEvent ? 'Edit Event' : 'Create New Event'}</h2>
+            
             <form onSubmit={editingEvent ? handleUpdateEvent : handleCreateEvent} className="event-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Event Title</label>
-                  <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} required />
-                </div>
-                <div className="form-group">
-                  <label>Category</label>
-                  <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
-                    <option>Technology</option>
-                    <option>Music</option>
-                    <option>Sports</option>
-                    <option>Food</option>
-                    <option>Art</option>
-                    <option>Business</option>
-                  </select>
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Description</label>
-                <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} required rows="3" />
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Date</label>
-                  <input type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} required />
-                </div>
-                <div className="form-group">
-                  <label>Time</label>
-                  <input type="time" value={formData.time} onChange={(e) => setFormData({ ...formData, time: e.target.value })} required />
-                </div>
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Venue</label>
-                  <select value={formData.venue} onChange={(e) => handleVenueChange(e.target.value)} required>
-                    <option value="">Select Venue</option>
-                    {venues.map(venue => (
-                      <option key={venue.venueId} value={venue.venueId}>
-                        {venue.venueName} - {venue.location}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Price ($)</label>
-                  <input type="number" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} required />
-                </div>
-                <div className="form-group">
-                  <label>Capacity</label>
-                  <input type="number" value={formData.capacity} onChange={(e) => setFormData({ ...formData, capacity: e.target.value })} required readOnly />
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Image URL</label>
-                <input type="url" value={formData.image} onChange={(e) => setFormData({ ...formData, image: e.target.value })} placeholder="https://example.com/image.jpg" />
-              </div>
+              {/* Step 1 */}
+              {step === 1 && (
+                <>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Event Title</label>
+                      <input type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required />
+                    </div>
+                    <div className="form-group">
+                      <label>Category</label>
+                      <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
+                        <option>Technology</option>
+                        <option>Music</option>
+                        <option>Sports</option>
+                        <option>Food</option>
+                        <option>Art</option>
+                        <option>Business</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label>Description</label>
+                    <textarea rows="3" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} required />
+                  </div>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Start Date & Time</label>
+                      <input type="datetime-local" value={formData.startDateTime} onChange={e => setFormData({...formData, startDateTime: e.target.value})} required />
+                    </div>
+                    <div className="form-group">
+                      <label>End Date & Time</label>
+                      <input type="datetime-local" value={formData.endDateTime} onChange={e => setFormData({...formData, endDateTime: e.target.value})} required />
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label>Venue</label>
+                    <select value={formData.venue} onChange={e => handleVenueChange(e.target.value)} required>
+                      <option value="">Select Venue</option>
+                      {venues.filter(v => v.isAvailable).map(v => <option key={v.venueId} value={v.venueId}>{v.venueName}</option>)}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Image URL</label>
+                    <input type="url" value={formData.image} onChange={e => setFormData({...formData, image: e.target.value})} />
+                  </div>
+                </>
+              )}
+
+              {/* Step 2 */}
+              {step === 2 && (
+                <>
+                  <h3>Ticket Details</h3>
+                  {tickets.map((ticket, index) => (
+                    <div className="form-row" key={ticket.type}>
+                      <div className="form-group">
+                        <label>{ticket.type} Price</label>
+                        <input type="number" value={ticket.price} onChange={e => handleTicketChange(index, 'price', e.target.value)} required />
+                      </div>
+                      <div className="form-group">
+                        <label>{ticket.type} Quantity</label>
+                        <input type="number" value={ticket.quantity} onChange={e => handleTicketChange(index, 'quantity', e.target.value)} required />
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+
+              {/* Buttons */}
               <div className="modal-actions">
-                <Button type="button" variant="outline" onClick={() => {
-                  setShowCreateModal(false);
-                  setShowEditModal(false);
-                  setEditingEvent(null);
-                }}>Cancel</Button>
-                <Button type="submit">{editingEvent ? 'Update Event' : 'Create Event'}</Button>
+                <Button type="button" variant="outline" onClick={() => { resetForm(); setShowCreateModal(false); setShowEditModal(false); setEditingEvent(null); }}>
+                  Cancel
+                </Button>
+
+                {step === 2 && (
+                  <Button type="button" variant="outline" onClick={() => setStep(1)}>
+                    Back
+                  </Button>
+                )}
+
+                {step === 1 ? (
+                  <Button type="button" onClick={() => setStep(2)}>Next</Button>
+                ) : (
+                  <Button type="submit">Submit</Button>
+                )}
               </div>
             </form>
           </div>

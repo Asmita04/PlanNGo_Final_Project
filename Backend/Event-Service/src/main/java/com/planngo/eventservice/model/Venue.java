@@ -1,8 +1,7 @@
 package com.planngo.eventservice.model;
+
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.List;
 
 @Entity
 @Table(name = "venues")
@@ -15,25 +14,32 @@ public class Venue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "venue_id")
     private Integer venueId;
 
-    @Column(name = "venue_name", nullable = false, length = 150)
     private String venueName;
 
-    // city
-    @Column(nullable = false, length = 50)
-    private String city;
-
-    @Column(nullable = false, length = 200)
-    private String location;
-
-    @Column(nullable = false, length = 200, name = "location_url")
-    private String locationURL;
-
-    @Column(nullable = false)
     private Integer capacity;
 
-    @Column(name = "is_available")
+    private String location;
+
+    private String address;
+
+    private String city;
+
+    private String state;
+
+    private String country;
+
+    private String postalCode;
+
+    private String contactPhone;
+
+    private String contactEmail;
+
+    private String googleMapsUrl;
+
+    @Column(length = 1000)
+    private String description;
+
     private Boolean isAvailable;
 }

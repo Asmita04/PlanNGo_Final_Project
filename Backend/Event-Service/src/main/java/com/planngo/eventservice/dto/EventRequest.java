@@ -17,6 +17,7 @@ public class EventRequest {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private Boolean isApproved;
+    private Boolean isExpired;
     private EventCategory category;
 
     // relationship by ID only
