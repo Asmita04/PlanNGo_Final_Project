@@ -9,11 +9,19 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class VenueRequest{
-        String venueName;
-        String city;
-        String location;
-        String locationURL;
-        Integer capacity;
-        Boolean isAvailable;
+public class VenueRequest {
+
+        private String venueName;
+        private Integer capacity;
+        private String location;
+        private String address;
+        private String city;
+        private String state;
+        private String country;
+        private String postalCode;
+        private String contactPhone;
+        private String contactEmail;
+        private String googleMapsUrl;
+        private String description;
+        private Boolean isAvailable;
 }

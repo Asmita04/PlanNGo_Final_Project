@@ -15,6 +15,7 @@ public record EventResponse(
         LocalDateTime startDate,
         LocalDateTime endDate,
         Boolean isApproved,
+        Boolean isExpired,
         VenueResponse venue,
         EventCategory category
 ) {
@@ -27,6 +28,7 @@ public record EventResponse(
                 event.getStartDate(),
                 event.getEndDate(),
                 event.getIsApproved(),
+                event.getIsExpired(),
                 VenueResponse.fromEntity(event.getVenue()),
                 event.getCategory()
         );

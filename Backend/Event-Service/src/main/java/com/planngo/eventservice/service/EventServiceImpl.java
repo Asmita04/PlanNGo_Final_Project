@@ -1,7 +1,7 @@
 package com.planngo.eventservice.service;
 
 import com.planngo.eventservice.client.OrganizerClient;
-import com.planngo.eventservice.custom_exceptions.ResourceNotFoundException;
+import com.planngo.eventservice.exceptions.ResourceNotFoundException;
 import com.planngo.eventservice.dto.ApiResponse;
 import com.planngo.eventservice.dto.EventRequest;
 import com.planngo.eventservice.dto.EventResponse;
@@ -43,6 +43,10 @@ public class EventServiceImpl implements EventService {
         Venue venue = venueRepository.findById(eventRequest.getVenueId())
                 .orElseThrow(() -> new ResourceNotFoundException("Venue not found"));
 
+        if(!venue.getIsAvailable()){
+            throw new ResourceNotFoundException("Venue not available!");
+        }
+
         Event event = Event.builder()
                 .title(eventRequest.getTitle())
                 .description(eventRequest.getDescription())
@@ -62,9 +66,11 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventResponse> getAllEvents() {
+
         return eventRepository.findAll()
                 .stream()
                 .map(EventResponse::fromEntity) // clean mapping
+                .filter(event -> !event.isExpired())
                 .toList();
     }
 
@@ -72,7 +78,6 @@ public class EventServiceImpl implements EventService {
     public EventResponse getEventDetails(int eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + eventId));
-
         return EventResponse.fromEntity(event);
     }
 

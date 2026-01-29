@@ -1,4 +1,4 @@
-package com.planngo.eventservice.custom_exceptions;
+package com.planngo.eventservice.exceptions;
 
 @SuppressWarnings("serial")
 public class ResourceNotFoundException extends RuntimeException {
