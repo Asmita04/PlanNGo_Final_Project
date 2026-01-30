@@ -35,7 +35,7 @@ public class SecurityConfig {
                 .authorizeExchange(auth -> auth
 
                         // 🔹 CORS preflight
-                        //.pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // 🔹 Swagger / OpenAPI
                         .pathMatchers(
@@ -80,9 +80,12 @@ public class SecurityConfig {
 
                         // 🔹 Public endpoints (Event-Service)
                         .pathMatchers(
+                                "/venues",
                                 "/venues/**",
+                                "/event",
                                 "/event/**"
                         ).permitAll()
+
 
 
                         .pathMatchers(
