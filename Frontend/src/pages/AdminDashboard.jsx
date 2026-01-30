@@ -11,6 +11,7 @@ import {
 import { api } from '../services';
 import Button from '../components/Button';
 import VenueManagement from './VenueManagement';
+import UserManagement from './UserManagement';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -128,6 +129,8 @@ const AdminDashboard = () => {
     switch (activeTab) {
       case 'venues':
         return <VenueManagement />;
+      case 'users':
+        return <UserManagement isEmbedded={true} />;
       case 'overview':
       default:
         return (

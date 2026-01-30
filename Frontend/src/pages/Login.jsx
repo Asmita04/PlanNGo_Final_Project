@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { api } from '../services';
-import { Mail, Lock, AlertCircle, Eye, EyeOff, Sparkles } from 'lucide-react';
+import { Mail, Lock, AlertCircle, Eye, EyeOff, Sparkles, Zap } from 'lucide-react';
 import GoogleSignInButton from '../components/GoogleSignInButton';
-import '../styles/ModernAuth.css';
+import './Auth.css';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -109,12 +109,10 @@ const Login = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error for this field
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
     
-    // Clear submit error when user starts typing
     if (errors.submit) {
       setErrors(prev => ({ ...prev, submit: '' }));
     }
@@ -174,21 +172,21 @@ const Login = () => {
         <div className="gradient-orb orb-1"></div>
         <div className="gradient-orb orb-2"></div>
         <div className="gradient-orb orb-3"></div>
-        <div className="mesh-overlay"></div>
+        <div className="grid-pattern"></div>
       </div>
       
       <div className="login-container">
         <div className="login-card">
-          <div className="card-glow"></div>
-          
           <div className="login-header">
             <div className="logo-wrapper">
               <div className="logo-circle">
-                <Sparkles className="logo-icon" />
+                <span className="logo-emoji">🎫</span>
+                <div className="sparkle sparkle-1">✨</div>
+                <div className="sparkle sparkle-2">✨</div>
               </div>
-              <h1>PlanNGo</h1>
+              <h1>Welcome Back</h1>
             </div>
-            <p className="subtitle">Welcome back! Sign in to continue</p>
+            <p className="subtitle">Sign in to your PlanNGo account</p>
           </div>
 
           {errors.submit && (
@@ -202,7 +200,7 @@ const Login = () => {
             <div className="form-group">
               <label htmlFor="email">Email Address</label>
               <div className="input-wrapper">
-                <Mail className="input-icon" size={20} />
+                <Mail className="input-icon" size={18} />
                 <input
                   id="email"
                   type="email"
@@ -220,7 +218,7 @@ const Login = () => {
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <div className="input-wrapper">
-                <Lock className="input-icon" size={20} />
+                <Lock className="input-icon" size={18} />
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -237,7 +235,7 @@ const Login = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
               {errors.password && <span className="field-error">{errors.password}</span>}
@@ -251,6 +249,7 @@ const Login = () => {
                 </>
               ) : (
                 <>
+                  <Zap size={18} />
                   Sign In
                   <span className="btn-arrow">→</span>
                 </>

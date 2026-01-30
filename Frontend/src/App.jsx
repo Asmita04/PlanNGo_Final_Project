@@ -18,6 +18,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import ModernAdminDashboard from './pages/ModernAdminDashboard';
 import ContactUs from './pages/ContactUs';
 import AboutUs from './pages/AboutUs';
+import UserManagement from './pages/UserManagement';
 import EventApproval from './components/EventApproval';
 import OrganizerVerification from './components/OrganizerVerification';
 import './styles/GlobalTheme.css';
@@ -65,6 +66,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
               <OrganizerVerification />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/users" 
+          element={
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+              <UserManagement />
             </ProtectedRoute>
           } 
         />
