@@ -34,7 +34,7 @@ body {
   justify-content: center;
   padding: 20px;
   position: relative;
-  background: #000000;
+  overflow: hidden;
 }
 
 /* Animated Background */
@@ -113,6 +113,7 @@ body {
   z-index: 1;
   width: 100%;
   max-width: 480px;
+  animation: slideUp 0.6s ease-out;
 }
 
 @keyframes slideUp {
@@ -131,9 +132,10 @@ body {
   background: var(--card-bg);
   border-radius: 24px;
   padding: 48px 40px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 40px 80px rgba(216, 211, 211, 0.3);
   position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(157, 62, 62, 0.1);
 }
 
 .card-glow {
@@ -175,7 +177,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 8px 24px rgba(53, 74, 168, 0.4);
   animation: pulse 2s infinite;
 }
 
@@ -191,7 +193,7 @@ body {
 }
 
 .logo-icon {
-  color: rgb(153, 25, 25);
+  color: rgb(134, 61, 61);
   width: 36px;
   height: 36px;
 }
@@ -283,7 +285,7 @@ body {
   font-size: 15px;
   font-family: inherit;
   transition: all 0.2s ease;
-  background: #ffffff;
+  background: #ab9898;
   color: var(--text-primary);
   text-align: left;
 }
