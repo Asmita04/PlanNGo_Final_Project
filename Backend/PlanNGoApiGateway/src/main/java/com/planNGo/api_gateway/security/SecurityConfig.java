@@ -49,7 +49,7 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.GET, "/organizers", "/demo").permitAll()
                         .pathMatchers(
                                 "/users/signin",
-                                "/organizers/signup",
+                                "/users/signup",
                                 "/customer/signup"
                         ).permitAll()
 
