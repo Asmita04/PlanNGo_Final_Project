@@ -34,7 +34,7 @@ const Landing = () => {
     { name: 'Music', count: 230, color: '#ec4899', emoji: '🎵' },
     { name: 'Sports', count: 180, color: '#10b981', emoji: '⚽' },
     { name: 'Food', count: 120, color: '#f59e0b', emoji: '🍕' },
-    { name: 'Art', count: 95, color: '#8b5cf6', emoji: '🎨' },
+    { name: 'Art', count: 95, color: '#110825', emoji: '🎨' },
     { name: 'Business', count: 140, color: '#ef4444', emoji: '💼' }
   ];
 
