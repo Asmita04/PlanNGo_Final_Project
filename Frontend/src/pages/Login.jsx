@@ -2,10 +2,8 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { api } from '../services';
-import { Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
-import Button from '../components/Button';
+import { Mail, Lock, AlertCircle, Eye, EyeOff, Sparkles } from 'lucide-react';
 import GoogleSignInButton from '../components/GoogleSignInButton';
-import './Auth.css';
 import '../styles/ModernAuth.css';
 
 const Login = () => {
@@ -20,29 +18,37 @@ const Login = () => {
     const newErrors = {};
     const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
-    if (!formData.email) newErrors.email = 'Email is required';
-    else if (!emailRegex.test(formData.email)) newErrors.email = 'Email is invalid';
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email';
+    }
 
-    if (!formData.password) newErrors.password = 'Password is required';
-    else if (!/.{6,}/.test(formData.password)) {
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
       newErrors.password = "Minimum 6 characters required";
     } else if (!/[a-zA-Z]/.test(formData.password)) {
       newErrors.password = "At least one letter required";
     } else if (!/\d/.test(formData.password)) {
       newErrors.password = "At least one number required";
     }
+    
     return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validate();
+    
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
     setLoading(true);
+    setErrors({});
+
     try {
       // Check for dummy credentials first
       const dummyCredentials = {
@@ -51,43 +57,66 @@ const Login = () => {
         'admin@test.com': { password: 'admin123', userRole: 'ROLE_ADMIN', name: 'Test Admin' }
       };
 
-      const dummyUser = dummyCredentials[formData.email];
+      const dummyUser = dummyCredentials[formData.email.toLowerCase()];
+      
       if (dummyUser && dummyUser.password === formData.password) {
         const user = {
           id: Math.random().toString(36).substr(2, 9),
-          email: formData.email,
+          email: formData.email.toLowerCase(),
           name: dummyUser.name,
           userRole: dummyUser.userRole
         };
         
         login(user);
-        addNotification({ message: 'Login successful!', type: 'success' });
+        addNotification({ message: '✨ Login successful!', type: 'success' });
 
-        if (user.userRole === 'ROLE_ADMIN') navigate('/admin/dashboard');
-        else if (user.userRole === 'ROLE_ORGANIZER') navigate('/organizer/dashboard');
-        else navigate('/user/dashboard');
+        // Navigate based on role
+        setTimeout(() => {
+          if (user.userRole === 'ROLE_ADMIN') {
+            navigate('/admin/dashboard');
+          } else if (user.userRole === 'ROLE_ORGANIZER') {
+            navigate('/organizer/dashboard');
+          } else {
+            navigate('/user/dashboard');
+          }
+        }, 300);
         return;
       }
 
       // If not dummy credentials, try API
       const response = await api.login(formData.email, formData.password);
       login(response.user);
-      addNotification({ message: 'Login successful!', type: 'success' });
+      addNotification({ message: '✨ Login successful!', type: 'success' });
 
-      if (response.user.userRole === 'ROLE_ADMIN') navigate('/admin/dashboard');
-      else if (response.user.userRole === 'ROLE_ORGANIZER') navigate('/organizer/dashboard');
-      else navigate('/user/dashboard');
+      setTimeout(() => {
+        if (response.user.userRole === 'ROLE_ADMIN') {
+          navigate('/admin/dashboard');
+        } else if (response.user.userRole === 'ROLE_ORGANIZER') {
+          navigate('/organizer/dashboard');
+        } else {
+          navigate('/user/dashboard');
+        }
+      }, 300);
+
     } catch (error) {
-      setErrors({ submit: error.message });
+      setErrors({ submit: error.message || 'Invalid email or password. Please try again.' });
     } finally {
       setLoading(false);
     }
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: '' });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear error for this field
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+    
+    // Clear submit error when user starts typing
+    if (errors.submit) {
+      setErrors(prev => ({ ...prev, submit: '' }));
     }
   };
 
@@ -103,108 +132,128 @@ const Login = () => {
   };
 
   const handleGoogleSuccess = async (googleResponse) => {
-  setLoading(true);
-  try {
-    // ✅ Send ONLY the ID token
-    const response = await api.googleLogin({
-      idToken: googleResponse.credential,
-      userRole: 'ROLE_CUSTOMER' // default role
-    });
+    setLoading(true);
+    setErrors({});
+    
+    try {
+      const response = await api.googleLogin({
+        idToken: googleResponse.credential,
+        userRole: 'ROLE_CUSTOMER'
+      });
 
-    login(response.user);
-    addNotification({
-      message: 'Google login successful!',
-      type: 'success',
-    });
+      login(response.user);
+      addNotification({
+        message: '✨ Google login successful!',
+        type: 'success',
+      });
 
-    if (response.user.userRole === 'ROLE_ADMIN') navigate('/admin/dashboard');
-    else if (response.user.userRole === 'ROLE_ORGANIZER') navigate('/organizer/dashboard');
-    else navigate('/user/dashboard');
+      setTimeout(() => {
+        if (response.user.userRole === 'ROLE_ADMIN') {
+          navigate('/admin/dashboard');
+        } else if (response.user.userRole === 'ROLE_ORGANIZER') {
+          navigate('/organizer/dashboard');
+        } else {
+          navigate('/user/dashboard');
+        }
+      }, 300);
 
-  } catch (error) {
-    setErrors({ submit: error.message });
-  } finally {
-    setLoading(false);
-  }
-};
+    } catch (error) {
+      setErrors({ submit: error.message || 'Google sign-in failed. Please try again.' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleGoogleError = (error) => {
+  const handleGoogleError = () => {
     setErrors({ submit: 'Google sign-in failed. Please try again.' });
   };
 
   return (
-    <div className="modern-auth-page">
-      <div className="auth-background">
-        <div className="floating-shapes">
-          <div className="shape shape-1"></div>
-          <div className="shape shape-2"></div>
-          <div className="shape shape-3"></div>
-        </div>
+    <div className="login-page">
+      <div className="login-background">
+        <div className="gradient-orb orb-1"></div>
+        <div className="gradient-orb orb-2"></div>
+        <div className="gradient-orb orb-3"></div>
+        <div className="mesh-overlay"></div>
       </div>
       
-      <div className="modern-auth-container">
-        <div className="modern-auth-card">
-          <div className="modern-header">
-            <div className="logo-section">
-              <div className="logo-icon">🎫</div>
-              <h1>Welcome Back</h1>
+      <div className="login-container">
+        <div className="login-card">
+          <div className="card-glow"></div>
+          
+          <div className="login-header">
+            <div className="logo-wrapper">
+              <div className="logo-circle">
+                <Sparkles className="logo-icon" />
+              </div>
+              <h1>PlanNGo</h1>
             </div>
-            <p>Login to your PlanNGo account</p>
+            <p className="subtitle">Welcome back! Sign in to continue</p>
           </div>
 
           {errors.submit && (
-            <div className="modern-error">
-              <AlertCircle size={16} />
+            <div className="error-alert">
+              <AlertCircle size={18} />
               <span>{errors.submit}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="modern-form">
-            <div className="input-group">
-              <div className="modern-input-wrapper">
-                <Mail className="input-icon" size={18} />
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="form-group">
+              <label htmlFor="email">Email Address</label>
+              <div className="input-wrapper">
+                <Mail className="input-icon" size={20} />
                 <input
+                  id="email"
                   type="email"
                   name="email"
-                  placeholder="Email Address"
+                  placeholder="you@example.com"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`modern-input ${errors.email ? 'error' : ''}`}
+                  className={errors.email ? 'error' : ''}
+                  autoComplete="email"
                 />
               </div>
-              {errors.email && <span className="error-message">{errors.email}</span>}
+              {errors.email && <span className="field-error">{errors.email}</span>}
             </div>
 
-            <div className="input-group">
-              <div className="modern-input-wrapper">
-                <Lock className="input-icon" size={18} />
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <div className="input-wrapper">
+                <Lock className="input-icon" size={20} />
                 <input
+                  id="password"
                   type={showPassword ? "text" : "password"}
                   name="password"
-                  placeholder="Password"
+                  placeholder="Enter your password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`modern-input ${errors.password ? 'error' : ''}`}
+                  className={errors.password ? 'error' : ''}
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
-                  className="password-toggle"
+                  className="toggle-password"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              {errors.password && <span className="error-message">{errors.password}</span>}
+              {errors.password && <span className="field-error">{errors.password}</span>}
             </div>
 
-            <button type="submit" className="modern-submit-btn" disabled={loading}>
+            <button type="submit" className="submit-btn" disabled={loading}>
               {loading ? (
                 <>
-                  <div className="btn-spinner"></div>
-                  Logging in...
+                  <span className="spinner"></span>
+                  Signing in...
                 </>
               ) : (
-                'Login'
+                <>
+                  Sign In
+                  <span className="btn-arrow">→</span>
+                </>
               )}
             </button>
           </form>
@@ -219,39 +268,52 @@ const Login = () => {
             text="Continue with Google"
           />
 
-          <div className="modern-footer">
-            <p>Don't have an account? <Link to="/signup" className="login-link">Sign Up</Link></p>
+          <div className="signup-prompt">
+            <p>Don't have an account? <Link to="/signup">Create one</Link></p>
           </div>
 
-          <div className="demo-credentials">
-            <h4>🚀 Quick Demo Login:</h4>
-            <div className="demo-buttons">
+          <div className="demo-section">
+            <div className="demo-header">
+              <Sparkles size={16} />
+              <h4>Quick Demo Access</h4>
+            </div>
+            
+            <div className="demo-grid">
               <button 
                 type="button" 
-                className="demo-btn user"
+                className="demo-card user-demo"
                 onClick={() => fillDemoCredentials('user')}
               >
-                👤 User Login
+                <div className="demo-icon">👤</div>
+                <div className="demo-content">
+                  <h5>User Demo</h5>
+                  <p>user@test.com</p>
+                </div>
               </button>
+              
               <button 
                 type="button" 
-                className="demo-btn organizer"
+                className="demo-card organizer-demo"
                 onClick={() => fillDemoCredentials('organizer')}
               >
-                🎪 Organizer Login
+                <div className="demo-icon">🎪</div>
+                <div className="demo-content">
+                  <h5>Organizer Demo</h5>
+                  <p>organizer@test.com</p>
+                </div>
               </button>
+              
               <button 
                 type="button" 
-                className="demo-btn admin"
+                className="demo-card admin-demo"
                 onClick={() => fillDemoCredentials('admin')}
               >
-                ⚡ Admin Login
+                <div className="demo-icon">⚡</div>
+                <div className="demo-content">
+                  <h5>Admin Demo</h5>
+                  <p>admin@test.com</p>
+                </div>
               </button>
-            </div>
-            <div className="demo-info">
-              <p><strong>User:</strong> user@test.com / user123</p>
-              <p><strong>Organizer:</strong> organizer@test.com / org123</p>
-              <p><strong>Admin:</strong> admin@test.com / admin123</p>
             </div>
           </div>
         </div>

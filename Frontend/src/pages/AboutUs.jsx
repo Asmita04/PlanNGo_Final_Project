@@ -53,9 +53,16 @@ const AboutUs = () => {
   return (
     <div className="about-us">
       <div className="about-hero">
+        <div className="hero-background">
+          <div className="gradient-orb orb-1"></div>
+          <div className="gradient-orb orb-2"></div>
+          <div className="gradient-orb orb-3"></div>
+        </div>
         <div className="container">
-          <h1 className="hero-title">About PlanNGo</h1>
-          <p className="hero-subtitle">Your trusted partner in event management</p>
+          <div className="hero-content">
+            <h1 className="hero-title">About PlanNGo</h1>
+            <p className="hero-subtitle">Your trusted partner in event management</p>
+          </div>
         </div>
       </div>
 
