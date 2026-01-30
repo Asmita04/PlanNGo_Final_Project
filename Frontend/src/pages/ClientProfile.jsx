@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { api, apiClient } from '../services';
-import { User, Mail, Phone, Calendar, Edit2, Save, X, Award, Ticket, Heart, MapPin, Camera } from 'lucide-react';
+import { User, Mail, Phone, Calendar, Edit2, Save, X, Award, Ticket, Heart, MapPin, Camera, Plus, ExternalLink } from 'lucide-react';
 import './ClientProfile.css';
 
 const ClientProfile = () => {
@@ -11,12 +11,36 @@ const ClientProfile = () => {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
   const fileInputRef = useRef(null);
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [locationForm, setLocationForm] = useState({
+    street: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    country: 'India'
+  });
+
+  const indianStates = {
+    'Andhra Pradesh': ['Visakhapatnam', 'Vijayawada', 'Guntur', 'Nellore', 'Kurnool'],
+    'Karnataka': ['Bangalore', 'Mysore', 'Hubli', 'Mangalore', 'Belgaum'],
+    'Maharashtra': ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Aurangabad'],
+    'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli', 'Salem'],
+    'Gujarat': ['Ahmedabad', 'Surat', 'Vadodara', 'Rajkot', 'Bhavnagar'],
+    'Rajasthan': ['Jaipur', 'Jodhpur', 'Kota', 'Bikaner', 'Udaipur'],
+    'West Bengal': ['Kolkata', 'Howrah', 'Durgapur', 'Asansol', 'Siliguri'],
+    'Uttar Pradesh': ['Lucknow', 'Kanpur', 'Ghaziabad', 'Agra', 'Varanasi'],
+    'Delhi': ['New Delhi', 'Delhi Cantonment', 'Karol Bagh', 'Lajpat Nagar'],
+    'Kerala': ['Kochi', 'Thiruvananthapuram', 'Kozhikode', 'Thrissur', 'Kollam']
+  };
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phoneNumber: '',
     dateOfBirth: '',
+    gender: '',
+    address: '',
+    locationText: '',
     bio: ''
   });
 
@@ -52,6 +76,9 @@ const ClientProfile = () => {
         email: userData.email || user?.email || '',
         phoneNumber: userData.phone || user?.phoneNumber || '',
         dateOfBirth: userData.dob || user?.dateOfBirth || '',
+        gender: userData.gender || user?.gender || '',
+        address: userData.address || user?.address || '',
+        locationText: userData.locationText || user?.locationText || '',
         bio: userData.bio || user?.bio || ''
       });
     }
@@ -83,25 +110,68 @@ const ClientProfile = () => {
     return `cdn/user_pfp/${userId}.jpg`;
   };
 
+  const handleAddLocation = () => {
+    const fullAddress = `${locationForm.street}, ${locationForm.city}, ${locationForm.state} ${locationForm.zipCode}, ${locationForm.country}`;
+    const locationUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
+    
+    setFormData({
+      ...formData,
+      address: fullAddress,
+      locationText: fullAddress
+    });
+    
+    setShowLocationModal(false);
+    setLocationForm({ street: '', city: '', state: '', zipCode: '', country: 'India' });
+  };
+
+  const getLocationText = () => {
+    if (formData.locationText) return formData.locationText;
+    if (formData.address && formData.address.includes('google.com/maps')) {
+      const urlParams = new URLSearchParams(formData.address.split('?')[1]);
+      return decodeURIComponent(urlParams.get('query') || 'View Location');
+    }
+    return formData.address || 'View Location';
+  };
+
+  // NEW: always produce a clickable map/search link for the address
+  const getAddressLink = () => {
+    const raw = formData.address || userData?.address || formData.locationText || userData?.locationText;
+    if (!raw) return '';
+    if (typeof raw === 'string' && (raw.startsWith('http://') || raw.startsWith('https://'))) return raw;
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(raw)}`;
+  };
+  
   const handleSave = async () => {
     setLoading(true);
     try {
       const userId = userData?.id || user?.id;
       
+      // ensure address sent to backend is a clickable link (Google Maps search link)
+      let addressToSend = formData.address;
+      if (!addressToSend || !(addressToSend.startsWith('http://') || addressToSend.startsWith('https://'))) {
+        const textForLink = formData.locationText || userData?.locationText || formData.address || userData?.address || '';
+        addressToSend = textForLink ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(textForLink)}` : '';
+      }
+
       const profileData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
         phone: formData.phoneNumber,
         dob: formData.dateOfBirth,
+        gender: (formData.gender || '').toUpperCase(),
+        address: addressToSend,
         bio: formData.bio
       };
+      
+      // Log the exact payload sent to backend
+      console.log('Profile data to send:', profileData);
       
       const response = await apiClient.put(`/customer/profile/${userId}`, profileData, {
         headers: { 'Content-Type': 'application/json' }
       });
       
-      // Update localStorage with new data
+      // Update localStorage with new data (store address as link)
       const updatedUser = {
         ...userData,
         firstName: formData.firstName,
@@ -109,6 +179,8 @@ const ClientProfile = () => {
         email: formData.email,
         phone: formData.phoneNumber,
         dob: formData.dateOfBirth,
+        gender: formData.gender,
+        address: addressToSend,
         bio: formData.bio
       };
       localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -136,6 +208,9 @@ const ClientProfile = () => {
       email: userData?.email || user?.email || '',
       phoneNumber: userData?.phone || user?.phoneNumber || '',
       dateOfBirth: userData?.dob || user?.dateOfBirth || '',
+      gender: userData?.gender || user?.gender || '',
+      address: userData?.address || user?.address || '',
+      locationText: userData?.locationText || user?.locationText || '',
       bio: userData?.bio || user?.bio || ''
     });
     setProfilePhoto(null);
@@ -207,7 +282,7 @@ const ClientProfile = () => {
           </button>
         </div>
 
-        {/* Main Content  Grid */}
+        {/* Main Content Grid */}
         <div className="profile-content">
           {/* Personal Information Section */}
           <div className="profile-section">
@@ -311,6 +386,72 @@ const ClientProfile = () => {
             </div>
 
             <div className="form-group">
+              <label>Gender</label>
+              {isEditing ? (
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  className="form-input"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+              ) : (
+                <div className="form-value">{userData?.gender || user?.gender || 'Not provided'}</div>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>
+                <MapPin size={16} />
+                Address
+              </label>
+              {formData.address ? (
+                <div className={`location-display ${isEditing ? 'editing' : ''}`}>
+                  <MapPin size={20} />
+                  <a 
+                    href={getAddressLink()} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="location-link"
+                  >
+                    {getLocationText()}
+                    <ExternalLink size={16} />
+                  </a>
+                  {isEditing && (
+                    <button 
+                      type="button" 
+                      onClick={() => setShowLocationModal(true)}
+                      className="edit-location-btn"
+                    >
+                      <Edit2 size={16} />
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="location-empty">
+                  {isEditing ? (
+                    <button 
+                      type="button" 
+                      onClick={() => setShowLocationModal(true)}
+                      className="add-location-btn"
+                    >
+                      <Plus size={20} />
+                      Add Location
+                    </button>
+                  ) : (
+                    <div className="no-location">
+                      <MapPin size={20} />
+                      No location added
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="form-group">
               <label>About Me</label>
               {isEditing ? (
                 <textarea
@@ -394,6 +535,86 @@ const ClientProfile = () => {
           </div>
         </div>
       </div>
+
+      {/* Location Modal */}
+      {showLocationModal && (
+        <div className="modal-overlay" onClick={() => setShowLocationModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Add Location</h3>
+              <button onClick={() => setShowLocationModal(false)}>
+                <X size={24} />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label>Street Address</label>
+                <input
+                  type="text"
+                  value={locationForm.street}
+                  onChange={(e) => setLocationForm({ ...locationForm, street: e.target.value })}
+                  placeholder="123 Main Street"
+                />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>State</label>
+                  <select
+                    value={locationForm.state}
+                    onChange={(e) => setLocationForm({ ...locationForm, state: e.target.value, city: '' })}
+                  >
+                    <option value="">Select State</option>
+                    {Object.keys(indianStates).map(state => (
+                      <option key={state} value={state}>{state}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>City</label>
+                  <select
+                    value={locationForm.city}
+                    onChange={(e) => setLocationForm({ ...locationForm, city: e.target.value })}
+                    disabled={!locationForm.state}
+                  >
+                    <option value="">Select City</option>
+                    {locationForm.state && indianStates[locationForm.state]?.map(city => (
+                      <option key={city} value={city}>{city}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>ZIP Code</label>
+                  <input
+                    type="text"
+                    value={locationForm.zipCode}
+                    onChange={(e) => setLocationForm({ ...locationForm, zipCode: e.target.value })}
+                    placeholder="10001"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Country</label>
+                  <input
+                    type="text"
+                    value={locationForm.country}
+                    disabled
+                    style={{ background: '#f9fafb', color: '#6b7280' }}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button onClick={handleAddLocation} disabled={!locationForm.city || !locationForm.state}>
+                Add Location
+              </button>
+              <button onClick={() => setShowLocationModal(false)} className="cancel-btn">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

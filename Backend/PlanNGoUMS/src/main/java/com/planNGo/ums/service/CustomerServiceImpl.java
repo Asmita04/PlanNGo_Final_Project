@@ -59,6 +59,8 @@ public class CustomerServiceImpl implements CustomerService {
 		persistentUser.setBio(user.bio());
 		persistentUser.setPhone(user.phone());
 		persistentUser.setPfp(user.pfp());
+		persistentUser.setAddress(user.address());
+		
 		//dob
 		Customer customer = customerRepository.findByUserDetails(persistentUser)
 		.orElseThrow(() -> new ResourceNotFoundException("Invalid User !!!!!"));

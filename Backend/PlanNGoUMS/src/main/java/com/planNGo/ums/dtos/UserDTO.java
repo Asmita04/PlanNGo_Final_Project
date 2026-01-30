@@ -7,8 +7,6 @@ import com.planNGo.ums.entities.Gender;
 import com.planNGo.ums.entities.Organizer;
 import com.planNGo.ums.entities.User;
 import com.planNGo.ums.entities.UserRole;
-import com.planNGo.ums.repository.CustomerRepository;
-import com.planNGo.ums.repository.UserRepository;
 
 import lombok.Builder;
 
