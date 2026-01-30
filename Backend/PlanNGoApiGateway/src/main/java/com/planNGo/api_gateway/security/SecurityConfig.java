@@ -76,7 +76,7 @@ public class SecurityConfig {
                                 "/organizers/*",
                                 "/bookings/organizers/**"
                         ).hasAnyRole("ADMIN", "ORGANIZER")
-<<<<<<< Updated upstream
+
 
                         // 🔹 Public endpoints (Event-Service)
                         .pathMatchers(
@@ -84,12 +84,12 @@ public class SecurityConfig {
                                 "/event/**"
                         ).permitAll()
 
-=======
+
                         .pathMatchers(
                                 "/admin/**"
                                 
                         ).hasAnyRole("ADMIN")
->>>>>>> Stashed changes
+
                         // 🔹 Everything else requires authentication
                         .anyExchange().authenticated()
                 )
