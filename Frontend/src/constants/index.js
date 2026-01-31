@@ -14,9 +14,9 @@ export const API_ENDPOINTS = {
 
   
   // Events endpoints
-  EVENTS: '/event',
-  EVENT_BY_ID: (id) => `/event/${id}`,
-  EVENTS_BY_ORGANIZER: (organizerId) => `/event/register/${organizerId}`,
+  EVENTS: '/events',
+  EVENT_BY_ID: (id) => `/events/${id}`,
+  EVENTS_BY_ORGANIZER: (organizerId) => `/events/organizer/${organizerId}`,
   
   // Bookings endpoints
   BOOKINGS: '/bookings',

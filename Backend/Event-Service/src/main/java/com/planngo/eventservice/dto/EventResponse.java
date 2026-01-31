@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Builder
 public record EventResponse(
-        //Integer eventId,
+        Integer eventId,
         String title,
         String description,
         String eventImage,
@@ -21,7 +21,7 @@ public record EventResponse(
 ) {
     public static EventResponse fromEntity(Event event) {
         return new EventResponse(
-                //event.getEventId(),
+                event.getEventId(),
                 event.getTitle(),
                 event.getDescription(),
                 event.getEventImage(),

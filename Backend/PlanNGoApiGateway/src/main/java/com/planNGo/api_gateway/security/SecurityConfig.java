@@ -82,8 +82,8 @@ public class SecurityConfig {
                         .pathMatchers(
                                 "/venues",
                                 "/venues/**",
-                                "/event",
-                                "/event/**"
+                                "/events",
+                                "/events/**"
                         ).permitAll()
 
 

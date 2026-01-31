@@ -28,9 +28,15 @@ const Events = () => {
 
   const loadEvents = async () => {
     try {
-      const data = await api.getAllEvents({ approved: true });
-      setEvents(data);
-      setFilteredEvents(data);
+      const data = await api.getAllEvents();
+      // Filter out expired events
+      const currentDate = new Date();
+      const activeEvents = data.filter(event => {
+        const eventDate = new Date(event.startDate || event.date);
+        return eventDate >= currentDate;
+      });
+      setEvents(activeEvents);
+      setFilteredEvents(activeEvents);
     } catch (error) {
       console.error('Error loading events:', error);
     } finally {
