@@ -22,13 +22,14 @@ public record UserDTO (
 	String bio,
 	String pfp,
 	String email,
-
+	LocalDate createdOn,
 	//Customer related
 	LocalDate dob,
 	Gender gender,
 	
 	//Organizer related
 	String organization,
+	Boolean isVerified,
 	
 	UserRole userRole
 	
@@ -48,11 +49,12 @@ public record UserDTO (
 				customer.getUserDetails().getBio(),
 				customer.getUserDetails().getPfp(),
 				customer.getUserDetails().getEmail(),
-				
+				customer.getUserDetails().getCreatedOn(),
 				
 				customer.getDob(),
 				customer.getGender(),
 				
+				null,
 				null,
 				
 				customer.getUserDetails().getUserRole()
@@ -71,14 +73,16 @@ public record UserDTO (
 				organizer.getUserDetails().getBio(),
 				organizer.getUserDetails().getPfp(),
 				organizer.getUserDetails().getEmail(),
-				
+				organizer.getUserDetails().getCreatedOn(),
 				
 				null,
 				null,
 				
 				organizer.getOrganization(),
+				organizer.getIsVerified(),
 				
 				organizer.getUserDetails().getUserRole()
+				
 				);
 	}
 
@@ -94,11 +98,12 @@ public record UserDTO (
 				user.getBio(),
 				user.getPfp(),
 				user.getEmail(),
-				
+				user.getCreatedOn(),
 				
 				null,
 				null,
 				
+				null,
 				null,
 				
 				user.getUserRole()

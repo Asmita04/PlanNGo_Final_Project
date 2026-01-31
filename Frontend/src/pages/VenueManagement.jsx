@@ -1,448 +1,347 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, MapPin, Phone, Mail, Users, Calendar, ExternalLink } from 'lucide-react';
+import { MapPin, Search, Filter, Plus, Edit, Trash2, Eye, X } from 'lucide-react';
 import { api } from '../services';
 import './VenueManagement.css';
 
 const VenueManagement = () => {
   const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('all');
   const [showModal, setShowModal] = useState(false);
-  const [editingVenue, setEditingVenue] = useState(null);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [formData, setFormData] = useState({
+  const [venueForm, setVenueForm] = useState({
     venueName: '',
-    location: '',
     capacity: '',
-    isAvailable: true,
+    location: '',
+    address: '',
     city: '',
-    locationURL: '',
+    state: '',
+    country: '',
+    postalCode: '',
+    contactPhone: '',
+    contactEmail: '',
+    googleMapsUrl: '',
+    description: '',
+    isAvailable: true
   });
 
   useEffect(() => {
-    fetchVenues();
-     console.log('Fetched venues:', fetchVenues());
+    loadVenues();
   }, []);
 
-
-  const fetchVenues = async () => {
+  const loadVenues = async () => {
     try {
-      setLoading(true);
-      const data = await api.getAllVenues();
-      console.log('Fetched venues:', data);
-      setVenues(data);
-      setError('');
+      const venuesData = await api.getAllVenues();
+      setVenues(venuesData);
     } catch (error) {
-      console.error('Error fetching venues:', error);
-      setError('Failed to load venues. Please try again.');
+      console.error('Error loading venues:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      setError('');
-      setSuccess('');
-      
-      const venueData = {
-        ...formData,
-        capacity: parseInt(formData.capacity)
-      };
-      
-      if (editingVenue) {
-        await api.updateVenue(editingVenue.venueId, venueData);
-        setSuccess('Venue updated successfully!');
-      } else {
-        await api.createVenue(venueData);
-        setSuccess('Venue created successfully!');
-      }
-      
-      fetchVenues();
-      resetForm();
-      setShowModal(false);
-    } catch (error) {
-      console.error('Error saving venue:', error);
-      setError(error.response?.data?.message || 'Failed to save venue. Please try again.');
-    }
-  };
-
-  const handleEdit = (venue) => {
-    setEditingVenue(venue);
-    setFormData({
-      venueName: venue.venueName,
-      location: venue.location,
-      capacity: venue.capacity.toString(),
-      isAvailable: venue.isAvailable,
-      googleMapsUrl: venue.googleMapsUrl || '',
-      address: venue.address || '',
-      city: venue.city || '',
-      state: venue.state || '',
-      country: venue.country || 'India',
-      postalCode: venue.postalCode || '',
-      contactPhone: venue.contactPhone || '',
-      contactEmail: venue.contactEmail || '',
-      description: venue.description || '',
-      amenities: venue.amenities || ''
-    });
+  const handleAddVenue = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (venueId) => {
-    if (window.confirm('Are you sure you want to delete this venue? This action cannot be undone.')) {
-      try {
-        await api.deleteVenue(venueId);
-        setSuccess('Venue deleted successfully!');
-        fetchVenues();
-      } catch (error) {
-        console.error('Error deleting venue:', error);
-        setError(error.response?.data?.message || 'Failed to delete venue. It may be in use by events.');
-      }
-    }
-  };
-
-  const resetForm = () => {
-    setFormData({
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setVenueForm({
       venueName: '',
-      location: '',
       capacity: '',
-      isAvailable: true,
-      googleMapsUrl: '',
+      location: '',
       address: '',
       city: '',
       state: '',
-      country: 'India',
+      country: '',
       postalCode: '',
       contactPhone: '',
       contactEmail: '',
+      googleMapsUrl: '',
       description: '',
-      amenities: ''
+      isAvailable: true
     });
-    setEditingVenue(null);
-    setError('');
-    setSuccess('');
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setVenueForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Add venue logic here
+    console.log('Adding venue:', venueForm);
+    handleCloseModal();
   };
 
   const generateGoogleMapsUrl = () => {
-    if (!formData.address || !formData.city) {
-      setError('Please enter address and city first');
-      return;
+    const { address, city, state, country } = venueForm;
+    if (address || city) {
+      const fullAddress = [address, city, state, country].filter(Boolean).join(', ');
+      const encodedAddress = encodeURIComponent(fullAddress);
+      const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+      setVenueForm(prev => ({ ...prev, googleMapsUrl }));
     }
-    
-    const address = `${formData.address}, ${formData.city}, ${formData.state}, ${formData.country}`;
-    const encodedAddress = encodeURIComponent(address);
-    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
-    setFormData({ ...formData, googleMapsUrl: mapsUrl });
-    setSuccess('Google Maps URL generated successfully!');
   };
-
-  if (loading) {
-    return (
-      <div className="venue-management">
-        <div className="loading-spinner">Loading venues...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="venue-management">
-      {/* Success/Error Messages */}
-      {success && (
-        <div className="alert alert-success">
-          {success}
-          <button onClick={() => setSuccess('')}>×</button>
-        </div>
-      )}
-      {error && (
-        <div className="alert alert-error">
-          {error}
-          <button onClick={() => setError('')}>×</button>
-        </div>
-      )}
+      <div className="section-header">
+        <h2>
+          <MapPin size={32} />
+          Venue Management
+        </h2>
+        <p>Manage all venues in the system</p>
+      </div>
 
-      <div className="venue-header">
-        <h1>Venue Management</h1>
-        <button 
-          className="btn-primary"
-          onClick={() => setShowModal(true)}
-        >
+      <div className="filters-section">
+        <div className="search-box">
+          <Search size={20} />
+          <input
+            type="text"
+            placeholder="Search venues..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="filter-dropdown">
+          <Filter size={20} />
+          <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+            <option value="all">All Venues</option>
+            <option value="available">Available</option>
+            <option value="booked">Booked</option>
+          </select>
+        </div>
+        <button className="add-btn" onClick={handleAddVenue}>
           <Plus size={20} />
-          Add New Venue
+          Add Venue
         </button>
       </div>
 
-      {(venues || []).length === 0 ? (
-        <div className="empty-state">
-          <MapPin size={48} />
-          <h3>No venues found</h3>
-          <p>Start by adding your first venue to the platform.</p>
-          <button 
-            className="btn-primary"
-            onClick={() => setShowModal(true)}
-          >
-            <Plus size={20} />
-            Add First Venue
-          </button>
+      <div className="venues-table">
+        <div className="table-header">
+          <div>Venue Name</div>
+          <div>Location</div>
+          <div>Capacity</div>
+          <div>Status</div>
+          <div>Actions</div>
         </div>
-      ) : (
-        <div className="venues-grid">
-          {(venues || []).map(venue => (
-            <div key={venue.venueId} className="venue-card">
-              <div className="venue-card-header">
-                <h3>{venue.venueName}</h3>
-                <div className="venue-actions">
-                  <button 
-                    className="btn-edit"
-                    onClick={() => handleEdit(venue)}
-                    title="Edit venue"
-                  >
-                    <Edit size={16} />
-                  </button>
-                  <button 
-                    className="btn-delete"
-                    onClick={() => handleDelete(venue.venueId)}
-                    title="Delete venue"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-              
+        
+        {loading ? (
+          <div className="loading-state">Loading venues...</div>
+        ) : venues.length === 0 ? (
+          <div className="empty-state">
+            <MapPin size={64} />
+            <h3>No venues found</h3>
+            <p>Start by adding your first venue</p>
+          </div>
+        ) : (
+          venues.map(venue => (
+            <div key={venue.venueId} className="table-row">
               <div className="venue-info">
-                <div className="info-item">
-                  <MapPin size={16} />
-                  <span>{venue.location}</span>
-                </div>
-                <div className="info-item">
-                  <Users size={16} />
-                  <span>Capacity: {venue.capacity.toLocaleString()}</span>
-                </div>
-                {venue.contactPhone && (
-                  <div className="info-item">
-                    <Phone size={16} />
-                    <span>{venue.contactPhone}</span>
-                  </div>
-                )}
-                {venue.contactEmail && (
-                  <div className="info-item">
-                    <Mail size={16} />
-                    <span>{venue.contactEmail}</span>
-                  </div>
-                )}
-                {venue.address && (
-                  <div className="info-item">
-                    <MapPin size={16} />
-                    <span>{venue.address}</span>
-                  </div>
-                )}
+                <h4>{venue.venueName}</h4>
+                <p>{venue.description}</p>
               </div>
-
-              {venue.description && (
-                <p className="venue-description">{venue.description}</p>
-              )}
-
-              {venue.amenities && (
-                <div className="venue-amenities">
-                  <strong>Amenities:</strong> {venue.amenities}
-                </div>
-              )}
-
-              <div className="venue-footer">
-                <span className={`status ${venue.isAvailable ? 'available' : 'unavailable'}`}>
-                  {venue.isAvailable ? 'Available' : 'Unavailable'}
+              <div>{venue.location}, {venue.city}</div>
+              <div>{venue.capacity}</div>
+              <div>
+                <span className={`status-badge status-${venue.isAvailable ? 'available' : 'booked'}`}>
+                  {venue.isAvailable ? 'Available' : 'Booked'}
                 </span>
-                {venue.googleMapsUrl && (
-                  <a 
-                    href={venue.googleMapsUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="maps-link"
-                  >
-                    <ExternalLink size={16} />
-                    View on Maps
-                  </a>
-                )}
+              </div>
+              <div className="actions">
+                <button className="action-btn view">
+                  <Eye size={16} />
+                </button>
+                <button className="action-btn edit">
+                  <Edit size={16} />
+                </button>
+                <button className="action-btn delete">
+                  <Trash2 size={16} />
+                </button>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
 
+      {/* Add Venue Modal */}
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="modal-overlay" onClick={handleCloseModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>{editingVenue ? 'Edit Venue' : 'Add New Venue'}</h2>
-              <button 
-                className="modal-close"
-                onClick={() => {
-                  setShowModal(false);
-                  resetForm();
-                }}
-              >
-                ×
+              <h3>Add New Venue</h3>
+              <button className="close-btn" onClick={handleCloseModal}>
+                <X size={24} />
               </button>
             </div>
-
-            <form onSubmit={handleSubmit} className="venue-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Venue Name *</label>
-                  <input
-                    type="text"
-                    value={formData.venueName}
-                    onChange={(e) => setFormData({ ...formData, venueName: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Capacity *</label>
-                  <input
-                    type="number"
-                    value={formData.capacity}
-                    onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
-                    required
-                    min="1"
-                  />
-                </div>
-              </div>
-
+            <form onSubmit={handleSubmit} className="modal-body">
               <div className="form-group">
-                <label>Location *</label>
+                <label>Venue Name</label>
                 <input
                   type="text"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  name="venueName"
+                  value={venueForm.venueName}
+                  onChange={handleInputChange}
+                  placeholder="Enter venue name"
                   required
-                  placeholder="e.g., Mumbai, Maharashtra"
                 />
               </div>
-
               <div className="form-row">
                 <div className="form-group">
-                  <label>Address</label>
+                  <label>Capacity</label>
                   <input
-                    type="text"
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    placeholder="Street address"
+                    type="number"
+                    name="capacity"
+                    value={venueForm.capacity}
+                    onChange={handleInputChange}
+                    placeholder="Enter capacity"
+                    required
                   />
                 </div>
+                <div className="form-group">
+                  <label>Location</label>
+                  <input
+                    type="text"
+                    name="location"
+                    value={venueForm.location}
+                    onChange={handleInputChange}
+                    placeholder="Enter location"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Address</label>
+                <input
+                  type="text"
+                  name="address"
+                  value={venueForm.address}
+                  onChange={handleInputChange}
+                  placeholder="Enter street address"
+                  required
+                />
+              </div>
+              <div className="form-row">
                 <div className="form-group">
                   <label>City</label>
                   <input
                     type="text"
-                    value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    name="city"
+                    value={venueForm.city}
+                    onChange={handleInputChange}
+                    placeholder="Enter city"
+                    required
                   />
                 </div>
-              </div>
-
-              <div className="form-row">
                 <div className="form-group">
                   <label>State</label>
                   <input
                     type="text"
-                    value={formData.state}
-                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                    name="state"
+                    value={venueForm.state}
+                    onChange={handleInputChange}
+                    placeholder="Enter state"
+                    required
                   />
                 </div>
+              </div>
+              <div className="form-row">
                 <div className="form-group">
                   <label>Country</label>
                   <input
                     type="text"
-                    value={formData.country}
-                    onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                    name="country"
+                    value={venueForm.country}
+                    onChange={handleInputChange}
+                    placeholder="Enter country"
+                    required
                   />
                 </div>
-              </div>
-
-              <div className="form-row">
                 <div className="form-group">
                   <label>Postal Code</label>
                   <input
                     type="text"
-                    value={formData.postalCode}
-                    onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                    name="postalCode"
+                    value={venueForm.postalCode}
+                    onChange={handleInputChange}
+                    placeholder="Enter postal code"
                   />
                 </div>
+              </div>
+              <div className="form-row">
                 <div className="form-group">
                   <label>Contact Phone</label>
                   <input
                     type="tel"
-                    value={formData.contactPhone}
-                    onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
+                    name="contactPhone"
+                    value={venueForm.contactPhone}
+                    onChange={handleInputChange}
+                    placeholder="Enter contact phone"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Contact Email</label>
+                  <input
+                    type="email"
+                    name="contactEmail"
+                    value={venueForm.contactEmail}
+                    onChange={handleInputChange}
+                    placeholder="Enter contact email"
                   />
                 </div>
               </div>
-
-              <div className="form-group">
-                <label>Contact Email</label>
-                <input
-                  type="email"
-                  value={formData.contactEmail}
-                  onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-                />
-              </div>
-
               <div className="form-group">
                 <label>Google Maps URL</label>
-                <div className="maps-input-group">
+                <div className="url-input-group">
                   <input
                     type="url"
-                    value={formData.googleMapsUrl}
-                    onChange={(e) => setFormData({ ...formData, googleMapsUrl: e.target.value })}
-                    placeholder="https://www.google.com/maps/..."
+                    name="googleMapsUrl"
+                    value={venueForm.googleMapsUrl}
+                    onChange={handleInputChange}
+                    placeholder="Enter Google Maps URL or generate from address"
                   />
-                  <button 
-                    type="button" 
-                    className="btn-generate-maps"
+                  <button
+                    type="button"
+                    className="generate-url-btn"
                     onClick={generateGoogleMapsUrl}
-                    disabled={!formData.address || !formData.city}
+                    disabled={!venueForm.address && !venueForm.city}
                   >
-                    Generate
+                    Generate URL
                   </button>
                 </div>
-                <small>Enter address details above and click Generate, or paste a Google Maps URL</small>
               </div>
-
               <div className="form-group">
                 <label>Description</label>
                 <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  name="description"
+                  value={venueForm.description}
+                  onChange={handleInputChange}
+                  placeholder="Enter venue description"
                   rows="3"
-                  placeholder="Brief description of the venue"
                 />
               </div>
-
-
-
               <div className="form-group">
                 <label className="checkbox-label">
                   <input
                     type="checkbox"
-                    checked={formData.isAvailable}
-                    onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })}
+                    name="isAvailable"
+                    checked={venueForm.isAvailable}
+                    onChange={(e) => setVenueForm(prev => ({ ...prev, isAvailable: e.target.checked }))}
                   />
                   Available for booking
                 </label>
               </div>
-
-              <div className="form-actions">
-                <button 
-                  type="button" 
-                  className="btn-secondary"
-                  onClick={() => {
-                    setShowModal(false);
-                    resetForm();
-                  }}
-                >
+              <div className="modal-footer">
+                <button type="button" className="cancel-btn" onClick={handleCloseModal}>
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary">
-                  Submit
+                <button type="submit" className="submit-btn">
+                  Add Venue
                 </button>
               </div>
             </form>

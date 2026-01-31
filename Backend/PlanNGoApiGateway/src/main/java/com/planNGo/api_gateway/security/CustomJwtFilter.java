@@ -36,10 +36,10 @@ public class CustomJwtFilter implements WebFilter {
 	 */
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        if (exchange.getRequest().getMethod().name().equals("OPTIONS")) {
-            return chain.filter(exchange);
-        }
-
+		if (exchange.getRequest().getMethod().name().equals("OPTIONS")) {
+		    return chain.filter(exchange);
+		}
+		
         String authHeader = exchange.getRequest()
                 .getHeaders()
                 .getFirst(HttpHeaders.AUTHORIZATION);
@@ -58,7 +58,7 @@ public class CustomJwtFilter implements WebFilter {
 
             String email = claims.getSubject();//can also be added 
             String role = claims.get("user_role", String.class);
-            Long userId = claims.get("user_id", Long.class);
+            Long userId = Long.parseLong( claims.get("user_id", String.class));
 
             
             //  Add custom headers for downstream services

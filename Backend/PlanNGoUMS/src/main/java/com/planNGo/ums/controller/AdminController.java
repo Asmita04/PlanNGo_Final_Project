@@ -31,7 +31,7 @@ public class AdminController {
 	//depcy 	
 	private final AdminService adminService;
 	
-	@GetMapping("/getUsers")
+	@GetMapping("/users")
 	public ResponseEntity<?> getAllUsers() {
 		System.out.println("in render user list");
 		List<UserDTO> list = adminService.getAllUsers();
@@ -42,7 +42,7 @@ public class AdminController {
 		return ResponseEntity.ok(list); //SC 200 + List -> Json[]
 	}
 
-	@GetMapping("/getOrganizers")
+	@GetMapping("/organizers")
 	public ResponseEntity<?> getAllOrganizers() {
 		System.out.println("in render organizer list");
 		List<OrganizerDTO> list = adminService.getAllOrganizers();
@@ -57,15 +57,26 @@ public class AdminController {
 	@PutMapping("/verify/{Id}")
 	//swagger annotation - use till testing phase
 	@Operation(description ="Complete Update customer details")
-	public ResponseEntity<?> updateCustomerDetails(@PathVariable Long id) {
+	public ResponseEntity<?> verifyOrganizer(@PathVariable Long Id) {
 		
 
-		System.out.println("in update "+id);
+		System.out.println("in update "+Id);
 		
-			return ResponseEntity.ok(adminService.verifyOrganizer(id));
+			return ResponseEntity.ok(adminService.verifyOrganizer(Id));
 		
 	}
 	
+	@PutMapping("/unverify/{Id}")
+	//swagger annotation - use till testing phase
+	@Operation(description ="Complete Update customer details")
+	public ResponseEntity<?> unVerifyOrganizer(@PathVariable Long Id) {
+		
+
+		System.out.println("in update "+Id);
+		
+			return ResponseEntity.ok(adminService.unVerifyOrganizer(Id));
+		
+	}
 	
 	
 	
