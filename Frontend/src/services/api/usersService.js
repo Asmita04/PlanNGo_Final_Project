@@ -21,7 +21,7 @@ export const usersService = {
   },
 
   getAllUsers: async () => {
-    return await apiClient.get(API_ENDPOINTS.USERS);
+    return await apiClient.get(API_ENDPOINTS.ADMIN_USERS);
   },
 
   deleteUser: async (id) => {

@@ -32,13 +32,20 @@ const Navbar = () => {
           </Link>
 
           <div className={`navbar-links ${showMenu ? 'active' : ''}`}>
-            <Link to="/events" onClick={() => setShowMenu(false)}>Events</Link>
-            <Link to="/about" onClick={() => setShowMenu(false)}>About Us</Link>
-            <Link to="/contact" onClick={() => setShowMenu(false)}>Contact Us</Link>
+            {(!user || (user.userRole !== 'ROLE_ADMIN')) && (
+              <Link to="/events" onClick={() => setShowMenu(false)}>Events</Link>
+            )}
+            {!user && (
+              <>
+                <Link to="/about" onClick={() => setShowMenu(false)}>About Us</Link>
+                <Link to="/contact" onClick={() => setShowMenu(false)}>Contact Us</Link>
+              </>
+            )}
             {user && user.userRole && user.userRole === 'ROLE_ADMIN' && (
               <>
-                <Link to="/admin/events" onClick={() => setShowMenu(false)}>Event Approval</Link>
-                <Link to="/admin/organizers" onClick={() => setShowMenu(false)}>Organizer Verification</Link>
+                <Link to="/admin/event-management" onClick={() => setShowMenu(false)}>Event Management</Link>
+                <Link to="/admin/venue-management" onClick={() => setShowMenu(false)}>Venue Management</Link>
+                <Link to="/admin/user-management" onClick={() => setShowMenu(false)}>User Management</Link>
               </>
             )}
             {user && <Link to={getDashboardLink()} onClick={() => setShowMenu(false)}>Dashboard</Link>}

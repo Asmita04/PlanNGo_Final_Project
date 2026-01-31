@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { AppProvider } from './context/AppContext';
+import { AppProvider, useApp } from './context/AppContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import ClientProfile from './pages/ClientProfile';
 import Navbar from './components/Navbar';
@@ -18,20 +18,46 @@ import AdminDashboard from './pages/AdminDashboard';
 import ModernAdminDashboard from './pages/ModernAdminDashboard';
 import ContactUs from './pages/ContactUs';
 import AboutUs from './pages/AboutUs';
-import EventApproval from './components/EventApproval';
 import OrganizerVerification from './components/OrganizerVerification';
+import EventManagement from './pages/EventManagement';
+import VenueManagement from './pages/VenueManagement';
+import UserManagement from './pages/UserManagement';
+import NotFound from './pages/NotFound';
 import './styles/GlobalTheme.css';
 
-// App Routes Component
+// Protected Login/Signup Route Component
+const AuthRoute = ({ children }) => {
+  const { user } = useApp();
+  
+  if (user) {
+    // Redirect logged-in users to their dashboard
+    if (user.userRole === 'ROLE_ADMIN') return <Navigate to="/admin/dashboard" replace />;
+    if (user.userRole === 'ROLE_ORGANIZER') return <Navigate to="/organizer/dashboard" replace />;
+    return <Navigate to="/user/dashboard" replace />;
+  }
+  
+  return children;
+};
+
+// Admin Events Protection
+const AdminEventsRoute = ({ children }) => {
+  const { user } = useApp();
+  
+  if (user && user.userRole === 'ROLE_ADMIN') {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+  
+  return children;
+};
 const AppRoutes = () => {
   return (
     <Router>
       <Navbar />
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/events" element={<Events />} />
+        <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
+        <Route path="/signup" element={<AuthRoute><Signup /></AuthRoute>} />
+        <Route path="/events" element={<AdminEventsRoute><Events /></AdminEventsRoute>} />
         <Route path="/events/:id" element={<EventDetails />} />
         <Route
           path="/events/:id/book"
@@ -53,18 +79,34 @@ const AppRoutes = () => {
         <Route path="/about" element={<AboutUs />} />
         <Route path="/admin/modern" element={<ModernAdminDashboard />} />
         <Route 
-          path="/admin/events" 
-          element={
-            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
-              <EventApproval />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
           path="/admin/organizers" 
           element={
             <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
               <OrganizerVerification />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/event-management" 
+          element={
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+              <EventManagement />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/venue-management" 
+          element={
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+              <VenueManagement />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/user-management" 
+          element={
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+              <UserManagement />
             </ProtectedRoute>
           } 
         />
@@ -116,7 +158,7 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );

@@ -44,6 +44,21 @@ public class AdminServiceImpl implements AdminService {
 			return new ApiResponse("Success","Organizer Verified");
 
 	}
+	
+	@Override
+	public ApiResponse unVerifyOrganizer(Long id) {
+		User user =userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Invalid user id !!!!!"));
+			
+			Organizer organizer = organizerRepository.findByUserDetails(user)
+					.orElseThrow(() -> new ResourceNotFoundException("Invalid user id !!!!!"));
+			
+			organizer.setIsVerified(false);
+			
+			organizerRepository.save(organizer);
+			
+			return new ApiResponse("Success","Organizer UnVerified");
+	}
 
 	@Override
 	public List<OrganizerDTO> getAllOrganizers() {
@@ -78,5 +93,7 @@ public class AdminServiceImpl implements AdminService {
 		
 		return userDtos;
 	}
+
+	
 
 }

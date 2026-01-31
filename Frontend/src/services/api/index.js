@@ -24,6 +24,7 @@ export const api = {
 
   // Events methods
   getAllEvents: eventsService.getAllEvents,
+  getAllEventsAdmin: eventsService.getAllEventsAdmin,
   getEventById: eventsService.getEventById,
   createEvent: eventsService.createEvent,
   updateEvent: eventsService.updateEvent,

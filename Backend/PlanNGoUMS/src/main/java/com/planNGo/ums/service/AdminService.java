@@ -12,4 +12,6 @@ public interface AdminService {
 	List<OrganizerDTO> getAllOrganizers();
 
 	List<UserDTO> getAllUsers();
+
+	ApiResponse unVerifyOrganizer(Long id);
 }

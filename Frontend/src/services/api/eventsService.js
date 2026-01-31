@@ -8,6 +8,10 @@ export const eventsService = {
     return await apiClient.get(url);
   },
 
+  getAllEventsAdmin: async () => {
+    return await apiClient.get(API_ENDPOINTS.ADMIN_EVENTS);
+  },
+
   getEventById: async (id) => {
     return await apiClient.get(API_ENDPOINTS.EVENT_BY_ID(id));
   },

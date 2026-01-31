@@ -168,7 +168,11 @@ const ClientProfile = () => {
       console.log('Profile data to send:', profileData);
       
       const response = await apiClient.put(`/customer/profile/${userId}`, profileData, {
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+          'Content-Type': 'application/json',
+          'host': 'localhost:9090',
+          'origin': 'http://localhost:3000'
+        }
       });
       
       // Update localStorage with new data (store address as link)

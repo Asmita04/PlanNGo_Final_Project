@@ -10,7 +10,7 @@ import {
 } from 'recharts';
 import { api } from '../services';
 import Button from '../components/Button';
-import VenueManagement from './VenueManagement';
+import EventManagement from './EventManagement';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -32,45 +32,26 @@ const AdminDashboard = () => {
 
   const loadData = async () => {
     try {
-      // Note: These admin-specific methods need to be implemented in the backend
-      // const analyticsData = await api.getAdminAnalytics();
-      // setAnalytics(analyticsData);
-      
       const usersData = await api.getAllUsers();
       setUsers(usersData);
       
       const eventsData = await api.getAllEvents();
       setEvents(eventsData);
+      
+      // Update analytics based on fetched data
+      setAnalytics(prev => ({
+        ...prev,
+        totalUsers: usersData.length,
+        totalEvents: eventsData.length
+      }));
     } catch (error) {
       console.error('Error loading data:', error);
     }
   };
 
-  const handleApproveEvent = async (id) => {
-    try {
-      // Note: This method needs to be implemented in the backend
-      // await api.approveEvent(id);
-      loadData();
-    } catch (error) {
-      console.error('Error approving event:', error);
-    }
-  };
-
-  const handleRejectEvent = async (id) => {
-    try {
-      // Note: This method needs to be implemented in the backend
-      // await api.rejectEvent(id);
-      loadData();
-    } catch (error) {
-      console.error('Error rejecting event:', error);
-    }
-  };
-
   const tabs = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
-    { id: 'venues', label: 'Venue Management', icon: MapPin },
-    { id: 'users', label: 'User Management', icon: Users },
-    { id: 'events', label: 'Event Management', icon: Calendar },
+    { id: 'events', label: 'Events', icon: Calendar },
     { id: 'settings', label: 'Settings', icon: Settings }
   ];
 
@@ -126,8 +107,15 @@ const AdminDashboard = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'venues':
-        return <VenueManagement />;
+      case 'events':
+        return <EventManagement />;
+      case 'settings':
+        return (
+          <div className="settings-section">
+            <h3>System Settings</h3>
+            <p>Configure system-wide settings and preferences.</p>
+          </div>
+        );
       case 'overview':
       default:
         return (
@@ -227,42 +215,24 @@ const AdminDashboard = () => {
               <div className="events-table">
                 <div className="table-header">
                   <span>Event</span>
-                  <span>Organizer</span>
+                  <span>Venue</span>
                   <span>Date</span>
                   <span>Status</span>
-                  <span>Actions</span>
                 </div>
-                {events.slice(0, 5).map(event => (
-                  <div key={event.id} className="table-row">
+                {events.slice(0, 5).map((event, index) => (
+                  <div key={index} className="table-row">
                     <div className="event-info">
-                      <img src={event.image} alt={event.title} />
+                      <img src={event.eventImage || '/default-event.jpg'} alt={event.title} />
                       <div>
                         <h4>{event.title}</h4>
                         <p>{event.category}</p>
                       </div>
                     </div>
-                    <span>{event.organizer}</span>
-                    <span>{new Date(event.date).toLocaleDateString()}</span>
-                    <span className={`status ${event.status}`}>{event.status}</span>
-                    <div className="actions">
-                      {event.status === 'pending' && (
-                        <>
-                          <Button 
-                            size="sm" 
-                            onClick={() => handleApproveEvent(event.id)}
-                          >
-                            Approve
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => handleRejectEvent(event.id)}
-                          >
-                            Reject
-                          </Button>
-                        </>
-                      )}
-                    </div>
+                    <span>{event.venue?.venueName || 'N/A'}</span>
+                    <span>{new Date(event.startDate).toLocaleDateString()}</span>
+                    <span className={`status ${event.isApproved ? 'approved' : 'pending'}`}>
+                      {event.isApproved ? 'Approved' : 'Pending'}
+                    </span>
                   </div>
                 ))}
               </div>

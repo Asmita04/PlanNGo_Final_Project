@@ -35,7 +35,7 @@ public class SecurityConfig {
                 .authorizeExchange(auth -> auth
 
                         // 🔹 CORS preflight
-                        //.pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // 🔹 Swagger / OpenAPI
                         .pathMatchers(
