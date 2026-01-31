@@ -7,19 +7,19 @@ const AboutUs = () => {
   const teamMembers = [
     {
       name: 'Himanshu Samrit',
-      role: 'Full Stack Developer',
+      role: 'Backend Developer',
       avatar: '👨‍💻',
       color: '#667eea'
     },
     {
       name: 'Suchit Sawant',
-      role: 'Frontend Developer',
+      role: 'Full Stack Developer',
       avatar: '👨‍🎨',
       color: '#764ba2'
     },
     {
       name: 'Asmita Mhetre',
-      role: 'UI/UX Designer',
+      role: 'Full Stack Developer',
       avatar: '👩‍🎨',
       color: '#f093fb'
     },
@@ -31,7 +31,7 @@ const AboutUs = () => {
     },
     {
       name: 'Bhushan Dhawan',
-      role: 'Project Manager',
+      role: 'Frontend Developer',
       avatar: '👨‍🚀',
       color: '#43e97b'
     }
