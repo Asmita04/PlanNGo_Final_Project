@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController //= @Controller + @ResponseBody
 @RequestMapping("/users")  //base url-pattern
-
+@CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor //Creates a parameterized ctor having final & non null fields
 @Validated
 @Slf4j

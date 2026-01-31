@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/event")
+@RequestMapping("/events")
 @RequiredArgsConstructor
 public class EventController {
 
@@ -27,7 +27,7 @@ public class EventController {
     }
 
     //Get all events
-    @GetMapping("/events")
+    @GetMapping()
     public ResponseEntity<List<EventResponse>> getAllEvents() {
         return ResponseEntity.ok(eventService.getAllEvents());
     }

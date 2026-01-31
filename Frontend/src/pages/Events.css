@@ -13,7 +13,7 @@
 .events-header h1 {
   font-size: 2.5rem;
   font-weight: 800;
-  color: #1f2937;
+  color: #ffffff;
   margin-bottom: 0.5rem;
 }
 
@@ -22,7 +22,7 @@ body.dark-mode .events-header h1 {
 }
 
 .events-header p {
-  color: #6b7280;
+  color: #ffffff;
   font-size: 1.125rem;
 }
 
@@ -134,7 +134,7 @@ body.dark-mode .filters-panel {
 
 .filter-group label {
   font-weight: 600;
-  color: #374151;
+  color: #ffffff;
   font-size: 0.9rem;
 }
 
@@ -216,7 +216,7 @@ body.dark-mode .filter-group input[type="date"] {
 }
 
 .results-count {
-  color: #6b7280;
+  color: #ffffff;
   margin-bottom: 1.5rem;
   font-weight: 500;
 }
@@ -240,7 +240,7 @@ body.dark-mode .filter-group input[type="date"] {
 
 .no-results h3 {
   font-size: 1.5rem;
-  color: #1f2937;
+  color: #ffffff;
   margin-bottom: 0.5rem;
 }
 
@@ -249,7 +249,7 @@ body.dark-mode .no-results h3 {
 }
 
 .no-results p {
-  color: #6b7280;
+  color: #ffffff;
 }
 
 .loading-container {
@@ -272,7 +272,7 @@ body.dark-mode .no-results h3 {
 }
 
 .loading-container p {
-  color: #6b7280;
+  color: #ffffff;
   font-size: 1.125rem;
 }
 

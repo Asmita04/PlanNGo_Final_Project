@@ -39,7 +39,8 @@ public class CustomJwtFilter implements WebFilter {
 		if (exchange.getRequest().getMethod().name().equals("OPTIONS")) {
 		    return chain.filter(exchange);
 		}
-		String authHeader = exchange.getRequest()
+		
+        String authHeader = exchange.getRequest()
                 .getHeaders()
                 .getFirst(HttpHeaders.AUTHORIZATION);
 		String requestId = exchange.getRequest().getId();

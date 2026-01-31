@@ -18,10 +18,13 @@ import AdminDashboard from './pages/AdminDashboard';
 import ModernAdminDashboard from './pages/ModernAdminDashboard';
 import ContactUs from './pages/ContactUs';
 import AboutUs from './pages/AboutUs';
+
+import UserManagement from './pages/UserManagement';
+
+
 import OrganizerVerification from './components/OrganizerVerification';
 import EventManagement from './pages/EventManagement';
 import VenueManagement from './pages/VenueManagement';
-import UserManagement from './pages/UserManagement';
 import NotFound from './pages/NotFound';
 import './styles/GlobalTheme.css';
 

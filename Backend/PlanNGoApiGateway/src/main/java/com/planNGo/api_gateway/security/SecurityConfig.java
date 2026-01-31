@@ -80,9 +80,12 @@ public class SecurityConfig {
 
                         // 🔹 Public endpoints (Event-Service)
                         .pathMatchers(
+                                "/venues",
                                 "/venues/**",
-                                "/event/**"
+                                "/events",
+                                "/events/**"
                         ).permitAll()
+
 
 
                         .pathMatchers(

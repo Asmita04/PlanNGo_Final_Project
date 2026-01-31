@@ -16,7 +16,14 @@ const EventCard = ({ event }) => {
 
   const handleBookClick = (e) => {
     e.stopPropagation();
-    navigate(`/events/${event.eventId || event.id}/book`);
+    const eventId = event.eventId || event.id;
+    console.log('Event object:', event);
+    console.log('Event ID:', eventId);
+    if (eventId) {
+      navigate(`/events/${eventId}`);
+    } else {
+      console.error('No event ID found');
+    }
   };
 
   const handleFavoriteClick = (e) => {
@@ -43,21 +50,19 @@ const EventCard = ({ event }) => {
 
   const booked = event.booked || 0;
   const capacity = event.availableTickets || event.capacity || 0;
-  const isSoldOut = capacity <= 0;
-  const isPopular = booked > (capacity * 0.8);
 
   return (
     <>
       <div className="event-card">
         <div className="event-image" onClick={handleImageClick}>
           <img 
-            src={event.eventImage || event.image || 'https://via.placeholder.com/400x220?text=Event+Image'} 
+            src={event.eventImage || event.image || '/placeholder.jpg'} 
             alt={event.title || 'Event'}
             onError={(e) => {
-              e.target.src = 'https://via.placeholder.com/400x220?text=Event+Image';
+              e.target.src = '/placeholder.jpg';
             }}
           />
-          {isPopular && <div className="event-badge">Popular</div>}
+          {booked > (capacity * 0.8) && <div className="event-badge">Popular</div>}
           <button 
             className={`favorite-button ${isFavorited ? 'favorited' : ''}`}
             onClick={handleFavoriteClick}
@@ -71,7 +76,9 @@ const EventCard = ({ event }) => {
         <div className="event-info">
           <h3 className="event-title">{event.title || 'Untitled Event'}</h3>
           <p className="event-location">
-            {event.venueName || event.venue || event.location || 'Location TBD'}
+            {event.venue?.venueName
+              ? `${event.venue.venueName}, ${event.venue.city}`
+              : event.location || 'Location TBD'}
           </p>
           <p className="event-datetime">
             {event.startDate ? new Date(event.startDate).toLocaleDateString() : (event.date ? new Date(event.date).toLocaleDateString() : 'Date TBD')}
@@ -86,11 +93,10 @@ const EventCard = ({ event }) => {
               📤 Share
             </button>
             <button 
-              className={`book-button ${isSoldOut ? 'disabled' : ''}`}
+              className="book-button"
               onClick={handleBookClick}
-              disabled={isSoldOut}
             >
-              {isSoldOut ? 'Sold Out' : `₹${event.ticketPrice || event.price || 0}`}
+              Book Now
             </button>
           </div>
         </div>
@@ -102,7 +108,7 @@ const EventCard = ({ event }) => {
             <button className="modal-close" onClick={closeModal}>×</button>
             <div className="modal-image">
               <img 
-                src={event.eventImage || event.image || 'https://via.placeholder.com/400x220?text=Event+Image'} 
+                src={event.eventImage || event.image || '/placeholder.jpg'} 
                 alt={event.title || 'Event'}
               />
             </div>
@@ -139,12 +145,16 @@ const EventCard = ({ event }) => {
                 <button 
                   className="modal-book-btn"
                   onClick={() => {
-                    setShowModal(false);
-                    navigate(`/events/${event.eventId || event.id}/book`);
+                    const eventId = event.eventId || event.id;
+                    if (eventId) {
+                      setShowModal(false);
+                      navigate(`/events/${eventId}`);
+                    } else {
+                      console.error('No event ID found');
+                    }
                   }}
-                  disabled={isSoldOut}
                 >
-                  {isSoldOut ? 'Sold Out' : 'Book Now'}
+                  Book Now
                 </button>
               </div>
             </div>

@@ -2,10 +2,9 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { api } from '../services';
-import { Mail, Lock, User, Phone, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, Phone, AlertCircle, Eye, EyeOff, Sparkles, Zap } from 'lucide-react';
 import GoogleSignInButton from '../components/GoogleSignInButton';
-import './Auth.css';
-import '../styles/ModernAuth.css';
+import './Signup.css';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -26,9 +25,6 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // =======================
-  // FORM VALIDATION
-  // =======================
   const validate = () => {
     const newErrors = {};
 
@@ -56,9 +52,6 @@ const Signup = () => {
     return newErrors;
   };
 
-  // =======================
-  // NORMAL SIGNUP
-  // =======================
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validate();
@@ -72,7 +65,6 @@ const Signup = () => {
       const { confirmPassword, ...signupData } = formData;
       const response = await api.signup(signupData);
 
-      // On successful signup, redirect to login with success message
       addNotification({ message: 'Account created successfully! Please login. 🎉', type: 'success' });
       navigate('/login');
     } catch (error) {
@@ -82,14 +74,11 @@ const Signup = () => {
     }
   };
 
-  // =======================
-  // GOOGLE SIGNUP (FIXED) ✅
-  // =======================
   const handleGoogleSuccess = async (googleResponse) => {
     setLoading(true);
     try {
       const response = await api.googleSignup({
-        idToken: googleResponse.credential, // ✅ JWT STRING
+        idToken: googleResponse.credential,
         userRole: formData.userRole
       });
 
@@ -113,80 +102,239 @@ const Signup = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: '' });
+    if (errors[e.target.name]) {
+      setErrors({ ...errors, [e.target.name]: '' });
+    }
   };
 
-  // =======================
-  // UI
-  // =======================
   return (
-    <div className="modern-auth-page">
-      <div className="modern-auth-card">
-
-        <h1>Create Account</h1>
-
-        {errors.submit && (
-          <div className="modern-error">
-            <AlertCircle size={16} />
-            <span>{errors.submit}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-
-          <input name="firstName" placeholder="First Name" onChange={handleChange} />
-          <input name="lastName" placeholder="Last Name" onChange={handleChange} />
-          <input name="email" placeholder="Email" onChange={handleChange} />
-          <input name="phone" placeholder="Phone" onChange={handleChange} />
-
-          <input
-            type={showPassword ? "text" : "password"}
-            name="password"
-            placeholder="Password"
-            onChange={handleChange}
-          />
-
-          <input
-            type={showConfirmPassword ? "text" : "password"}
-            name="confirmPassword"
-            placeholder="Confirm Password"
-            onChange={handleChange}
-          />
-
-          <div className="role-buttons">
-            <button
-              type="button"
-              className={`role-btn ${formData.userRole === 'ROLE_CUSTOMER' ? 'selected' : ''}`}
-              onClick={() => setFormData({...formData, userRole: 'ROLE_CUSTOMER'})}
-            >
-              🎫 Join Events
-            </button>
-
-            <button
-              type="button"
-              className={`role-btn ${formData.userRole === 'ROLE_ORGANIZER' ? 'selected' : ''}`}
-              onClick={() => setFormData({...formData, userRole: 'ROLE_ORGANIZER'})}
-            >
-              🎪 Host Events
-            </button>
+    <div className="signup-page">
+      <div className="signup-background">
+        <div className="gradient-orb orb-1"></div>
+        <div className="gradient-orb orb-2"></div>
+        <div className="gradient-orb orb-3"></div>
+        <div className="grid-pattern"></div>
+      </div>
+      
+      <div className="signup-container">
+        <div className="signup-card">
+          <div className="signup-header">
+            <div className="logo-section">
+              <div className="logo-icon">
+                <span className="icon-ticket">🎫</span>
+                <div className="sparkle sparkle-1">✨</div>
+                <div className="sparkle sparkle-2">✨</div>
+              </div>
+              <h1>Join PlanNGo</h1>
+            </div>
+            <p>Create your account and start planning amazing events</p>
           </div>
 
-          <button type="submit" disabled={loading}>
-            {loading ? 'Creating...' : 'Create Account'}
-          </button>
-        </form>
+          {errors.submit && (
+            <div className="error-alert">
+              <AlertCircle size={18} />
+              <span>{errors.submit}</span>
+            </div>
+          )}
 
-        <div className="divider">OR</div>
+          <form onSubmit={handleSubmit} className="signup-form">
+            <div className="name-row">
+              <div className="input-group">
+                <label className="input-label">First Name</label>
+                <div className="input-wrapper">
+                  <User className="input-icon" size={18} />
+                  <input
+                    type="text"
+                    name="firstName"
+                    placeholder="John"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    className={errors.firstName ? 'error' : ''}
+                  />
+                </div>
+                {errors.firstName && <span className="field-error">{errors.firstName}</span>}
+              </div>
+              
+              <div className="input-group">
+                <label className="input-label">Last Name</label>
+                <div className="input-wrapper">
+                  <User className="input-icon" size={18} />
+                  <input
+                    type="text"
+                    name="lastName"
+                    placeholder="Doe"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    className={errors.lastName ? 'error' : ''}
+                  />
+                </div>
+                {errors.lastName && <span className="field-error">{errors.lastName}</span>}
+              </div>
+            </div>
 
-        <GoogleSignInButton
-          onSuccess={handleGoogleSuccess}
-          onError={handleGoogleError}
-        />
+            <div className="input-group">
+              <label className="input-label">Email Address</label>
+              <div className="input-wrapper">
+                <Mail className="input-icon" size={18} />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="john.doe@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={errors.email ? 'error' : ''}
+                />
+              </div>
+              {errors.email && <span className="field-error">{errors.email}</span>}
+            </div>
 
-        <p>
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
+            <div className="input-group">
+              <label className="input-label">Phone Number</label>
+              <div className="input-wrapper">
+                <Phone className="input-icon" size={18} />
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="1234567890"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className={errors.phone ? 'error' : ''}
+                />
+              </div>
+              {errors.phone && <span className="field-error">{errors.phone}</span>}
+            </div>
 
+            <div className="input-group">
+              <label className="input-label">Password</label>
+              <div className="input-wrapper">
+                <Lock className="input-icon" size={18} />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={errors.password ? 'error' : ''}
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {errors.password && <span className="field-error">{errors.password}</span>}
+            </div>
+
+            <div className="input-group">
+              <label className="input-label">Confirm Password</label>
+              <div className="input-wrapper">
+                <Lock className="input-icon" size={18} />
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  placeholder="Confirm your password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className={errors.confirmPassword ? 'error' : ''}
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {errors.confirmPassword && <span className="field-error">{errors.confirmPassword}</span>}
+            </div>
+
+            <div className="role-section">
+              <label className="section-label">
+                <Sparkles size={16} />
+                Choose your role
+              </label>
+              <div className="role-cards">
+                <div 
+                  className={`role-card ${formData.userRole === 'ROLE_CUSTOMER' ? 'selected' : ''}`}
+                  onClick={() => setFormData({...formData, userRole: 'ROLE_CUSTOMER'})}
+                >
+                  <input
+                    type="radio"
+                    name="userRole"
+                    value="ROLE_CUSTOMER"
+                    checked={formData.userRole === 'ROLE_CUSTOMER'}
+                    onChange={handleChange}
+                  />
+                  <div className="role-content">
+                    <div className="role-icon">🎫</div>
+                    <div className="role-text">
+                      <div className="role-title">Event Attendee</div>
+                      <div className="role-desc">Discover and book amazing events</div>
+                    </div>
+                  </div>
+                  <div className="role-check">✓</div>
+                </div>
+                
+                <div 
+                  className={`role-card ${formData.userRole === 'ROLE_ORGANIZER' ? 'selected' : ''}`}
+                  onClick={() => setFormData({...formData, userRole: 'ROLE_ORGANIZER'})}
+                >
+                  <input
+                    type="radio"
+                    name="userRole"
+                    value="ROLE_ORGANIZER"
+                    checked={formData.userRole === 'ROLE_ORGANIZER'}
+                    onChange={handleChange}
+                  />
+                  <div className="role-content">
+                    <div className="role-icon">🎪</div>
+                    <div className="role-text">
+                      <div className="role-title">Event Organizer</div>
+                      <div className="role-desc">Create and manage your events</div>
+                    </div>
+                  </div>
+                  <div className="role-check">✓</div>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" className="submit-btn" disabled={loading}>
+              {loading ? (
+                <>
+                  <div className="spinner"></div>
+                  Creating Account...
+                </>
+              ) : (
+                <>
+                  <Zap size={18} />
+                  Create Account
+                  <span className="btn-arrow">→</span>
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="divider">
+            <span>or continue with</span>
+          </div>
+
+          <GoogleSignInButton
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+            text="Sign up with Google"
+          />
+
+          <div className="signup-footer">
+            <p>Already have an account? <Link to="/login" className="login-link">Sign In</Link></p>
+            <p className="terms-text">
+              By creating an account, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -10,7 +10,9 @@ import {
 } from 'recharts';
 import { api } from '../services';
 import Button from '../components/Button';
+
 import EventManagement from './EventManagement';
+
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -107,6 +109,7 @@ const AdminDashboard = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
+
       case 'events':
         return <EventManagement />;
       case 'settings':
@@ -116,6 +119,7 @@ const AdminDashboard = () => {
             <p>Configure system-wide settings and preferences.</p>
           </div>
         );
+
       case 'overview':
       default:
         return (

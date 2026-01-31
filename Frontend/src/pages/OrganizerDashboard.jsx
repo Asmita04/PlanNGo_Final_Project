@@ -195,9 +195,9 @@ const OrganizerDashboard = () => {
             icon={<Plus size={20} />}
             onClick={async () => {
               try {
+                setShowCreateModal(true);
                 const venuesData = await api.getAllVenues();
                 setVenues(venuesData);
-                setShowCreateModal(true);
               } catch (err) {
                 addNotification({ message: 'Failed to load venues', type: 'error' });
               }

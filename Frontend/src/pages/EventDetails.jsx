@@ -30,8 +30,23 @@ const EventDetails = () => {
 
   const loadEvent = async () => {
     try {
-      const data = await api.getEventById(id);
-      setEvent(data);
+      // If id is a number, use it as eventId, otherwise treat as title
+      const isNumericId = !isNaN(id);
+      let eventData;
+      
+      if (isNumericId) {
+        eventData = await api.getEventById(id);
+      } else {
+        // Get all events and find by title
+        const allEvents = await api.getAllEvents();
+        const decodedTitle = decodeURIComponent(id);
+        eventData = allEvents.find(event => event.title === decodedTitle);
+        if (!eventData) {
+          throw new Error('Event not found');
+        }
+      }
+      
+      setEvent(eventData);
     } catch (error) {
       console.error('Error loading event:', error);
     } finally {
@@ -76,12 +91,14 @@ const EventDetails = () => {
     );
   }
 
-  const isFavorite = favorites.includes(event.id);
+  const eventId = event.eventId ?? event.id;
+  const isFavorite = favorites.includes(eventId);
+
   const availableTickets = event.capacity - event.booked;
 
   return (
     <div className="event-details-page">
-      <div className="event-hero" style={{ backgroundImage: `url(${event.image})` }}>
+      <div className="event-hero" style={{ backgroundImage: `url(${event.eventImage || event.image || '/placeholder.jpg'})` }}>
         <div className="event-hero-overlay">
           <div className="container">
             <div className="event-hero-content">
@@ -90,7 +107,7 @@ const EventDetails = () => {
               <div className="event-meta">
                 <div className="meta-item">
                   <Calendar size={20} />
-                  <span>{new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                  <span>{new Date(event.startDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                 </div>
                 <div className="meta-item">
                   <Clock size={20} />
@@ -98,7 +115,10 @@ const EventDetails = () => {
                 </div>
                 <div className="meta-item">
                   <MapPin size={20} />
-                  <span>{event.location}</span>
+                  <span>
+                    {event.venue?.venueName}, {event.venue?.city}
+                  </span>
+
                 </div>
               </div>
             </div>
@@ -119,31 +139,42 @@ const EventDetails = () => {
               <div className="venue-info">
                 <MapPin size={24} />
                 <div>
-                  <h3>{event.venue}</h3>
-                  <p>{event.location}</p>
+                 <h3>{event.venue?.venueName}</h3>
+                 <p>{event.venue?.address}</p>
+
                 </div>
               </div>
-              <TravelOptions eventLocation={event.location} eventVenue={event.venue} />
+            <TravelOptions eventLocation={event.venue?.city} eventVenue={event.venue?.venueName}/>
             </div>
 
             <div className="event-section">
               <h2>Event Schedule</h2>
               <div className="schedule-list">
-                {event.schedule.map((item, index) => (
-                  <div key={index} className="schedule-item">
-                    <span className="schedule-time">{item.time}</span>
-                    <span className="schedule-activity">{item.activity}</span>
-                  </div>
-                ))}
+               {event.schedule?.length ? (
+                  event.schedule.map((item, index) => (
+                    <div key={index} className="schedule-item">
+                      <span className="schedule-time">{item.time}</span>
+                      <span className="schedule-activity">{item.activity}</span>
+                    </div>
+                  ))
+                ) : (
+                <p>No schedule available</p>
+              )}
+
               </div>
             </div>
 
             <div className="event-section">
               <h2>Tags</h2>
               <div className="event-tags">
-                {event.tags.map((tag, index) => (
-                  <span key={index} className="tag">{tag}</span>
-                ))}
+               {event.tags?.length ? (
+                  event.tags.map((tag, index) => (
+                    <span key={index} className="tag">{tag}</span>
+                  ))
+                ) : (
+                  <span className="tag">General</span>
+                )}
+
               </div>
             </div>
           </div>
@@ -172,7 +203,7 @@ const EventDetails = () => {
                       setQuantity(Math.max(1, Math.min(availableTickets, value)));
                     }}
                     min="1"
-                    max={availableTickets}
+                    max={Math.max(1, availableTickets)}
                   />
                   <button onClick={() => setQuantity(Math.min(availableTickets, quantity + 1))}>+</button>
                 </div>
@@ -188,7 +219,7 @@ const EventDetails = () => {
               </Button>
 
               <div className="action-buttons">
-                <button className="action-btn" onClick={() => toggleFavorite(event.id)}>
+                <button className="action-btn" onClick={() => toggleFavorite(eventId)}>
                   <Heart size={20} fill={isFavorite ? '#ef4444' : 'none'} color={isFavorite ? '#ef4444' : 'currentColor'} />
                   {isFavorite ? 'Saved' : 'Save'}
                 </button>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+
 import { Users, Search, Filter, Edit, Trash2, Eye, X, MapPin, Mail, Phone, Calendar, User as UserIcon, Building, UserX, CheckCircle, FileText } from 'lucide-react';
 import { api } from '../services';
 import Button from '../components/Button';
@@ -23,10 +24,12 @@ const UserManagement = () => {
       setUsers(data);
     } catch (error) {
       console.error('Error loading users:', error);
+
     } finally {
       setLoading(false);
     }
   };
+
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -196,7 +199,7 @@ const UserManagement = () => {
         })}
       </div>
 
-      {/* Filters */}}
+      {/* Filters */}
       <div className="filters-section">
         <div className="search-box">
           <Search size={20} />
@@ -254,6 +257,7 @@ const UserManagement = () => {
           </div>
         </div>
       )}
+
     </div>
   );
 };
