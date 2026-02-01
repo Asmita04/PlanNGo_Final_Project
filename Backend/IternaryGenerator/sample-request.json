@@ -1,0 +1,20 @@
+{
+  "bio": "I'm a 28-year-old adventure enthusiast who loves exploring historical sites, trying local cuisine, and experiencing cultural events. I enjoy moderate hiking and prefer authentic local experiences over touristy spots.",
+  "notes": "Vegetarian diet, prefer public transport, budget-conscious traveler",
+  "exploreCity": true,
+  "places": [
+    "Cubbon Park",
+    "Vidhana Soudha",
+    "Bangalore Palace",
+    "Lalbagh Botanical Garden",
+    "ISKCON Temple"
+  ],
+  "events": [
+    {
+      "event_name": "Bangalore Food Festival",
+      "location_url": "https://www.google.com/maps/place/Palace+Grounds+Bangalore",
+      "start_time": "2026-02-15T10:00:00",
+      "end_time": "2026-02-15T18:00:00"
+    }
+  ]
+}
