@@ -19,6 +19,8 @@ public class EventRequest {
     private Boolean isApproved;
     private Boolean isExpired;
     private EventCategory category;
+    
+    private TicketRequest[] tickets;
 
     // relationship by ID only
     private Integer venueId;

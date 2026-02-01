@@ -1,6 +1,7 @@
 package com.planngo.ticketservice.controller;
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.planngo.ticketservice.dto.*;
@@ -15,8 +16,8 @@ public class EventTicketController {
 	private final EventTicketService service;
 
     @PostMapping
-    public EventTicketResponseDTO create(@RequestBody EventTicketRequestDTO dto) {
-        return service.create(dto);
+    public ResponseEntity<List<EventTicketResponseDTO>> create(@RequestBody EventTicketRequestDTO dto) {
+        return ResponseEntity.ok(service.create(dto));
     }
 
     @GetMapping
@@ -29,11 +30,14 @@ public class EventTicketController {
         return service.getById(id);
     }
 
-    @PutMapping("/{id}")
-    public EventTicketResponseDTO update(@PathVariable Integer id,
-                                         @RequestBody EventTicketRequestDTO dto) {
-        return service.update(id, dto);
-    }
+//    @PutMapping("/{id}")
+//    public ResponseEntity<EventTicketResponseDTO> update(
+//            @PathVariable Integer id,
+//            @RequestBody TicketRequest ticketDto) {
+//
+//        return ResponseEntity.ok(service.update(id, ticketDto));
+//    }
+
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Integer id) {
