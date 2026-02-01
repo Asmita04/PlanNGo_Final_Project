@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.planngo.ticketservice.dto.*;
 import com.planngo.ticketservice.model.EventTicket;
+import com.planngo.ticketservice.model.TicketType;
+
 import com.planngo.ticketservice.repository.EventTicketRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -16,18 +18,24 @@ public class EventTicketServiceImpl implements EventTicketService {
 	private final EventTicketRepository repository;
 
     @Override
-    public EventTicketResponseDTO create(EventTicketRequestDTO dto) {
-        EventTicket entity = EventTicket.builder()
-                .eventId(dto.getEventId())
-                .typeName(dto.getTypeName())
-                .price(dto.getPrice())
-                .totalQuantity(dto.getTotalQuantity())
-                .build();
+    public List<EventTicketResponseDTO> create(EventTicketRequestDTO dto) {
 
-        EventTicket saved = repository.save(entity);
-        return mapToDTO(saved);
+        List<EventTicket> entities = dto.getTickets().stream()
+                .map(ticket -> (EventTicket.builder()
+                        .eventId(dto.getEventId())
+                        .typeName(TicketType.valueOf(ticket.getTicketType())) // ✅ FIX
+                        .price(ticket.getPrice())
+                        .totalQuantity(ticket.getTotalQuantity())
+                        .build()
+                ))
+                .collect(Collectors.toList());
+
+        List<EventTicket> saved = repository.saveAll(entities);
+
+        return saved.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
-
     @Override
     public List<EventTicketResponseDTO> getAll() {
         return repository.findAll()
@@ -43,17 +51,18 @@ public class EventTicketServiceImpl implements EventTicketService {
         return mapToDTO(entity);
     }
 
-    @Override
-    public EventTicketResponseDTO update(Integer id, EventTicketRequestDTO dto) {
-        EventTicket entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
-
-        entity.setPrice(dto.getPrice());
-        entity.setTotalQuantity(dto.getTotalQuantity());
-        entity.setTypeName(dto.getTypeName());
-
-        return mapToDTO(repository.save(entity));
-    }
+//    @Override
+//    public EventTicketResponseDTO update(Integer id, TicketRequest ticketDto) {
+//
+//        EventTicket entity = repository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("Ticket not found"));
+//
+//        entity.setTypeName(TicketType.valueOf(ticketDto.getTicketType()));
+//        entity.setPrice(ticketDto.getPrice());
+//        entity.setTotalQuantity(ticketDto.getTotalQuantity());
+//
+//        return mapToDTO(repository.save(entity));
+//    }
 
     @Override
     public void delete(Integer id) {
