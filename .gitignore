@@ -4,3 +4,16 @@
 
 .DS_Store
 Backend/.DS_Store
+.metadata/
+**/.metadata/
+**/.classpath
+**/.project
+**/.settings/
+**/target/
+**/bin/
+**/node_modules/
+**/dist/
+**/.idea/
+**/.vscode/
+
+

@@ -39,8 +39,21 @@ export const API_ENDPOINTS = {
   ORGANIZER_PROFILE: '/organizer/profile',
   ORGANIZER_EVENTS: '/organizer/events',
   ORGANIZER_BOOKINGS: '/organizer/bookings',
-};
 
+  EVENT_TICKET_TYPES: '/event-tickets',
+EVENT_TICKET_TYPE_BY_ID: (id) => `/event-tickets/${id}`,
+
+// Ticket Booking APIs
+BOOK_TICKET: '/tickets',
+CANCEL_TICKET: (ticketId) => `/tickets/${ticketId}/cancel`,
+
+CREATE_EVENT_TICKET_TYPE: '/event-tickets',
+GET_ALL_EVENT_TICKET_TYPES: '/event-tickets',
+GET_EVENT_TICKET_TYPE_BY_ID: (id) => `/event-tickets/${id}`,
+UPDATE_EVENT_TICKET_TYPE: (id) => `/event-tickets/${id}`,
+DELETE_EVENT_TICKET_TYPE: (id) => `/event-tickets/${id}`,
+};
+  
 export const HTTP_STATUS = {
   OK: 200,
   CREATED: 201,
