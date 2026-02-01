@@ -1,5 +1,6 @@
 package com.planNGo.ums.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -10,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.planNGo.ums.custom_exceptions.InvalidInputException;
 import com.planNGo.ums.custom_exceptions.ResourceNotFoundException;
@@ -24,6 +26,7 @@ import com.planNGo.ums.entities.Customer;
 import com.planNGo.ums.entities.Organizer;
 import com.planNGo.ums.entities.User;
 import com.planNGo.ums.entities.UserRole;
+import com.planNGo.ums.helper.ImageUploadHelper;
 import com.planNGo.ums.repository.CustomerRepository;
 import com.planNGo.ums.repository.OrganizerRepository;
 import com.planNGo.ums.repository.UserRepository;
@@ -47,7 +50,8 @@ public class UserServiceImpl extends DefaultOAuth2UserService  implements UserSe
 	private final PasswordEncoder passwordEncoder;
 	private final AuthenticationManager authenticationManager;
 	private final JwtUtils jwtUtils;
-
+	
+	private final ImageUploadHelper imageUploadHelper;
 
 	@Override
 	public AuthResp authenticate(AuthRequest request) {
@@ -257,6 +261,27 @@ public class UserServiceImpl extends DefaultOAuth2UserService  implements UserSe
 				
 				//similarly call other setters		
 				return new ApiResponse("Success", "Updated user details");
+	}
+
+	@Override
+	public ApiResponse uploadPfp(Long id, MultipartFile file) {
+		try {
+            String storedPath = imageUploadHelper.uploadFileWithId(file, id);
+            log.info(storedPath+" yaha store hoagya");
+            User user= userRepository.findById(id)
+            		.orElseThrow(() -> new ResourceNotFoundException("Invalid user id !!!!!"));
+            	user.setPfp("http://localhost:8080/"+storedPath);
+            	
+            return new ApiResponse("Success",storedPath);
+                    
+            
+
+        } catch (IllegalArgumentException e) {
+            return new ApiResponse("Error", e.toString());
+
+        } catch (IOException e) {
+            return new ApiResponse("Unsuccessful", e.toString());
+        }
 	}
 
 

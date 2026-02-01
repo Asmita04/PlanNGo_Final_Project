@@ -101,6 +101,31 @@ const ClientProfile = () => {
     }
   };
 
+  const handlePhotoUpload = async () => {
+    if (!profilePhoto) return;
+    
+    const userId = userData?.id || user?.id;
+    const formData = new FormData();
+    formData.append('file', profilePhoto);
+    
+    try {
+      const response = await apiClient.post(`/users/upload/${userId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      addNotification({ message: 'Profile photo updated successfully! 🎉', type: 'success' });
+      setProfilePhoto(null);
+      setProfilePhotoPreview(null);
+    } catch (error) {
+      console.error('Photo upload error:', error);
+      addNotification({ 
+        message: error.response?.data?.message || 'Failed to upload photo', 
+        type: 'error' 
+      });
+    }
+  };
+
   const savePhotoLocally = (file, userId) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -269,6 +294,14 @@ const ClientProfile = () => {
               onChange={handlePhotoChange}
               style={{ display: 'none' }}
             />
+            {isEditing && profilePhoto && (
+              <button 
+                onClick={handlePhotoUpload}
+                className="upload-photo-btn"
+              >
+                Update Photo
+              </button>
+            )}
             <div className="profile-info">
               <h1>{userData?.firstName && userData?.lastName ? `${userData.firstName} ${userData.lastName}` : user?.name || 'User Name'}</h1>
               <p className="profile-role">

@@ -6,55 +6,123 @@
 
 .profile-header {
   position: relative;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 24px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4);
+  overflow: hidden;
+}
+
+.profile-header::before {
+  content: '';
+  position: absolute;
+  top: -100px;
+  right: -100px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.profile-header::after {
+  content: '';
+  position: absolute;
+  bottom: -80px;
+  left: -80px;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.header-content {
   display: flex;
   align-items: center;
   gap: 2rem;
-  background: white;
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.upload-photo-btn {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-photo-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.profile-info {
+  flex: 1;
+}
+
+.profile-info h1 {
+  margin: 0 0 0.75rem 0;
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.profile-role {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1.15rem;
+  font-weight: 500;
 }
 
 .edit-btn-circle {
   position: absolute;
   top: 2rem;
   right: 2rem;
-  min-width: 100px;
-  height: auto;
-  background: transparent;
-  border: none;
-  color: #6b7280;
+  width: 50px;
+  height: 50px;
+  color: white;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 2;
-  padding: 10px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 8px;
+  background: transparent;
+  border: none;
 }
 
 .edit-btn-circle svg {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
 }
 
 .edit-btn-circle:hover {
   transform: scale(1.1) rotate(5deg);
-  color: #6366f1;
-}
-
-.edit-btn-circle.editing {
-  color: #ef4444;
-}
-
-.edit-btn-circle.editing:hover {
-  transform: scale(1.1) rotate(-5deg);
 }
 
 .profile-avatar {
@@ -89,26 +157,15 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   opacity: 0;
   transition: opacity 0.3s;
   border-radius: 50%;
   color: white;
-  gap: 0.5rem;
-}
-
-.photo-overlay span {
-  font-size: 0.875rem;
-  font-weight: 500;
 }
 
 .profile-avatar:hover .photo-overlay {
-  opacity: 1;
-}
-
-.profile-avatar.editing .photo-overlay {
   opacity: 1;
 }
 

@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Search, Filter, Plus, Edit, Trash2, Eye, X, Loader2 } from 'lucide-react';
+import { MapPin, Search, Filter, Plus, Edit, Trash2, Eye, X } from 'lucide-react';
 import { api } from '../services';
 import './VenueManagement.css';
-
-// Add your API keys here
-const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'YOUR_API_KEY_HERE';
-const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY || 'YOUR_UNSPLASH_KEY';
 
 const VenueManagement = () => {
   const [venues, setVenues] = useState([]);
@@ -13,7 +9,6 @@ const VenueManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [showModal, setShowModal] = useState(false);
-  const [imageLoading, setImageLoading] = useState(false);
   const [venueForm, setVenueForm] = useState({
     venueName: '',
     capacity: '',
@@ -29,7 +24,6 @@ const VenueManagement = () => {
     description: '',
     isAvailable: true
   });
-  const [venueImages, setVenueImages] = useState({});
 
   const indianStates = [
     'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
@@ -64,34 +58,6 @@ const VenueManagement = () => {
     try {
       const venuesData = await api.getAllVenues();
       setVenues(venuesData);
-      
-      // Generate images for existing venues using Unsplash
-      const images = {};
-      
-      if (UNSPLASH_ACCESS_KEY && UNSPLASH_ACCESS_KEY !== 'YOUR_UNSPLASH_KEY') {
-        for (const venue of venuesData) {
-          try {
-            const searchQuery = [venue.venueName, venue.city].filter(Boolean).join(' ');
-            const response = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(searchQuery)}&per_page=1&client_id=${UNSPLASH_ACCESS_KEY}`);
-            const data = await response.json();
-            
-            if (data.results && data.results.length > 0) {
-              images[venue.venueId] = data.results[0].urls.regular;
-            } else {
-              images[venue.venueId] = `https://picsum.photos/300/300?random=${venue.venueId}`;
-            }
-          } catch (error) {
-            console.error(`Error fetching image for ${venue.venueName}:`, error);
-            images[venue.venueId] = `https://picsum.photos/300/300?random=${venue.venueId}`;
-          }
-        }
-      } else {
-        venuesData.forEach(venue => {
-          images[venue.venueId] = `https://picsum.photos/300/300?random=${venue.venueId}`;
-        });
-      }
-      
-      setVenueImages(images);
     } catch (error) {
       console.error('Error loading venues:', error);
     } finally {
@@ -120,11 +86,6 @@ const VenueManagement = () => {
       description: '',
       isAvailable: true
     });
-    setVenueImages(prev => {
-      const newImages = { ...prev };
-      delete newImages.new;
-      return newImages;
-    });
   };
 
   const handleInputChange = (e) => {
@@ -148,59 +109,6 @@ const VenueManagement = () => {
       loadVenues();
     } catch (error) {
       console.error('Error adding venue:', error);
-    }
-  };
-
-  const generateGoogleMapsUrl = async () => {
-    const { address, city, state, country, venueName } = venueForm;
-    
-    if (!address && !city && !venueName) {
-      alert('Please enter at least venue name, address, or city');
-      return;
-    }
-
-    setImageLoading(true);
-
-    try {
-      const searchQuery = [venueName, address, city, state, country]
-        .filter(Boolean)
-        .join(', ');
-
-      const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchQuery)}`;
-      setVenueForm(prev => ({ ...prev, googleMapsUrl }));
-      
-      // Try Unsplash for venue images
-      if (UNSPLASH_ACCESS_KEY && UNSPLASH_ACCESS_KEY !== 'YOUR_UNSPLASH_KEY') {
-        try {
-          console.log('Fetching from Unsplash:', searchQuery);
-          const response = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(searchQuery)}&per_page=1&client_id=${UNSPLASH_ACCESS_KEY}`);
-          const data = await response.json();
-          
-          console.log('Unsplash response:', data);
-          
-          if (data.results && data.results.length > 0) {
-            console.log('Found Unsplash image:', data.results[0].urls.regular);
-            setVenueImages(prev => ({ ...prev, new: data.results[0].urls.regular }));
-          } else {
-            console.log('No Unsplash results, using placeholder');
-            const randomId = Date.now();
-            setVenueImages(prev => ({ ...prev, new: `https://picsum.photos/600/400?random=${randomId}` }));
-          }
-        } catch (error) {
-          console.error('Unsplash API error:', error);
-          const randomId = Date.now();
-          setVenueImages(prev => ({ ...prev, new: `https://picsum.photos/600/400?random=${randomId}` }));
-        }
-      } else {
-        console.log('No Unsplash key, using placeholder');
-        const randomId = Date.now();
-        setVenueImages(prev => ({ ...prev, new: `https://picsum.photos/600/400?random=${randomId}` }));
-      }
-
-    } catch (error) {
-      console.error('Error generating Google Maps URL:', error);
-    } finally {
-      setImageLoading(false);
     }
   };
 
@@ -238,7 +146,7 @@ const VenueManagement = () => {
         </button>
       </div>
 
-      <div className="venues-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', padding: '20px 0' }}>
+      <div className="venues-table">
         {loading ? (
           <div className="loading-state">Loading venues...</div>
         ) : venues.length === 0 ? (
@@ -248,55 +156,36 @@ const VenueManagement = () => {
             <p>Start by adding your first venue</p>
           </div>
         ) : (
-          venues.map(venue => (
-            <div key={venue.venueId} className="venue-card" style={{ 
-              border: '1px solid #e0e0e0', 
-              borderRadius: '12px', 
-              overflow: 'hidden', 
-              backgroundColor: 'white',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              height: '400px',
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
-              <div className="venue-image" style={{ height: '180px', overflow: 'hidden' }}>
-                <img 
-                  src={venueImages[venue.venueId] || 'https://via.placeholder.com/300x180/20B2AA/FFFFFF?text=No+Image'} 
-                  alt={venue.venueName}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              </div>
-              <div className="venue-content" style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <h4 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '600' }}>{venue.venueName}</h4>
-                <p className="venue-location" style={{ margin: '0 0 8px 0', color: '#666', fontSize: '14px' }}>{venue.location}, {venue.city}</p>
-                <p className="venue-description" style={{ margin: '0 0 12px 0', color: '#888', fontSize: '13px', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{venue.description}</p>
-                <div className="venue-details" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <span className="capacity" style={{ fontSize: '14px', fontWeight: '500' }}>Capacity: {venue.capacity}</span>
-                  <span className={`status-badge status-${venue.isAvailable ? 'available' : 'booked'}`} style={{ 
-                    padding: '4px 8px', 
-                    borderRadius: '12px', 
-                    fontSize: '12px', 
-                    fontWeight: '500',
-                    backgroundColor: venue.isAvailable ? '#d1fae5' : '#fee2e2',
-                    color: venue.isAvailable ? '#065f46' : '#991b1b'
-                  }}>
-                    {venue.isAvailable ? 'Available' : 'Booked'}
-                  </span>
-                </div>
-                <div className="venue-actions" style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                  <button className="action-btn view" style={{ padding: '8px', borderRadius: '6px', border: '1px solid #20B2AA', backgroundColor: 'transparent', color: '#20B2AA', cursor: 'pointer' }}>
+          <>
+            <div className="table-header">
+              <span>Venue</span>
+              <span>Location</span>
+              <span>Capacity</span>
+              <span>Status</span>
+              <span>Actions</span>
+            </div>
+            {venues.map(venue => (
+              <div key={venue.venueId} className="table-row">
+                <span>{venue.venueName}</span>
+                <span>{venue.city}, {venue.state}</span>
+                <span>{venue.capacity}</span>
+                <span className={`status-badge status-${venue.isAvailable ? 'available' : 'booked'}`}>
+                  {venue.isAvailable ? 'Available' : 'Booked'}
+                </span>
+                <div className="actions">
+                  <button className="action-btn view">
                     <Eye size={16} />
                   </button>
-                  <button className="action-btn edit" style={{ padding: '8px', borderRadius: '6px', border: '1px solid #20B2AA', backgroundColor: 'transparent', color: '#20B2AA', cursor: 'pointer' }}>
+                  <button className="action-btn edit">
                     <Edit size={16} />
                   </button>
-                  <button className="action-btn delete" style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ef4444', backgroundColor: 'transparent', color: '#ef4444', cursor: 'pointer' }}>
+                  <button className="action-btn delete">
                     <Trash2 size={16} />
                   </button>
                 </div>
               </div>
-            </div>
-          ))
+            ))}
+          </>
         )}
       </div>
 
@@ -437,75 +326,14 @@ const VenueManagement = () => {
                 </div>
               </div>
               <div className="form-group">
-                <label>Google Maps URL & Venue Image</label>
-                <div className="url-input-group" style={{ display: 'flex', gap: '8px' }}>
-                  <input
-                    type="url"
-                    name="googleMapsUrl"
-                    value={venueForm.googleMapsUrl}
-                    onChange={handleInputChange}
-                    placeholder="Auto-generated or enter manually"
-                    style={{ flex: 1 }}
-                  />
-                  <button
-                    type="button"
-                    className="generate-url-btn"
-                    onClick={generateGoogleMapsUrl}
-                    disabled={(!venueForm.address && !venueForm.city && !venueForm.venueName) || imageLoading}
-                    style={{ 
-                      padding: '8px 16px',
-                      backgroundColor: '#20B2AA',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: imageLoading ? 'not-allowed' : 'pointer',
-                      opacity: imageLoading ? 0.6 : 1,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    {imageLoading ? (
-                      <>
-                        <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
-                        <span>Fetching...</span>
-                      </>
-                    ) : (
-                      'Fetch Image'
-                    )}
-                  </button>
-                </div>
-                <small style={{ color: '#666', fontSize: '12px', display: 'block', marginTop: '4px' }}>
-                  {GOOGLE_MAPS_API_KEY === 'YOUR_API_KEY_HERE' 
-                    ? '⚠️ Configure REACT_APP_GOOGLE_MAPS_API_KEY in .env for real images'
-                    : '✓ API key configured - will fetch real venue photos'}
-                </small>
-                {venueImages.new && (
-                  <div className="image-preview" style={{ marginTop: '12px' }}>
-                    <img 
-                      src={venueImages.new} 
-                      alt="Venue preview" 
-                      style={{ 
-                        width: '100%', 
-                        maxHeight: '200px', 
-                        objectFit: 'cover', 
-                        borderRadius: '8px',
-                        border: '2px solid #20B2AA'
-                      }}
-                    />
-                    <p style={{ 
-                      fontSize: '12px', 
-                      color: '#666', 
-                      marginTop: '8px',
-                      textAlign: 'center' 
-                    }}>
-                      {GOOGLE_MAPS_API_KEY === 'YOUR_API_KEY_HERE' 
-                        ? 'Placeholder image - add API key for real photos'
-                        : 'Venue image from Google Maps'}
-                    </p>
-                  </div>
-                )}
+                <label>Google Maps URL</label>
+                <input
+                  type="url"
+                  name="googleMapsUrl"
+                  value={venueForm.googleMapsUrl}
+                  onChange={handleInputChange}
+                  placeholder="Enter Google Maps URL manually"
+                />
               </div>
               <div className="form-group">
                 <label>Description</label>
@@ -565,13 +393,6 @@ const VenueManagement = () => {
           </div>
         </div>
       )}
-
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 };

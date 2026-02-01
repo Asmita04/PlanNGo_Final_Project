@@ -112,6 +112,31 @@ const OrganizerProfile = () => {
     }
   };
 
+  const handlePhotoUpload = async () => {
+    if (!profilePhoto) return;
+    
+    const userId = user?.id;
+    const formData = new FormData();
+    formData.append('file', profilePhoto);
+    
+    try {
+      const response = await apiClient.post(`/users/upload/${userId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      addNotification({ message: 'Profile photo updated successfully! 🎉', type: 'success' });
+      setProfilePhoto(null);
+      setProfilePhotoPreview(null);
+    } catch (error) {
+      console.error('Photo upload error:', error);
+      addNotification({ 
+        message: error.response?.data?.message || 'Failed to upload photo', 
+        type: 'error' 
+      });
+    }
+  };
+
   
   const savePhotoLocally = (file, userId) => {
     const reader = new FileReader();
@@ -239,39 +264,47 @@ const OrganizerProfile = () => {
     <div className="profile-page">
       <div className="container">
         <div className="profile-header">
-          <div className={`profile-avatar ${isEditing ? 'editing' : ''}`} onClick={() => isEditing && fileInputRef.current?.click()}>
-            {profilePhotoPreview || localStorage.getItem(`profilePhoto_${user?.id}`) || profile.pfp ? (
-              <img 
-                src={getProfilePhotoSrc()} 
-                alt="Profile" 
-                className="profile-photo"
-                onError={(e) => {
-                  e.target.src = 'cdn/user_pfp/NotFound.jpg';
-                }}
-              />
-            ) : (
-              <User size={56} strokeWidth={2} />
+          <div className="header-content">
+            <div className="profile-avatar" onClick={() => isEditing && fileInputRef.current?.click()}>
+              {profilePhotoPreview || localStorage.getItem(`profilePhoto_${user?.id}`) || profile.pfp ? (
+                <img 
+                  src={getProfilePhotoSrc()} 
+                  alt="Profile" 
+                  className="profile-photo"
+                  onError={(e) => {
+                    e.target.src = 'cdn/user_pfp/NotFound.jpg';
+                  }}
+                />
+              ) : (
+                <User size={56} strokeWidth={2} />
+              )}
+              {isEditing && (
+                <div className="photo-overlay">
+                  <Camera size={24} />
+                </div>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoChange}
+              style={{ display: 'none' }}
+            />
+            {isEditing && profilePhoto && (
+              <button 
+                onClick={handlePhotoUpload}
+                className="upload-photo-btn"
+              >
+                Update Photo
+              </button>
             )}
-            {isEditing && (
-              <div className="photo-overlay">
-                <Camera size={24} />
-                <span>Change Photo</span>
-              </div>
-            )}
-          </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handlePhotoChange}
-            style={{ display: 'none' }}
-          />
-          <div className="profile-info">
-            <h1>{(profile.firstName && profile.lastName) ? `${profile.firstName} ${profile.lastName}` : (user?.firstName && user?.lastName) ? `${user.firstName} ${user.lastName}` : 'Organizer Name'}</h1>
-            <p>{profile.organization}</p>
-            <div className="verification-status">
-              {getVerificationStatusIcon(profile.verificationStatus)}
-              <span>Verification Status: {profile.verificationStatus}</span>
+            <div className="profile-info">
+              <h1>{(profile.firstName && profile.lastName) ? `${profile.firstName} ${profile.lastName}` : (user?.firstName && user?.lastName) ? `${user.firstName} ${user.lastName}` : 'Organizer Name'}</h1>
+              <p className="profile-role">
+                <MapPin size={16} />
+                Event Organizer
+              </p>
             </div>
           </div>
           <button 
@@ -279,17 +312,7 @@ const OrganizerProfile = () => {
             onClick={() => isEditing ? handleCancel() : setIsEditing(true)}
             aria-label={isEditing ? 'Cancel editing' : 'Edit profile'}
           >
-            {isEditing ? (
-              <>
-                <X size={16} strokeWidth={2.5} />
-                <span>Cancel</span>
-              </>
-            ) : (
-              <>
-                <Edit2 size={16} strokeWidth={2.5} />
-                <span>Edit</span>
-              </>
-            )}
+            {isEditing ? <X size={28} strokeWidth={2.5} /> : <Edit2 size={28} strokeWidth={2.5} />}
           </button>
         </div>
 

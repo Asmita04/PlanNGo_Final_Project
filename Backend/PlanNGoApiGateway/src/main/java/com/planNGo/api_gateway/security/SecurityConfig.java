@@ -66,11 +66,16 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.PATCH, "/bookings").hasRole("CUSTOMER")
 
                         // 🔹 ADMIN or CUSTOMER
-                        .pathMatchers(HttpMethod.GET,
-                                "/customers/*",
+                        .pathMatchers(
+                                "/customers/**",
                                 "/bookings/customers/**"
                         ).hasAnyRole("ADMIN", "CUSTOMER")
-
+                        
+                        .pathMatchers(
+                                "/customers/**",
+                                "/bookings/customers/**"
+                        ).hasAnyRole("ADMIN", "CUSTOMER","ORGANIZER")
+                        
                         // 🔹 ADMIN or ORGANIZER
                         .pathMatchers(HttpMethod.GET,
                                 "/organizers/*",
@@ -86,6 +91,7 @@ public class SecurityConfig {
                                 "/events/**",
                                 "/tickets/**"
                         ).permitAll()
+
                         .pathMatchers(
                                 "/tickets",
                                 "/tickets/**",

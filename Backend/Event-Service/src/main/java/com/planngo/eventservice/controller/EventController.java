@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,11 +22,13 @@ public class EventController {
 
     // Create new event
     @PostMapping("/register/{userId}")
-    public ResponseEntity<ApiResponse> createEvent(@PathVariable Long userId, @RequestBody EventRequest eventRequest) {
-        ApiResponse response = eventService.createEvent(userId, eventRequest);
+    public ResponseEntity<ApiResponse> createEvent(@PathVariable Long userId, @RequestParam("file") MultipartFile file, @RequestBody EventRequest eventRequest) {
+        ApiResponse response = eventService.createEvent(userId, eventRequest, file);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
+    
+   
+    
     //Get all events
     @GetMapping()
     public ResponseEntity<List<EventResponse>> getAllEvents() {

@@ -7,10 +7,12 @@ import com.planngo.eventservice.model.Event;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public interface EventService {
 
     //to create Event
-    ApiResponse createEvent(Long organizerId, EventRequest eventRequest);
+    ApiResponse createEvent(Long organizerId, EventRequest eventRequest, MultipartFile file);
 
     //To get all the events
     List<EventResponse> getAllEvents();
@@ -26,4 +28,6 @@ public interface EventService {
 
     //is Event expire
     boolean isEventExpired(EventRequest eventRequest);
+
+	
 }
