@@ -26,12 +26,6 @@ const Login = () => {
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Minimum 6 characters required";
-    } else if (!/[a-zA-Z]/.test(formData.password)) {
-      newErrors.password = "At least one letter required";
-    } else if (!/\d/.test(formData.password)) {
-      newErrors.password = "At least one number required";
     }
     
     return newErrors;

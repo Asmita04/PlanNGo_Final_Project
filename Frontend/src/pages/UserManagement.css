@@ -360,8 +360,8 @@
 }
 
 .verification-status.unverified {
-  background: linear-gradient(135deg, #fecaca, #fca5a5);
-  color: #991b1b;
+  background: linear-gradient(135deg, #ccfbf1, #99f6e4);
+  color: #0d9488;
 }
 
 .user-role {

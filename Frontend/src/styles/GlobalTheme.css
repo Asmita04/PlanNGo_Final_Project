@@ -2,16 +2,16 @@
 :root {
   --primary-gradient: linear-gradient(135deg, #1e293b 0%, #334155 100%);
   --secondary-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  --accent-gradient: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+  --accent-gradient: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
   --page-bg: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
   
   --text-primary: #ffffff;
   --text-secondary: #e2e8f0;
   --text-muted: #94a3b8;
-  --text-accent: #e11d48;
+  --text-accent: #14b8a6;
   
   --border-color: #334155;
-  --border-accent: #e11d48;
+  --border-accent: #14b8a6;
   
   --shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -34,6 +34,19 @@ body {
 .event-details-page, .booking-page, .contact-page, .about-page {
   background: var(--page-bg) !important;
   min-height: 100vh !important;
+  position: relative;
+}
+
+.dashboard-page::before, .profile-page::before, .landing::before, .auth-page::before, .events-page::before,
+.event-details-page::before, .booking-page::before, .contact-page::before, .about-page::before {
+  content: '';
+  position: absolute;
+  top: -100px;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: inherit;
+  z-index: -1;
 }
 
 /* Card Components */
@@ -53,6 +66,7 @@ body {
   box-shadow: var(--shadow-lg) !important;
   border: 1px solid var(--border-color) !important;
   margin-bottom: 2rem !important;
+  margin-top: 100px !important;
 }
 
 /* Form Elements */
@@ -63,7 +77,10 @@ input[type="password"], input[type="tel"], input[type="date"], textarea {
   border-radius: var(--radius-sm) !important;
   color: var(--text-primary) !important;
   padding: 0.875rem !important;
+  padding-left: 3rem !important;
   transition: border-color 0.3s !important;
+  position: relative !important;
+  z-index: 1 !important;
 }
 
 .form-input:focus, .modern-input:focus, input:focus, textarea:focus {
@@ -112,7 +129,7 @@ input[type="password"], input[type="tel"], input[type="date"], textarea {
 
 .btn:hover, .button:hover, button:hover:not(.demo-btn):not(.role-btn) {
   transform: translateY(-2px) !important;
-  box-shadow: 0 8px 25px rgba(225, 29, 72, 0.3) !important;
+  box-shadow: 0 8px 25px rgba(20, 184, 166, 0.3) !important;
 }
 
 /* Secondary Buttons */
@@ -141,12 +158,12 @@ input[type="password"], input[type="tel"], input[type="date"], textarea {
   justify-content: center !important;
   cursor: pointer !important;
   transition: all 0.3s ease !important;
-  box-shadow: 0 4px 15px rgba(225, 29, 72, 0.3) !important;
+  box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3) !important;
 }
 
 .edit-btn-circle:hover {
   transform: scale(1.1) !important;
-  box-shadow: 0 6px 25px rgba(225, 29, 72, 0.4) !important;
+  box-shadow: 0 6px 25px rgba(20, 184, 166, 0.4) !important;
 }
 
 /* Headings */
@@ -193,7 +210,7 @@ p, span, div {
 
 .stat-card:hover, .stats-card:hover {
   transform: translateY(-2px) !important;
-  box-shadow: 0 8px 25px rgba(225, 29, 72, 0.2) !important;
+  box-shadow: 0 8px 25px rgba(20, 184, 166, 0.2) !important;
 }
 
 /* Empty States */

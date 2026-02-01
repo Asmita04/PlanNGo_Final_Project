@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap');
 
 :root {
-  --primary-gradient: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  --primary-gradient: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
   --accent-gradient: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
   --success-color: #10b981;
-  --error-color: #ef4444;
+  --error-color: #14b8a6;
   --text-primary: #0f172a;
   --text-secondary: #64748b;
   --border-color: #e2e8f0;
@@ -31,6 +31,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 24px;
+  padding-top: 120px;
   position: relative;
   background: var(--bg-darker);
   overflow: hidden;
@@ -140,7 +141,7 @@ body {
   backdrop-filter: blur(20px);
 }
 
-.login-card::before {
+/* .login-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -149,7 +150,7 @@ body {
   height: 4px;
   background: var(--primary-gradient);
   border-radius: 32px 32px 0 0;
-}
+} */
 
 /* Header */
 .login-header {
@@ -248,12 +249,12 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
   color: var(--error-color);
   padding: 16px 18px;
   border-radius: 14px;
   margin-bottom: 24px;
-  border: 1px solid #fecaca;
+  border: 1px solid #5eead4;
   font-size: 14px;
   font-weight: 500;
   animation: shake 0.5s ease;
@@ -300,10 +301,10 @@ body {
 .input-icon {
   position: absolute;
   left: 18px;
-  color: var(--text-secondary);
+  color: #14b8a6 !important;
   pointer-events: none;
   transition: color 0.2s ease;
-  z-index: 1;
+  z-index: 10;
 }
 
 .input-wrapper input {
@@ -317,6 +318,8 @@ body {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background: #ffffff;
   color: var(--text-primary);
+  position: relative;
+  z-index: 1;
 }
 
 .input-wrapper input::placeholder {
@@ -326,32 +329,32 @@ body {
 
 .input-wrapper input:focus {
   outline: none;
-  border-color: #06b6d4;
-  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
+  border-color: #14b8a6;
+  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1);
   transform: translateY(-1px);
 }
 
 .input-wrapper input:focus ~ .input-icon,
 .input-wrapper:focus-within .input-icon {
-  color: #06b6d4;
+  color: #0d9488;
 }
 
 .input-wrapper input.error {
   border-color: var(--error-color);
-  background: #fef2f2;
+  background: #f0fdfa;
 }
 
 .input-wrapper input.error:focus {
-  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1);
 }
 
 /* Password Toggle */
 .toggle-password {
   position: absolute;
   right: 16px;
-  background: none;
+  background: none !important;
   border: none;
-  color: var(--text-secondary);
+  color: #14b8a6 !important;
   cursor: pointer;
   padding: 8px;
   display: flex;
@@ -359,17 +362,17 @@ body {
   justify-content: center;
   transition: all 0.2s ease;
   border-radius: 8px;
-  z-index: 1;
+  z-index: 10;
 }
 
 .toggle-password:hover {
-  color: #06b6d4;
-  background: rgba(6, 182, 212, 0.1);
+  color: #0d9488 !important;
+  background: none !important;
 }
 
 .toggle-password:focus {
-  outline: 2px solid #06b6d4;
-  outline-offset: 2px;
+  outline: none;
+  color: #0d9488 !important;
 }
 
 /* Field Error */
