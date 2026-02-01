@@ -5,7 +5,7 @@
 
 /* Hero Section */
 .hero {
-  background: linear-gradient(135deg, #2d303e 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0d2e2a 0%, #14b8a6 100%);
   background-attachment: fixed;
   padding: 8rem 0 6rem;
   position: relative;
@@ -20,9 +20,9 @@
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+    radial-gradient(circle at 20% 80%, rgba(20, 184, 166, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(13, 148, 136, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(6, 182, 212, 0.2) 0%, transparent 50%);
   animation: float 20s linear infinite;
 }
 
@@ -48,7 +48,7 @@
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 50%, #6bcf7f 100%);
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #06b6d4 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -100,7 +100,7 @@
 /* Features Section */
 .features {
   padding: 6rem 0;
-  background: linear-gradient(135deg, #07223d 0%, #3479d3 100%);
+  background: linear-gradient(135deg, #0a2e2a 0%, #14b8a6 100%);
   position: relative;
 }
 
@@ -116,7 +116,7 @@
 }
 
 body.dark-mode .features {
-  background: linear-gradient(135deg, #30466a 0%, #334155 100%);
+  background: linear-gradient(135deg, #0d2e2a 0%, #14b8a6 100%);
 }
 
 .section-header {
@@ -129,7 +129,7 @@ body.dark-mode .features {
   font-weight: 800;
   margin-bottom: 1rem;
   color: #1e293b;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -138,7 +138,7 @@ body.dark-mode .features {
 }
 
 body.dark-mode .section-header h2 {
-  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -173,8 +173,8 @@ body.dark-mode .section-header h2 {
 
 .feature-card:hover {
   transform: translateY(-15px) scale(1.02);
-  box-shadow: 0 20px 60px rgba(102, 126, 234, 0.25);
-  background: rgba(111, 73, 73, 0.95);
+  box-shadow: 0 20px 60px rgba(20, 184, 166, 0.25);
+  background: rgba(13, 148, 136, 0.95);
 }
 
 body.dark-mode .feature-card {
@@ -185,19 +185,19 @@ body.dark-mode .feature-card {
   width: 80px;
   height: 80px;
   margin: 0 auto 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
   border-radius: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgb(120, 58, 58);
-  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+  color: white;
+  box-shadow: 0 8px 32px rgba(20, 184, 166, 0.3);
   transition: all 0.3s ease;
 }
 
 .feature-card:hover .feature-icon {
   transform: scale(1.1) rotate(5deg);
-  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 12px 40px rgba(20, 184, 166, 0.4);
 }
 
 .feature-card h3 {
@@ -220,7 +220,7 @@ body.dark-mode .feature-card h3 {
 /* Categories Section */
 .categories {
   padding: 6rem 0;
-  background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+  background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
 }
 
 .categories-grid {
@@ -290,7 +290,7 @@ body.dark-mode .category-card h3 {
 
 /* CTA Section */
 .cta {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
   background-attachment: fixed;
   padding: 6rem 0;
   text-align: center;
@@ -331,7 +331,7 @@ body.dark-mode .category-card h3 {
 
 /* Footer */
 .footer {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  background: linear-gradient(135deg, #0d2e2a 0%, #14b8a6 100%);
   color: white;
   padding: 4rem 0 2rem;
   position: relative;
@@ -377,7 +377,7 @@ body.dark-mode .category-card h3 {
 }
 
 .footer-section a:hover {
-  color: #6366f1;
+  color: #14b8a6;
 }
 
 .footer-rating {
@@ -459,13 +459,13 @@ body.dark-mode .category-card h3 {
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+    box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.7);
   }
   70% {
-    box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+    box-shadow: 0 0 0 10px rgba(20, 184, 166, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+    box-shadow: 0 0 0 0 rgba(20, 184, 166, 0);
   }
 }
 
@@ -502,7 +502,7 @@ body.dark-mode .category-card h3 {
   font-size: 2.5rem;
   font-weight: 800;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #ffd93d 0%, #ff6b6b 100%);
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

@@ -36,13 +36,20 @@ const Signup = () => {
     else if (!/\S+@\S+\.\S+/.test(formData.email))
       newErrors.email = 'Invalid email';
 
-    if (!formData.password)
+    if (!formData.password) {
       newErrors.password = 'Password is required';
-    else if (formData.password.length < 6)
-      newErrors.password = 'Minimum 6 characters';
+    } else {
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      if (!passwordRegex.test(formData.password)) {
+        newErrors.password = 'Password must contain at least 8 characters, one uppercase, one lowercase, one number, and one special character';
+      }
+    }
 
-    if (formData.password !== formData.confirmPassword)
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
+    }
 
     if (!formData.phone)
       newErrors.phone = 'Phone is required';
@@ -101,10 +108,45 @@ const Signup = () => {
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: '' });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    
+    // Real-time validation
+    const newErrors = { ...errors };
+    
+    if (name === 'password' && value) {
+      const missing = [];
+      if (value.length < 8) missing.push('8 characters');
+      if (!/[a-z]/.test(value)) missing.push('lowercase letter');
+      if (!/[A-Z]/.test(value)) missing.push('uppercase letter');
+      if (!/\d/.test(value)) missing.push('number');
+      if (!/[@$!%*?&]/.test(value)) missing.push('special character');
+      
+      if (missing.length > 0) {
+        newErrors.password = `Missing: ${missing.join(', ')}`;
+      } else {
+        delete newErrors.password;
+      }
     }
+    
+    if (name === 'confirmPassword' && value) {
+      if (value !== formData.password) {
+        newErrors.confirmPassword = 'Passwords do not match';
+      } else {
+        delete newErrors.confirmPassword;
+      }
+    }
+    
+    // Also check confirm password when password changes
+    if (name === 'password' && formData.confirmPassword) {
+      if (formData.confirmPassword !== value) {
+        newErrors.confirmPassword = 'Passwords do not match';
+      } else {
+        delete newErrors.confirmPassword;
+      }
+    }
+    
+    setErrors(newErrors);
   };
 
   return (

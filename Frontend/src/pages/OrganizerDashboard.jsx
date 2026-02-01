@@ -366,8 +366,15 @@ const OrganizerDashboard = () => {
                   </div>
                   <div className="form-group">
                     <label>Venue</label>
-                    <select value={formData.venue} onChange={e => handleVenueChange(e.target.value)} required>
-                      <option value="">Select Venue</option>
+                    <select 
+                      value={formData.venue} 
+                      onChange={e => handleVenueChange(e.target.value)} 
+                      required
+                      disabled={venues.filter(v => v.isAvailable).length === 0}
+                    >
+                      <option value="">
+                        {venues.filter(v => v.isAvailable).length === 0 ? 'No venues available' : 'Select Venue'}
+                      </option>
                       {venues.filter(v => v.isAvailable).map(v => <option key={v.venueId} value={v.venueId}>{v.venueName}</option>)}
                     </select>
                   </div>
