@@ -67,21 +67,15 @@ public class SecurityConfig {
 
                         // 🔹 ADMIN or CUSTOMER
                         .pathMatchers(
-                                "/customers/**",
-                                "/bookings/customers/**"
-                        ).hasAnyRole("ADMIN", "CUSTOMER")
+                                "/organizer"
+                        ).hasAnyRole("ADMIN", "ORGANIZER")
                         
                         .pathMatchers(
                                 "/customers/**",
                                 "/bookings/customers/**"
                         ).hasAnyRole("ADMIN", "CUSTOMER","ORGANIZER")
                         
-                        // 🔹 ADMIN or ORGANIZER
-                        .pathMatchers(HttpMethod.GET,
-                                "/organizers/*",
-                                "/bookings/organizers/**"
-                        ).hasAnyRole("ADMIN", "ORGANIZER")
-
+                        
 
                         // 🔹 Public endpoints (Event-Service)
                         .pathMatchers(

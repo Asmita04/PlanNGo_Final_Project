@@ -23,10 +23,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Document extends BaseEntity  {
-
-	private String document;
-
-	private String fileType;
 	
 	private String s3Key;
 	 

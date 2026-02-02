@@ -1,18 +1,23 @@
 package com.planNGo.ums.controller;
 
 
+import java.io.IOException;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.planNGo.ums.dtos.OrganizerResp;
 import com.planNGo.ums.dtos.UpdateOrganizer;
+import com.planNGo.ums.repository.DocumentRepository;
 import com.planNGo.ums.service.OrganizerService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OrganizerController {
 	//depcy 	
 	private final OrganizerService 	organizerService;
-	
+	private final DocumentRepository repository;
 
 //	@GetMapping
 //	public /* @ResponseBody */  ResponseEntity<?> renderOrgainzerList() {
@@ -79,6 +84,19 @@ public class OrganizerController {
 			return ResponseEntity.ok(organizerService.updateDetails(userId,user));
 		
 	}
+	
+	
+	
+    @PostMapping("/documents/{userId}")
+    public ResponseEntity<?> uploadDocuments(
+            @PathVariable Long userId,
+            @RequestParam("files") MultipartFile[] files,
+            @RequestParam String[] docType) throws IOException {
+
+        
+
+        return ResponseEntity.ok(organizerService.uploadDocuments(userId, files, docType));
+    }
 	
 
 
