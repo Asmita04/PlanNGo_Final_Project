@@ -3,6 +3,7 @@ export { eventsService } from './eventsService';
 export { bookingsService } from './bookingsService';
 export { usersService } from './usersService';
 export { venuesService } from './venuesService';
+export { ticketsService } from './ticketsService';
 export { organizerService } from './organizerService';
 export { default as apiClient } from './client';
 
@@ -12,6 +13,7 @@ import { eventsService } from './eventsService';
 import { bookingsService } from './bookingsService';
 import { usersService } from './usersService';
 import { venuesService } from './venuesService';
+import { ticketsService } from './ticketsService';
 import { organizerService } from './organizerService';
 
 export const api = {
@@ -62,6 +64,10 @@ export const api = {
   createVenue: venuesService.createVenue,
   updateVenue: venuesService.updateVenue,
   deleteVenue: venuesService.deleteVenue,
+
+  // Tickets methods
+  getAllConfirmedTickets: ticketsService.getAllConfirmedTickets,
+  getPriceForTicketType: ticketsService.getPriceForTicketType,
 
   // Organizer methods
   uploadDocuments: organizerService.uploadDocuments,

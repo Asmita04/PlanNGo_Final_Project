@@ -30,17 +30,19 @@ public class EventTicketController {
         return service.getById(id);
     }
 
-//    @PutMapping("/{id}")
-//    public ResponseEntity<EventTicketResponseDTO> update(
-//            @PathVariable Integer id,
-//            @RequestBody TicketRequest ticketDto) {
-//
-//        return ResponseEntity.ok(service.update(id, ticketDto));
-//    }
-
-
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Integer id) {
         service.delete(id);
     }
+
+    @GetMapping("/price")
+    public ResponseEntity<Double> getPriceForTicketType(
+            @RequestParam Integer eventId,
+            @RequestParam String ticketType) {
+
+        return ResponseEntity.ok(
+                service.getPriceForTicketType(eventId, ticketType)
+        );
+    }
+
 }

@@ -51,22 +51,24 @@ public class EventTicketServiceImpl implements EventTicketService {
         return mapToDTO(entity);
     }
 
-//    @Override
-//    public EventTicketResponseDTO update(Integer id, TicketRequest ticketDto) {
-//
-//        EventTicket entity = repository.findById(id)
-//                .orElseThrow(() -> new RuntimeException("Ticket not found"));
-//
-//        entity.setTypeName(TicketType.valueOf(ticketDto.getTicketType()));
-//        entity.setPrice(ticketDto.getPrice());
-//        entity.setTotalQuantity(ticketDto.getTotalQuantity());
-//
-//        return mapToDTO(repository.save(entity));
-//    }
-
     @Override
     public void delete(Integer id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public Double getPriceForTicketType(Integer eventId, String ticketType) {
+
+        TicketType type = TicketType.valueOf(ticketType.toUpperCase());
+
+        EventTicket ticket = repository.findByEventIdAndTypeName(eventId, type)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Ticket not found for eventId=" + eventId + ", type=" + ticketType
+                        )
+                );
+
+        return ticket.getPrice();
     }
 
     private EventTicketResponseDTO mapToDTO(EventTicket e) {

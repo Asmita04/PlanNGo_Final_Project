@@ -14,10 +14,20 @@ const EventDetails = () => {
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [confirmedTicketsCount, setConfirmedTicketsCount] = useState(0);
+  const [ticketType, setTicketType] = useState('GENERAL');
+  const [ticketPrice, setTicketPrice] = useState(0);
 
   useEffect(() => {
     loadEvent();
+    loadConfirmedTickets();
   }, [id]);
+
+  useEffect(() => {
+    if (ticketType) {
+      loadTicketPrice();
+    }
+  }, [ticketType]);
 
   useEffect(() => {
     // Restore quantity if returning to same event
@@ -27,6 +37,25 @@ const EventDetails = () => {
       setQuantity(1);
     }
   }, [event, bookingState]);
+
+  const loadConfirmedTickets = async () => {
+    try {
+      const confirmedTickets = await api.getAllConfirmedTickets();
+      setConfirmedTicketsCount(confirmedTickets.length);
+    } catch (error) {
+      console.error('Error loading confirmed tickets:', error);
+    }
+  };
+
+  const loadTicketPrice = async () => {
+    try {
+      const price = await api.getPriceForTicketType(ticketType);
+      setTicketPrice(price);
+    } catch (error) {
+      console.error('Error loading ticket price:', error);
+      setTicketPrice(event?.price || 0);
+    }
+  };
 
   const loadEvent = async () => {
     try {
@@ -94,7 +123,8 @@ const EventDetails = () => {
   const eventId = event.eventId ?? event.id;
   const isFavorite = favorites.includes(eventId);
 
-  const availableTickets = event.capacity - event.booked;
+  const availableTickets = event?.venue?.capacity ? event.venue.capacity - confirmedTicketsCount : 0;
+  const totalPrice = ticketPrice * quantity;
 
   return (
     <div className="event-details-page">
@@ -196,8 +226,18 @@ const EventDetails = () => {
 
           <div className="event-sidebar">
             <div className="booking-card">
+              <div className="ticket-type-selector">
+                <label>Ticket Type</label>
+                <select value={ticketType} onChange={(e) => setTicketType(e.target.value)}>
+                  <option value="GENERAL">General</option>
+                  <option value="VIP">VIP</option>
+                  <option value="PREMIUM">Premium</option>
+                </select>
+              </div>
+
               <div className="price-section">
                 <span className="price-label">Ticket Price</span>
+                <span className="price">₹{ticketPrice}</span>
                 <span className="price">₹{event.ticketPrice || event.price || 0}</span>
               </div>
 
@@ -226,7 +266,7 @@ const EventDetails = () => {
 
               <div className="total-price">
                 <span>Total</span>
-                <span>₹{(event.ticketPrice || event.price || 0) * quantity}</span>
+                <span>₹{totalPrice}</span>
               </div>
 
               <Button fullWidth size="lg" onClick={handleBooking} disabled={availableTickets === 0}>

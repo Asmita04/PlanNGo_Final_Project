@@ -38,8 +38,4 @@ public class Ticket {
 	@Enumerated(EnumType.STRING)
 	@Column(name="ticket_type",nullable=false)
 	private TicketType ticketType;
-	
-	
-	
-
 }
