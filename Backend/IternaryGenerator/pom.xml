@@ -13,10 +13,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.healthcare</groupId>
-    <artifactId>HealthcareAI</artifactId>
+    <groupId>com.plannngo</groupId>
+    <artifactId>ItineraryGenerator</artifactId>
     <version>0.0.1</version>
-    <name>HealthcareAI</name>
+    <name>PlanNGo-ItineraryService</name>
     <description>Spring AI Based Project</description>
 
     <properties>
