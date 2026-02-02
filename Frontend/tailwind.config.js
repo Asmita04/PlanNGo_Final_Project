@@ -19,10 +19,14 @@ export default {
           900: '#111827',
         }
       },
+      screens: {
+        'xs': '475px',
+      },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
         'slide-up': 'slideUp 0.6s ease-out',
         'scale-in': 'scaleIn 0.3s ease-out',
+        'slideDown': 'slideDown 0.3s ease-out',
       },
       keyframes: {
         fadeIn: {
@@ -37,8 +41,24 @@ export default {
           '0%': { transform: 'scale(0.95)', opacity: '0' },
           '100%': { transform: 'scale(1)', opacity: '1' },
         },
+        slideDown: {
+          '0%': { opacity: '0', transform: 'translateY(-10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }) {
+      addUtilities({
+        '.scrollbar-hide': {
+          '-ms-overflow-style': 'none',
+          'scrollbar-width': 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+        },
+      })
+    },
+  ],
 }

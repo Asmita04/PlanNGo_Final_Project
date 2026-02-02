@@ -21,6 +21,15 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     console.log('Request headers:', config.headers);
+    
+    // Log data being sent to backend
+    console.log('🚀 Sending data to backend:', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      data: config.data,
+      params: config.params
+    });
+    
     return config;
   },
   (error) => {
