@@ -27,14 +27,14 @@ const Login = () => {
     if (!formData.password) {
       newErrors.password = 'Password is required';
     }
-    
+
     return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validate();
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -52,7 +52,7 @@ const Login = () => {
       };
 
       const dummyUser = dummyCredentials[formData.email.toLowerCase()];
-      
+
       if (dummyUser && dummyUser.password === formData.password) {
         const user = {
           id: Math.random().toString(36).substr(2, 9),
@@ -60,7 +60,7 @@ const Login = () => {
           name: dummyUser.name,
           userRole: dummyUser.userRole
         };
-        
+
         login(user);
         addNotification({ message: '✨ Login successful!', type: 'success' });
 
@@ -102,11 +102,11 @@ const Login = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
-    
+
     if (errors.submit) {
       setErrors(prev => ({ ...prev, submit: '' }));
     }
@@ -118,7 +118,7 @@ const Login = () => {
       organizer: { email: 'organizer@test.com', password: 'org123' },
       admin: { email: 'admin@test.com', password: 'admin123' }
     };
-    
+
     setFormData(credentials[type]);
     setErrors({});
   };
@@ -126,7 +126,7 @@ const Login = () => {
   const handleGoogleSuccess = async (googleResponse) => {
     setLoading(true);
     setErrors({});
-    
+
     try {
       const response = await api.googleLogin({
         idToken: googleResponse.credential,
@@ -168,7 +168,7 @@ const Login = () => {
         <div className="gradient-orb orb-3"></div>
         <div className="grid-pattern"></div>
       </div>
-      
+
       <div className="login-container">
         <div className="login-card">
           <div className="login-header">
@@ -255,11 +255,13 @@ const Login = () => {
             <span>or continue with</span>
           </div>
 
-          <GoogleSignInButton 
-            onSuccess={handleGoogleSuccess}
-            onError={handleGoogleError}
-            text="Continue with Google"
-          />
+          <div className="google-signin-wrapper">
+            <GoogleSignInButton
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              text="Continue with Google"
+            />
+          </div>
 
           <div className="signup-prompt">
             <p>Don't have an account? <Link to="/signup">Create one</Link></p>
@@ -270,10 +272,10 @@ const Login = () => {
               <Sparkles size={16} />
               <h4>Quick Demo Access</h4>
             </div>
-            
+
             <div className="demo-grid">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="demo-card user-demo"
                 onClick={() => fillDemoCredentials('user')}
               >
@@ -283,9 +285,9 @@ const Login = () => {
                   <p>user@test.com</p>
                 </div>
               </button>
-              
-              <button 
-                type="button" 
+
+              <button
+                type="button"
                 className="demo-card organizer-demo"
                 onClick={() => fillDemoCredentials('organizer')}
               >
@@ -295,9 +297,9 @@ const Login = () => {
                   <p>organizer@test.com</p>
                 </div>
               </button>
-              
-              <button 
-                type="button" 
+
+              <button
+                type="button"
                 className="demo-card admin-demo"
                 onClick={() => fillDemoCredentials('admin')}
               >
