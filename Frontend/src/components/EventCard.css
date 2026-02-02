@@ -20,7 +20,7 @@
 
 .event-image {
   width: 100%;
-  height: 250px;
+  height: 300px;
   overflow: hidden;
   position: relative;
 }
@@ -31,10 +31,11 @@
   object-fit: cover;
   object-position: center;
   transition: transform 0.3s ease;
+  transform: scale(1.1);
 }
 
 .event-card:hover .event-image img {
-  transform: scale(1.05);
+  transform: scale(1.15);
 }
 
 .event-info {
@@ -82,20 +83,44 @@
   gap: 12px;
 }
 
+.share-button,
+.book-button {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 32px;
+  border: 1px solid;
+}
+
+.share-button {
+  background: transparent;
+  border-color: #e5e7eb;
+  color: #6b7280;
+}
+
+.share-button:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
 .book-button {
   background: #ff6b35;
+  border-color: #ff6b35;
   color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.18s ease, transform 0.12s ease;
 }
 
 .book-button:hover:not(:disabled) {
   background: #e55a2b;
+  border-color: #e55a2b;
   transform: translateY(-2px);
 }
 
@@ -103,50 +128,6 @@
   background: #e6e7e9;
   color: #9ca3af;
   cursor: not-allowed;
-}
-
-.favorite-button {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 2px solid #e5e7eb;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  z-index: 10;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.favorite-button:hover {
-  border-color: #ff6b35;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.favorite-button.favorited {
-  background: #ff6b35;
-  border-color: #ff6b35;
-  color: white;
-}
-
-.favorite-button.favorited:hover {
-  background: #e55a2b;
-  border-color: #e55a2b;
-}
-
-.favorite-icon {
-  font-size: 16px;
-  transition: transform 0.2s ease;
-}
-
-.favorite-button:active .favorite-icon {
-  transform: scale(0.9);
 }
 
 .event-badge {
@@ -160,26 +141,6 @@
   font-size: 0.75rem;
   font-weight: 600;
   backdrop-filter: blur(4px);
-}
-
-.share-button {
-  background: transparent;
-  border: 1px solid #e5e7eb;
-  color: #6b7280;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.share-button:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
-  color: #374151;
 }
 
 .modal-overlay {
@@ -300,40 +261,6 @@
   display: flex;
   gap: 12px;
   margin-top: 16px;
-}
-
-.modal-like-btn {
-  background: white;
-  border: 2px solid #e5e7eb;
-  color: #6b7280;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 120px;
-  justify-content: center;
-}
-
-.modal-like-btn:hover {
-  border-color: #ff6b35;
-  color: #ff6b35;
-  transform: translateY(-1px);
-}
-
-.modal-like-btn.favorited {
-  background: #ff6b35;
-  border-color: #ff6b35;
-  color: white;
-}
-
-.modal-like-btn.favorited:hover {
-  background: #e55a2b;
-  border-color: #e55a2b;
 }
 
 .modal-share-btn {

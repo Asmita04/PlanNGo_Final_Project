@@ -222,7 +222,7 @@ body.dark-mode .schedule-activity {
 .tag {
   padding: 0.5rem 1rem;
   background: #ede9fe;
-  color: #6366f1;
+  color: #000000 !important;
   border-radius: 20px;
   font-weight: 600;
   font-size: 0.9rem;
@@ -271,7 +271,7 @@ body.dark-mode .price-section {
 }
 
 .price-label {
-  color: #000000 !important;
+  color: #ffffff !important;
   font-weight: 500;
 }
 
@@ -292,12 +292,12 @@ body.dark-mode .price-section {
 .quantity-selector label {
   display: block;
   font-weight: 600;
-  color: #000000 !important;
+  color: #ffffff !important;
   margin-bottom: 0.5rem;
 }
 
 body.dark-mode .quantity-selector label {
-  color: #000000 !important;
+  color: #ffffff !important;
 }
 
 .quantity-controls {
