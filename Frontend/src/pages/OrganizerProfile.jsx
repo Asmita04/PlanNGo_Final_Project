@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { api, apiClient } from '../services/api';
-import { User, Mail, Phone, MapPin, Upload, Camera, Save, FileText, CheckCircle, AlertCircle, Edit2, X, Map, Plus, ExternalLink } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Upload, Camera, Save, FileText, CheckCircle, AlertCircle, Edit2, X, Map, Plus, ExternalLink, Building } from 'lucide-react';
 import DocumentUpload from '../components/DocumentUpload';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
-import './OrganizerProfile.css';
 
 const OrganizerProfile = () => {
   const { user, updateUser, addNotification } = useApp();
@@ -303,219 +302,232 @@ const OrganizerProfile = () => {
   };
 
   return (
-    <div className="profile-page">
-      <div className="container">
-        <div className="profile-header">
-          <div className="header-content">
-            <div className="profile-avatar" onClick={() => isEditing && fileInputRef.current?.click()}>
-              {profilePhotoPreview || localStorage.getItem(`profilePhoto_${user?.id}`) || profile.pfp ? (
-                <img 
-                  src={getProfilePhotoSrc()} 
-                  alt="Profile" 
-                  className="profile-photo"
-                  onError={(e) => {
-                    e.target.src = 'cdn/user_pfp/NotFound.jpg';
-                  }}
-                />
-              ) : (
-                <User size={56} strokeWidth={2} />
-              )}
-              {isEditing && (
-                <div className="photo-overlay">
-                  <Camera size={24} />
-                </div>
-              )}
-            </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoChange}
-              style={{ display: 'none' }}
-            />
-            {isEditing && profilePhoto && (
-              <button 
-                onClick={handlePhotoUpload}
-                className="upload-photo-btn"
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-slate-900 pt-24 pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-2xl p-8 mb-8">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div className="flex flex-col lg:flex-row items-center gap-6">
+              <div 
+                className="relative w-32 h-32 rounded-full bg-white/20 backdrop-blur-sm border-4 border-white/30 flex items-center justify-center cursor-pointer hover:bg-white/30 transition-all duration-300"
+                onClick={() => isEditing && fileInputRef.current?.click()}
               >
-                Update Photo
-              </button>
-            )}
-            <div className="profile-info">
-              <h1>{(profile.firstName && profile.lastName) ? `${profile.firstName} ${profile.lastName}` : (user?.firstName && user?.lastName) ? `${user.firstName} ${user.lastName}` : 'Organizer Name'}</h1>
-              <p className="profile-role">
-                <MapPin size={16} />
-                Event Organizer
-              </p>
+                {profilePhotoPreview || localStorage.getItem(`profilePhoto_${user?.id}`) || profile.pfp ? (
+                  <img 
+                    src={getProfilePhotoSrc()} 
+                    alt="Profile" 
+                    className="w-full h-full rounded-full object-cover"
+                    onError={(e) => {
+                      e.target.src = 'cdn/user_pfp/NotFound.jpg';
+                    }}
+                  />
+                ) : (
+                  <User size={56} className="text-white" strokeWidth={2} />
+                )}
+                {isEditing && (
+                  <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                    <Camera size={24} className="text-white" />
+                  </div>
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="hidden"
+              />
+              {isEditing && profilePhoto && (
+                <button 
+                  onClick={handlePhotoUpload}
+                  className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
+                >
+                  Update Photo
+                </button>
+              )}
+              <div className="text-center lg:text-left">
+                <h1 className="text-3xl font-bold text-white mb-2">
+                  {(profile.firstName && profile.lastName) ? `${profile.firstName} ${profile.lastName}` : (user?.firstName && user?.lastName) ? `${user.firstName} ${user.lastName}` : 'Organizer Name'}
+                </h1>
+                <p className="text-white/80 flex items-center justify-center lg:justify-start gap-2">
+                  <MapPin size={16} />
+                  Event Organizer
+                </p>
+              </div>
             </div>
+            <button 
+              className={`w-14 h-14 rounded-full backdrop-blur-sm border-2 border-white/30 flex items-center justify-center transition-all duration-300 ${
+                isEditing ? 'bg-red-500/20 hover:bg-red-500/30 text-red-300' : 'bg-white/20 hover:bg-white/30 text-white'
+              }`}
+              onClick={() => isEditing ? handleCancel() : setIsEditing(true)}
+              aria-label={isEditing ? 'Cancel editing' : 'Edit profile'}
+            >
+              {isEditing ? <X size={28} strokeWidth={2.5} /> : <Edit2 size={28} strokeWidth={2.5} />}
+            </button>
           </div>
-          <button 
-            className={`edit-btn-circle ${isEditing ? 'editing' : ''}`}
-            onClick={() => isEditing ? handleCancel() : setIsEditing(true)}
-            aria-label={isEditing ? 'Cancel editing' : 'Edit profile'}
-          >
-            {isEditing ? <X size={28} strokeWidth={2.5} /> : <Edit2 size={28} strokeWidth={2.5} />}
-          </button>
         </div>
 
-        <div className="profile-tabs">
+        <div className="flex flex-wrap gap-4 mb-8">
           <button 
-            className={activeTab === 'profile' ? 'active' : ''} 
+            className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center gap-2 ${
+              activeTab === 'profile' 
+                ? 'bg-white text-gray-900 shadow-lg' 
+                : 'bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm border border-white/20'
+            }`}
             onClick={() => setActiveTab('profile')}
           >
             <User size={20} />
             Profile Details
           </button>
           <button 
-            className={activeTab === 'documents' ? 'active' : ''} 
+            className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center gap-2 ${
+              activeTab === 'documents' 
+                ? 'bg-white text-gray-900 shadow-lg' 
+                : 'bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm border border-white/20'
+            }`}
             onClick={() => setActiveTab('documents')}
           >
             <FileText size={20} />
             Documents
           </button>
         </div>
-
-        <div className="profile-content">
+        <div className="space-y-8">
           {activeTab === 'profile' && (
             <div className="max-w-4xl mx-auto">
               <form onSubmit={handleProfileUpdate} className="space-y-8">
                 {/* Basic Information Section */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
-                    <User className="w-5 h-5 mr-2 text-indigo-600" />
+                <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8">
+                  <h3 className="text-xl font-semibold text-white mb-6 flex items-center">
+                    <User className="w-6 h-6 mr-3 text-teal-400" />
                     Basic Information
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">First Name</label>
-                      <input
-                        type="text"
-                        value={profile.firstName}
-                        onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
-                        disabled={!isEditing}
-                        required
-                        className={`w-full px-4 py-3 rounded-lg border transition-colors ${
-                          isEditing 
-                            ? 'border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200' 
-                            : 'border-gray-200 bg-gray-50'
-                        }`}
-                      />
+                      <label className="block text-sm font-medium text-white/90">First Name</label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          type="text"
+                          value={profile.firstName}
+                          onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
+                          disabled={!isEditing}
+                          required
+                          className={`w-full pl-10 pr-4 py-3 rounded-lg border transition-all duration-300 ${
+                            isEditing 
+                              ? '!bg-white !border-gray-300 !text-gray-900 placeholder-gray-500 focus:!border-teal-400 focus:ring-2 focus:ring-teal-400/50' 
+                              : 'bg-white/10 border-white/20 text-white/80'
+                          }`}
+                        />
+                      </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Last Name</label>
-                      <input
-                        type="text"
-                        value={profile.lastName}
-                        onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
-                        disabled={!isEditing}
-                        required
-                        className={`w-full px-4 py-3 rounded-lg border transition-colors ${
-                          isEditing 
-                            ? 'border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200' 
-                            : 'border-gray-200 bg-gray-50'
-                        }`}
-                      />
+                      <label className="block text-sm font-medium text-white/90">Last Name</label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          type="text"
+                          value={profile.lastName}
+                          onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
+                          disabled={!isEditing}
+                          required
+                          className={`w-full pl-10 pr-4 py-3 rounded-lg border transition-all duration-300 ${
+                            isEditing 
+                              ? 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-teal-400 focus:ring-2 focus:ring-teal-400/50' 
+                              : 'bg-white/10 border-white/20 text-white/80'
+                          }`}
+                        />
+                      </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Phone Number</label>
-                      <input
-                        type="tel"
-                        value={profile.phone}
-                        onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                        disabled={!isEditing}
-                        required
-                        className={`w-full px-4 py-3 rounded-lg border transition-colors ${
-                          isEditing 
-                            ? 'border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200' 
-                            : 'border-gray-200 bg-gray-50'
-                        }`}
-                      />
+                      <label className="block text-sm font-medium text-white/90">Phone Number</label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          type="tel"
+                          value={profile.phone}
+                          onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                          disabled={!isEditing}
+                          required
+                          className={`w-full pl-10 pr-4 py-3 rounded-lg border transition-all duration-300 ${
+                            isEditing 
+                              ? 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-teal-400 focus:ring-2 focus:ring-teal-400/50' 
+                              : 'bg-white/10 border-white/20 text-white/80'
+                          }`}
+                        />
+                      </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Location</label>
-                      {profile.address ? (
-                        <div className={`flex items-center space-x-3 p-3 rounded-lg border ${
-                          isEditing ? 'border-gray-300 bg-white' : 'border-gray-200 bg-gray-50'
-                        }`}>
-                          <MapPin className="w-5 h-5 text-gray-400" />
-                          <a 
-                            href={profile.address} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex-1 text-indigo-600 hover:text-indigo-800 flex items-center space-x-2"
+                      <label className="block text-sm font-medium text-white/90">Location</label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          type="text"
+                          value={profile.address ? getLocationText() : ''}
+                          placeholder="Click to add location"
+                          disabled={!isEditing}
+                          readOnly
+                          onClick={() => isEditing && setShowLocationModal(true)}
+                          className={`w-full pl-10 pr-10 py-3 rounded-lg border transition-all duration-300 cursor-pointer overflow-hidden text-ellipsis ${
+                            isEditing 
+                              ? 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-teal-400 focus:ring-2 focus:ring-teal-400/50' 
+                              : 'bg-white/10 border-white/20 text-white/80'
+                          }`}
+                        />
+                        {isEditing && (
+                          <button 
+                            type="button" 
+                            onClick={() => setShowLocationModal(true)}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-teal-400 transition-colors"
                           >
-                            <span className="truncate">{getLocationText()}</span>
-                            <ExternalLink className="w-4 h-4" />
-                          </a>
-                          {isEditing && (
-                            <button 
-                              type="button" 
-                              onClick={() => setShowLocationModal(true)}
-                              className="p-1 text-gray-400 hover:text-indigo-600 transition-colors"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="p-3 rounded-lg border border-gray-200 bg-gray-50">
-                          {isEditing ? (
-                            <button 
-                              type="button" 
-                              onClick={() => setShowLocationModal(true)}
-                              className="flex items-center space-x-2 text-indigo-600 hover:text-indigo-800 transition-colors"
-                            >
-                              <Plus className="w-5 h-5" />
-                              <span>Add Location</span>
-                            </button>
-                          ) : (
-                            <div className="flex items-center space-x-2 text-gray-500">
-                              <MapPin className="w-5 h-5" />
-                              <span>No location added</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Professional Information Section */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
-                    <FileText className="w-5 h-5 mr-2 text-indigo-600" />
+                <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8">
+                  <h3 className="text-xl font-semibold text-white mb-6 flex items-center">
+                    <FileText className="w-6 h-6 mr-3 text-teal-400" />
                     Professional Information
                   </h3>
                   <div className="space-y-6">
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Company/Organization</label>
-                      <input
-                        type="text"
-                        value={profile.organization}
-                        onChange={(e) => setProfile({ ...profile, organization: e.target.value })}
-                        placeholder="Your organization name"
-                        disabled={!isEditing}
-                        className={`w-full px-4 py-3 rounded-lg border transition-colors ${
-                          isEditing 
-                            ? 'border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200' 
-                            : 'border-gray-200 bg-gray-50'
-                        }`}
-                      />
+                      <label className="block text-sm font-medium text-white/90">Company/Organization</label>
+                      <div className="relative">
+                        <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          type="text"
+                          value={profile.organization}
+                          onChange={(e) => setProfile({ ...profile, organization: e.target.value })}
+                          placeholder="Your organization name"
+                          disabled={!isEditing}
+                          className={`w-full pl-10 pr-4 py-3 rounded-lg border transition-all duration-300 ${
+                            isEditing 
+                              ? 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-teal-400 focus:ring-2 focus:ring-teal-400/50' 
+                              : 'bg-white/10 border-white/20 text-white/80'
+                          }`}
+                        />
+                      </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Bio</label>
-                      <textarea
-                        value={profile.bio}
-                        onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                        placeholder="Tell us about yourself and your event organizing experience..."
-                        rows="4"
-                        disabled={!isEditing}
-                        className={`w-full px-4 py-3 rounded-lg border transition-colors resize-none ${
-                          isEditing 
-                            ? 'border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200' 
-                            : 'border-gray-200 bg-gray-50'
-                        }`}
-                      />
+                      <label className="block text-sm font-medium text-white/90">Bio</label>
+                      <div className="relative">
+                        <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                        <textarea
+                          value={profile.bio}
+                          onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                          placeholder="Tell us about yourself and your event organizing experience..."
+                          rows="4"
+                          disabled={!isEditing}
+                          className={`w-full pl-10 pr-4 py-3 rounded-lg border transition-all duration-300 resize-none ${
+                            isEditing 
+                              ? 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-teal-400 focus:ring-2 focus:ring-teal-400/50' 
+                              : 'bg-white/10 border-white/20 text-white/80'
+                          }`}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -526,7 +538,7 @@ const OrganizerProfile = () => {
                     <button
                       type="button"
                       onClick={handleCancel}
-                      className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors flex items-center space-x-2"
+                      className="px-6 py-3 bg-white/20 border border-white/30 rounded-lg text-white hover:bg-white/30 transition-all duration-300 flex items-center space-x-2 backdrop-blur-sm"
                     >
                       <X className="w-4 h-4" />
                       <span>Cancel</span>
@@ -534,7 +546,7 @@ const OrganizerProfile = () => {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors flex items-center space-x-2"
+                      className="px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 disabled:opacity-50 transition-all duration-300 flex items-center space-x-2 shadow-lg"
                     >
                       <Save className="w-4 h-4" />
                       <span>{loading ? 'Saving...' : 'Save Changes'}</span>
@@ -547,7 +559,9 @@ const OrganizerProfile = () => {
 
           {activeTab === 'documents' && (
             <div className="max-w-4xl mx-auto">
-              <DocumentUpload />
+              <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8">
+                <DocumentUpload />
+              </div>
             </div>
           )}
         </div>
@@ -555,79 +569,93 @@ const OrganizerProfile = () => {
 
       {/* Location Modal */}
       {showLocationModal && (
-        <div className="modal-overlay" onClick={() => setShowLocationModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Add Location</h3>
-              <button onClick={() => setShowLocationModal(false)}>
-                <X size={24} />
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowLocationModal(false)}>
+          <div className="backdrop-blur-xl bg-white/20 border border-white/30 rounded-2xl shadow-2xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-6 border-b border-white/20">
+              <h3 className="text-xl font-semibold text-white">Add Location</h3>
+              <button 
+                onClick={() => setShowLocationModal(false)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X size={24} className="text-white/80" />
               </button>
             </div>
-            <div className="modal-body">
-              <div className="form-group">
-                <label>Street Address</label>
+            <div className="p-6 space-y-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-white/90">Street Address</label>
                 <input
                   type="text"
                   value={locationForm.street}
                   onChange={(e) => setLocationForm({ ...locationForm, street: e.target.value })}
                   placeholder="123 Main Street"
+                  className="w-full px-4 py-3 border border-white/30 rounded-lg bg-white/20 backdrop-blur-sm text-white placeholder-white/60 focus:ring-2 focus:ring-teal-400 focus:border-teal-400"
                 />
               </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>State</label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-white/90">State</label>
                   <select
                     value={locationForm.state}
                     onChange={(e) => setLocationForm({ ...locationForm, state: e.target.value, city: '' })}
+                    className="w-full px-4 py-3 border border-white/30 rounded-lg bg-white/20 backdrop-blur-sm text-white focus:ring-2 focus:ring-teal-400 focus:border-teal-400"
                   >
-                    <option value="">Select State</option>
+                    <option value="" className="bg-gray-800 text-white">Select State</option>
                     {Object.keys(indianStates).map(state => (
-                      <option key={state} value={state}>{state}</option>
+                      <option key={state} value={state} className="bg-gray-800 text-white">{state}</option>
                     ))}
                   </select>
                 </div>
-                <div className="form-group">
-                  <label>City</label>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-white/90">City</label>
                   <select
                     value={locationForm.city}
                     onChange={(e) => setLocationForm({ ...locationForm, city: e.target.value })}
                     disabled={!locationForm.state}
+                    className="w-full px-4 py-3 border border-white/30 rounded-lg bg-white/20 backdrop-blur-sm text-white disabled:bg-white/10 focus:ring-2 focus:ring-teal-400 focus:border-teal-400"
                   >
-                    <option value="">Select City</option>
+                    <option value="" className="bg-gray-800 text-white">Select City</option>
                     {locationForm.state && indianStates[locationForm.state]?.map(city => (
-                      <option key={city} value={city}>{city}</option>
+                      <option key={city} value={city} className="bg-gray-800 text-white">{city}</option>
                     ))}
                   </select>
                 </div>
               </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>ZIP Code</label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-white/90">ZIP Code</label>
                   <input
                     type="text"
                     value={locationForm.zipCode}
                     onChange={(e) => setLocationForm({ ...locationForm, zipCode: e.target.value })}
                     placeholder="10001"
+                    className="w-full px-4 py-3 border border-white/30 rounded-lg bg-white/20 backdrop-blur-sm text-white placeholder-white/60 focus:ring-2 focus:ring-teal-400 focus:border-teal-400"
                   />
                 </div>
-                <div className="form-group">
-                  <label>Country</label>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-white/90">Country</label>
                   <input
                     type="text"
                     value={locationForm.country}
                     disabled
-                    style={{ background: '#f9fafb', color: '#6b7280' }}
+                    className="w-full px-4 py-3 border border-white/30 rounded-lg bg-white/10 text-white/60"
                   />
                 </div>
               </div>
             </div>
-            <div className="modal-footer">
-              <Button onClick={handleAddLocation} disabled={!locationForm.city || !locationForm.state}>
-                Add Location
-              </Button>
-              <Button onClick={() => setShowLocationModal(false)} variant="secondary">
+            <div className="flex justify-end gap-3 p-6 border-t border-white/20">
+              <button
+                onClick={() => setShowLocationModal(false)}
+                className="px-4 py-2 border border-white/30 rounded-lg text-white hover:bg-white/10 transition-colors backdrop-blur-sm"
+              >
                 Cancel
-              </Button>
+              </button>
+              <button
+                onClick={handleAddLocation}
+                disabled={!locationForm.city || !locationForm.state}
+                className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Add Location
+              </button>
             </div>
           </div>
         </div>

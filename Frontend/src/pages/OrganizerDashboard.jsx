@@ -4,8 +4,6 @@ import { api } from '../services';
 import { Plus, Calendar, Users, DollarSign, TrendingUp, Edit, Trash2 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Button from '../components/Button';
-import './Dashboard.css';
-import './OrganizerDashboard.css';
 
 const OrganizerDashboard = () => {
   const { user, addNotification } = useApp();
@@ -209,39 +207,56 @@ const OrganizerDashboard = () => {
   };
 
   return (
-    <div className="dashboard-page">
-      <div className="container">
-        <div className="dashboard-header">
-          <div>
-            <h1>Organizer Dashboard</h1>
-            <p>Manage your events and track performance</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-slate-900 pt-24 pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-2xl p-8 mb-8">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div>
+              <h1 className="text-4xl font-bold text-white mb-2">Organizer Dashboard</h1>
+              <p className="text-white/80 text-lg">Manage your events and track performance</p>
+            </div>
+            <button
+              className="px-6 py-3 bg-teal-500 text-white rounded-xl hover:bg-teal-600 transition-colors flex items-center gap-2 shadow-lg"
+              onClick={async () => {
+                try {
+                  setShowCreateModal(true);
+                  const venuesData = await api.getAllVenues();
+                  setVenues(venuesData);
+                } catch (err) {
+                  addNotification({ message: 'Failed to load venues', type: 'error' });
+                }
+              }}
+            >
+              <Plus size={20} />
+              Create Event
+            </button>
           </div>
-          <Button
-            icon={<Plus size={20} />}
-            onClick={async () => {
-              try {
-                setShowCreateModal(true);
-                const venuesData = await api.getAllVenues();
-                setVenues(venuesData);
-              } catch (err) {
-                addNotification({ message: 'Failed to load venues', type: 'error' });
-              }
-            }}
-          >
-            Create Event
-          </Button>
         </div>
 
-        <div className="dashboard-tabs">
-          <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>
+        <div className="flex flex-wrap gap-4 mb-8">
+          <button 
+            className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center gap-2 ${
+              activeTab === 'overview' 
+                ? 'bg-white text-gray-900 shadow-lg' 
+                : 'bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm border border-white/20'
+            }`}
+            onClick={() => setActiveTab('overview')}
+          >
             <TrendingUp size={20} /> Overview
           </button>
-          <button className={activeTab === 'events' ? 'active' : ''} onClick={() => setActiveTab('events')}>
+          <button 
+            className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center gap-2 ${
+              activeTab === 'events' 
+                ? 'bg-white text-gray-900 shadow-lg' 
+                : 'bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm border border-white/20'
+            }`}
+            onClick={() => setActiveTab('events')}
+          >
             <Calendar size={20} /> My Events
           </button>
         </div>
 
-        <div className="dashboard-content">
+        <div className="space-y-8">
           {activeTab === 'overview' && analytics && (
             <div className="overview-section">
               <div className="stats-grid">
