@@ -1,5 +1,6 @@
 import apiClient from './client';
 import { API_ENDPOINTS } from '../../constants';
+import axios from 'axios';
 
 export const eventsService = {
   getAllEvents: async (params = {}) => {
@@ -19,6 +20,11 @@ export const eventsService = {
   createEvent: async (eventData) => {
     return await apiClient.post(API_ENDPOINTS.EVENTS, eventData);
   },
+
+  createEventWithUserId: async (userId, formData) => {
+    return await axios.post(`http://localhost:9090/events/register/${userId}`, formData);
+  },
+
 
   updateEvent: async (id, eventData) => {
     return await apiClient.put(API_ENDPOINTS.EVENT_BY_ID(id), eventData);

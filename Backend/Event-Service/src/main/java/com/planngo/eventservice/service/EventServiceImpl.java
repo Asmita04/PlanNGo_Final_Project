@@ -1,7 +1,9 @@
 package com.planngo.eventservice.service;
 
+
 import com.planngo.eventservice.client.OrganizerClient;
 import com.planngo.eventservice.exceptions.ResourceNotFoundException;
+import com.planngo.eventservice.helper.ImageUploadHelper;
 import com.planngo.eventservice.dto.ApiResponse;
 import com.planngo.eventservice.dto.EventRequest;
 import com.planngo.eventservice.dto.EventResponse;
@@ -14,7 +16,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,9 +31,10 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final VenueRepository venueRepository;
     private final OrganizerClient organizerClient;
-
+    private final ImageUploadHelper imageUploadHelper;
+    
     @Override
-    public ApiResponse createEvent(Long userId, EventRequest eventRequest) {
+    public ApiResponse createEvent(Long userId, EventRequest eventRequest, MultipartFile file) {
         //TODO: if organizer is valid then only can create event
         OrganizerResp organizer =
                 organizerClient.getOrganizerStatus(userId);
@@ -59,8 +64,30 @@ public class EventServiceImpl implements EventService {
                 .isExpired(false)
                 .build();
 
-        Event persistedEvent = eventRepository.save(event);
+        eventRepository.save(event);
+        
+        try {
+			
+            String storedPath = imageUploadHelper.uploadFileWithId(file, event.getEventId().longValue());
+            log.info(storedPath+" yaha store hoagya");
+            
+            		
+            	event.setEventImage("http://localhost:9097/"+storedPath);
+            	
+          
+                    
+            
 
+        } catch (IllegalArgumentException e) {
+            return new ApiResponse("Error", e.toString());
+
+        } catch (IOException e) {
+            return new ApiResponse("Unsuccessful", e.toString());
+        }
+
+        
+        Event persistedEvent = eventRepository.save(event);
+        
         return new ApiResponse("Created!", "Event created successfully with Event Id: " + persistedEvent.getEventId());
     }
 
@@ -120,4 +147,7 @@ public class EventServiceImpl implements EventService {
     public boolean isEventExpired(EventRequest eventRequest) {
         return eventRequest.getEndDate().isBefore(LocalDateTime.now());
     }
+
+	
+	
 }

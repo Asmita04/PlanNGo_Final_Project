@@ -23,7 +23,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className={`navbar ${isExpanded ? 'expanded' : 'collapsed'}`} style={{ background: 'rgba(203, 255, 71, 1)' }}>
+    <nav className={`navbar ${isExpanded ? 'expanded' : 'collapsed'}`}>
       <div className="container">
         <div className="navbar-content">
           <button 
@@ -49,9 +49,9 @@ const Navbar = () => {
                 )}
                 {user && user.userRole && user.userRole === 'ROLE_ADMIN' && (
                   <>
-                    <Link to="/admin/event-management">Event Management</Link>
-                    <Link to="/admin/venue-management">Venue Management</Link>
-                    <Link to="/admin/user-management">User Management</Link>
+                    <Link to="/admin/event-management">Events</Link>
+                    <Link to="/admin/venue-management">Venues</Link>
+                    <Link to="/admin/user-management">Users</Link>
                   </>
                 )}
                 {user && <Link to={getDashboardLink()}>Dashboard</Link>}

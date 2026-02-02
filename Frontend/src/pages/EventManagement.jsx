@@ -86,9 +86,7 @@ const EventManagement = () => {
                 <h4>{event.title}</h4>
                 <p>{event.category}</p>
               </div>
-              <div className="venue-info">
-                <span>{event.venue?.venueName || 'N/A'}</span>
-              </div>
+              <span>{event.venue?.venueName || 'N/A'}</span>
               <div>{new Date(event.startDate).toLocaleDateString()}</div>
               <div>
                 <span className={`status-badge status-${event.isApproved ? 'approved' : 'pending'}`}>

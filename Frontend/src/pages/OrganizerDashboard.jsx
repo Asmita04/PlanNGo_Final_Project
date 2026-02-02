@@ -26,7 +26,8 @@ const OrganizerDashboard = () => {
     startDateTime: '',
     endDateTime: '',
     venue: '',
-    image: ''
+    imageFile: null,
+    imagePreview: ''
   });
 
   // Ticket state
@@ -63,6 +64,20 @@ const OrganizerDashboard = () => {
     setTickets(updated);
   };
 
+  const getSelectedVenue = () => {
+    return venues.find(v => v.venueId.toString() === formData.venue);
+  };
+
+  const getTotalTicketQuantity = () => {
+    return tickets.reduce((total, ticket) => total + (parseInt(ticket.quantity) || 0), 0);
+  };
+
+  const getRemainingCapacity = () => {
+    const selectedVenue = getSelectedVenue();
+    if (!selectedVenue) return 0;
+    return selectedVenue.capacity - getTotalTicketQuantity();
+  };
+
   const resetForm = () => {
     setFormData({
       title: '',
@@ -71,7 +86,8 @@ const OrganizerDashboard = () => {
       startDateTime: '',
       endDateTime: '',
       venue: '',
-      image: ''
+      imageFile: null,
+      imagePreview: ''
     });
     setTickets([
       { type: 'GOLD', price: '', quantity: '' },
@@ -84,24 +100,32 @@ const OrganizerDashboard = () => {
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     try {
+      const formDataToSend = new FormData();
+      
+      // Add event data as JSON blob
       const eventData = {
         title: formData.title,
         description: formData.description,
-        category: formData.category,
+        category: formData.category.toUpperCase(),
         startDate: new Date(formData.startDateTime).toISOString(),
         endDate: new Date(formData.endDateTime).toISOString(),
         venueId: Number(formData.venue),
-        eventImage: formData.image,
         tickets: tickets.map(t => ({
           ticketType: t.type,
           price: Number(t.price),
           totalQuantity: Number(t.quantity)
         }))
       };
+      
+      formDataToSend.append('eventRequest', new Blob([JSON.stringify(eventData)], { type: 'application/json' }));
+      
+      // Add image file if selected
+      if (formData.imageFile) {
+        formDataToSend.append('eventImage', formData.imageFile);
+      }
 
-      console.log("Final Event Payload:", eventData);
-
-      await api.createEvent(eventData);
+      const userId = user.id || 1;
+      await api.createEventWithUserId(userId, formDataToSend);
       addNotification({ message: 'Event created successfully!', type: 'success' });
 
       setShowCreateModal(false);
@@ -123,7 +147,8 @@ const OrganizerDashboard = () => {
       startDateTime: new Date(event.startDate).toISOString().slice(0,16),
       endDateTime: new Date(event.endDate).toISOString().slice(0,16),
       venue: selectedVenue ? selectedVenue.venueId.toString() : '',
-      image: event.eventImage || ''
+      imageFile: null,
+      imagePreview: event.eventImage || ''
     });
 
     // Pre-fill tickets if available
@@ -379,8 +404,26 @@ const OrganizerDashboard = () => {
                     </select>
                   </div>
                   <div className="form-group">
-                    <label>Image URL</label>
-                    <input type="url" value={formData.image} onChange={e => setFormData({...formData, image: e.target.value})} />
+                    <label>Event Image</label>
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={e => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            setFormData({...formData, imageFile: file, imagePreview: event.target.result});
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                    {formData.imagePreview && (
+                      <div className="image-preview">
+                        <img src={formData.imagePreview} alt="Preview" style={{width: '100px', height: '100px', objectFit: 'cover', marginTop: '10px'}} />
+                      </div>
+                    )}
                   </div>
                 </>
               )}
@@ -388,6 +431,11 @@ const OrganizerDashboard = () => {
               {/* Step 2 */}
               {step === 2 && (
                 <>
+                  <div className="venue-capacity-info">
+                    <h3>Venue Capacity: {getSelectedVenue()?.capacity || 0}</h3>
+                    <p>Total Allocated: {getTotalTicketQuantity()}</p>
+                    <p>Remaining: {getRemainingCapacity()}</p>
+                  </div>
                   <h3>Ticket Details</h3>
                   {tickets.map((ticket, index) => (
                     <div className="form-row" key={ticket.type}>
@@ -397,7 +445,24 @@ const OrganizerDashboard = () => {
                       </div>
                       <div className="form-group">
                         <label>{ticket.type} Quantity</label>
-                        <input type="number" value={ticket.quantity} onChange={e => handleTicketChange(index, 'quantity', e.target.value)} required />
+                        <input 
+                          type="number" 
+                          value={ticket.quantity} 
+                          onChange={e => {
+                            const newQuantity = parseInt(e.target.value) || 0;
+                            const otherTicketsTotal = tickets.reduce((total, t, i) => 
+                              i !== index ? total + (parseInt(t.quantity) || 0) : total, 0
+                            );
+                            const maxAllowed = (getSelectedVenue()?.capacity || 0) - otherTicketsTotal;
+                            if (newQuantity <= maxAllowed) {
+                              handleTicketChange(index, 'quantity', e.target.value);
+                            }
+                          }}
+                          max={(getSelectedVenue()?.capacity || 0) - tickets.reduce((total, t, i) => 
+                            i !== index ? total + (parseInt(t.quantity) || 0) : total, 0
+                          )}
+                          required 
+                        />
                       </div>
                     </div>
                   ))}

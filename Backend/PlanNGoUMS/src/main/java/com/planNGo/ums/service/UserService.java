@@ -2,6 +2,8 @@ package com.planNGo.ums.service;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.planNGo.ums.dtos.ApiResponse;
 import com.planNGo.ums.dtos.AuthRequest;
 import com.planNGo.ums.dtos.AuthResp;
@@ -32,6 +34,8 @@ public interface UserService {
 	AuthResp authenticate(AuthRequest request);
 	
 	ApiResponse encryptPasswords();
+
+	ApiResponse uploadPfp(Long id, MultipartFile file);
 
 	
 }

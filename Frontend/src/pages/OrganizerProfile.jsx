@@ -29,6 +29,8 @@ const OrganizerProfile = () => {
     pfp: user?.avatar || ''
   });
   const [documents, setDocuments] = useState([]);
+  const [aadharCard, setAadharCard] = useState(null);
+  const [panCard, setPanCard] = useState(null);
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
@@ -109,6 +111,31 @@ const OrganizerProfile = () => {
       const reader = new FileReader();
       reader.onload = (e) => setProfilePhotoPreview(e.target.result);
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePhotoUpload = async () => {
+    if (!profilePhoto) return;
+    
+    const userId = user?.id;
+    const formData = new FormData();
+    formData.append('file', profilePhoto);
+    
+    try {
+      const response = await apiClient.post(`/users/upload/${userId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      addNotification({ message: 'Profile photo updated successfully! 🎉', type: 'success' });
+      setProfilePhoto(null);
+      setProfilePhotoPreview(null);
+    } catch (error) {
+      console.error('Photo upload error:', error);
+      addNotification({ 
+        message: error.response?.data?.message || 'Failed to upload photo', 
+        type: 'error' 
+      });
     }
   };
 
@@ -210,20 +237,31 @@ const OrganizerProfile = () => {
     setIsEditing(false);
   };
 
-  const handleDocumentUpload = async (e) => {
+  const handleDocumentUpload = async (e, docType) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const formData = new FormData();
-    formData.append('document', file);
-    formData.append('type', 'verification');
+    formData.append('file', file);
+    formData.append('type', docType);
+    formData.append('userId', user.id);
 
     try {
-      const response = await api.uploadDocument(user.id, formData);
-      setDocuments([...documents, response]);
-      addNotification({ message: 'Document uploaded successfully!', type: 'success' });
+      const response = await apiClient.post('/organizer/documents', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      if (docType === 'aadhar') {
+        setAadharCard(response.data);
+      } else if (docType === 'pan') {
+        setPanCard(response.data);
+      }
+      
+      addNotification({ message: `${docType.toUpperCase()} uploaded successfully!`, type: 'success' });
     } catch (error) {
-      addNotification({ message: 'Failed to upload document', type: 'error' });
+      addNotification({ message: `Failed to upload ${docType}`, type: 'error' });
     }
   };
 
@@ -239,39 +277,47 @@ const OrganizerProfile = () => {
     <div className="profile-page">
       <div className="container">
         <div className="profile-header">
-          <div className={`profile-avatar ${isEditing ? 'editing' : ''}`} onClick={() => isEditing && fileInputRef.current?.click()}>
-            {profilePhotoPreview || localStorage.getItem(`profilePhoto_${user?.id}`) || profile.pfp ? (
-              <img 
-                src={getProfilePhotoSrc()} 
-                alt="Profile" 
-                className="profile-photo"
-                onError={(e) => {
-                  e.target.src = 'cdn/user_pfp/NotFound.jpg';
-                }}
-              />
-            ) : (
-              <User size={56} strokeWidth={2} />
+          <div className="header-content">
+            <div className="profile-avatar" onClick={() => isEditing && fileInputRef.current?.click()}>
+              {profilePhotoPreview || localStorage.getItem(`profilePhoto_${user?.id}`) || profile.pfp ? (
+                <img 
+                  src={getProfilePhotoSrc()} 
+                  alt="Profile" 
+                  className="profile-photo"
+                  onError={(e) => {
+                    e.target.src = 'cdn/user_pfp/NotFound.jpg';
+                  }}
+                />
+              ) : (
+                <User size={56} strokeWidth={2} />
+              )}
+              {isEditing && (
+                <div className="photo-overlay">
+                  <Camera size={24} />
+                </div>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoChange}
+              style={{ display: 'none' }}
+            />
+            {isEditing && profilePhoto && (
+              <button 
+                onClick={handlePhotoUpload}
+                className="upload-photo-btn"
+              >
+                Update Photo
+              </button>
             )}
-            {isEditing && (
-              <div className="photo-overlay">
-                <Camera size={24} />
-                <span>Change Photo</span>
-              </div>
-            )}
-          </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handlePhotoChange}
-            style={{ display: 'none' }}
-          />
-          <div className="profile-info">
-            <h1>{(profile.firstName && profile.lastName) ? `${profile.firstName} ${profile.lastName}` : (user?.firstName && user?.lastName) ? `${user.firstName} ${user.lastName}` : 'Organizer Name'}</h1>
-            <p>{profile.organization}</p>
-            <div className="verification-status">
-              {getVerificationStatusIcon(profile.verificationStatus)}
-              <span>Verification Status: {profile.verificationStatus}</span>
+            <div className="profile-info">
+              <h1>{(profile.firstName && profile.lastName) ? `${profile.firstName} ${profile.lastName}` : (user?.firstName && user?.lastName) ? `${user.firstName} ${user.lastName}` : 'Organizer Name'}</h1>
+              <p className="profile-role">
+                <MapPin size={16} />
+                Event Organizer
+              </p>
             </div>
           </div>
           <button 
@@ -279,17 +325,7 @@ const OrganizerProfile = () => {
             onClick={() => isEditing ? handleCancel() : setIsEditing(true)}
             aria-label={isEditing ? 'Cancel editing' : 'Edit profile'}
           >
-            {isEditing ? (
-              <>
-                <X size={16} strokeWidth={2.5} />
-                <span>Cancel</span>
-              </>
-            ) : (
-              <>
-                <Edit2 size={16} strokeWidth={2.5} />
-                <span>Edit</span>
-              </>
-            )}
+            {isEditing ? <X size={28} strokeWidth={2.5} /> : <Edit2 size={28} strokeWidth={2.5} />}
           </button>
         </div>
 
@@ -438,46 +474,63 @@ const OrganizerProfile = () => {
             <div className="documents-section">
               <div className="documents-header">
                 <h3>Verification Documents</h3>
-                <label className="upload-btn">
-                  <Upload size={20} />
-                  Upload Document
-                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleDocumentUpload} hidden />
-                </label>
               </div>
 
-              <div className="documents-list">
-                {documents.length === 0 ? (
-                  <div className="empty-state">
-                    <FileText size={64} />
-                    <h4>No documents uploaded</h4>
-                    <p>Upload verification documents to complete your profile</p>
+              <div className="required-documents">
+                <div className="document-upload-card">
+                  <div className="document-card-header">
+                    <FileText size={24} />
+                    <h4>Aadhar Card</h4>
                   </div>
-                ) : (
-                  documents.map(doc => (
-                    <div key={doc.id} className="document-item">
+                  {aadharCard ? (
+                    <div className="document-uploaded">
                       <div className="document-info">
-                        <FileText size={24} />
-                        <div>
-                          <h4>{doc.name}</h4>
-                          <p>Uploaded on {new Date(doc.uploadDate).toLocaleDateString()}</p>
+                        <span>{aadharCard.name}</span>
+                        <div className="document-status">
+                          {getVerificationStatusIcon(aadharCard.status)}
+                          <span>{aadharCard.status}</span>
                         </div>
                       </div>
-                      <div className="document-status">
-                        {getVerificationStatusIcon(doc.status)}
-                        <span>{doc.status}</span>
+                    </div>
+                  ) : (
+                    <label className="upload-btn">
+                      <Upload size={20} />
+                      Upload Aadhar Card
+                      <input type="file" accept=".pdf" onChange={(e) => handleDocumentUpload(e, 'aadhar')} hidden />
+                    </label>
+                  )}
+                </div>
+
+                <div className="document-upload-card">
+                  <div className="document-card-header">
+                    <FileText size={24} />
+                    <h4>PAN Card</h4>
+                  </div>
+                  {panCard ? (
+                    <div className="document-uploaded">
+                      <div className="document-info">
+                        <span>{panCard.name}</span>
+                        <div className="document-status">
+                          {getVerificationStatusIcon(panCard.status)}
+                          <span>{panCard.status}</span>
+                        </div>
                       </div>
                     </div>
-                  ))
-                )}
+                  ) : (
+                    <label className="upload-btn">
+                      <Upload size={20} />
+                      Upload PAN Card
+                      <input type="file" accept=".pdf" onChange={(e) => handleDocumentUpload(e, 'pan')} hidden />
+                    </label>
+                  )}
+                </div>
               </div>
 
               <div className="verification-info">
-                <h4>Required Documents</h4>
+                <h4>Document Requirements</h4>
                 <ul>
-                  <li>Government-issued ID (Driver's License, Passport, etc.)</li>
-                  <li>Business License or Registration (if applicable)</li>
-                  <li>Tax ID or EIN documentation</li>
-                  <li>Insurance certificate (for events)</li>
+                  <li><strong>Aadhar Card:</strong> Government-issued identity proof (required)</li>
+                  <li><strong>PAN Card:</strong> Tax identification document (required)</li>
                 </ul>
               </div>
             </div>

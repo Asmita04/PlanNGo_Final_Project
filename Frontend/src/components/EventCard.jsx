@@ -56,7 +56,7 @@ const EventCard = ({ event }) => {
       <div className="event-card">
         <div className="event-image" onClick={handleImageClick}>
           <img 
-            src={event.eventImage || event.image || '/placeholder.jpg'} 
+            src={event.eventImage || '/placeholder.jpg'} 
             alt={event.title || 'Event'}
             onError={(e) => {
               e.target.src = '/placeholder.jpg';
@@ -108,7 +108,7 @@ const EventCard = ({ event }) => {
             <button className="modal-close" onClick={closeModal}>×</button>
             <div className="modal-image">
               <img 
-                src={event.eventImage || event.image || '/placeholder.jpg'} 
+                src={event.eventImage || '/placeholder.jpg'} 
                 alt={event.title || 'Event'}
               />
             </div>

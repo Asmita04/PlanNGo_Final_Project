@@ -98,7 +98,7 @@ const EventDetails = () => {
 
   return (
     <div className="event-details-page">
-      <div className="event-hero" style={{ backgroundImage: `url(${event.eventImage || event.image || '/placeholder.jpg'})` }}>
+      <div className="event-hero" style={{ backgroundImage: `url(${event.eventImage || '/placeholder.jpg'})` }}>
         <div className="event-hero-overlay">
           <div className="container">
             <div className="event-hero-content">
