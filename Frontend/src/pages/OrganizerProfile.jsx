@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { api, apiClient } from '../services/api';
 import { User, Mail, Phone, MapPin, Upload, Camera, Save, FileText, CheckCircle, AlertCircle, Edit2, X, Map, Plus, ExternalLink } from 'lucide-react';
+import DocumentUpload from '../components/DocumentUpload';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
 import './OrganizerProfile.css';
@@ -237,31 +238,59 @@ const OrganizerProfile = () => {
     setIsEditing(false);
   };
 
-  const handleDocumentUpload = async (e, docType) => {
+  const [aadharFile, setAadharFile] = useState(null);
+  const [panFile, setPanFile] = useState(null);
+
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const handleDocumentSelect = (e, docType) => {
     const file = e.target.files[0];
     if (!file) return;
+    
+    if (docType === 'aadhar') {
+      setAadharFile(file);
+    } else if (docType === 'pan') {
+      setPanFile(file);
+    }
+  };
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('type', docType);
-    formData.append('userId', user.id);
+  const uploadBothDocuments = async () => {
+    if (!aadharFile || !panFile) {
+      addNotification({ message: 'Please select both Aadhar and PAN documents', type: 'error' });
+      return;
+    }
 
     try {
-      const response = await apiClient.post('/organizer/documents', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+      const aadharBase64 = await convertToBase64(aadharFile);
+      const panBase64 = await convertToBase64(panFile);
+      
+      const documentData = {
+        documents: [
+          { type: 'aadhar', file: aadharBase64 },
+          { type: 'pan', file: panBase64 }
+        ]
+      };
+
+      const response = await apiClient.post(`/organizer/documents/${user.id}`, documentData, {
+        headers: { 'Content-Type': 'application/json' }
       });
       
-      if (docType === 'aadhar') {
-        setAadharCard(response.data);
-      } else if (docType === 'pan') {
-        setPanCard(response.data);
-      }
+      setAadharCard(response.data.find(doc => doc.type === 'aadhar'));
+      setPanCard(response.data.find(doc => doc.type === 'pan'));
       
-      addNotification({ message: `${docType.toUpperCase()} uploaded successfully!`, type: 'success' });
+      addNotification({ message: 'Documents uploaded successfully!', type: 'success' });
+      setAadharFile(null);
+      setPanFile(null);
     } catch (error) {
-      addNotification({ message: `Failed to upload ${docType}`, type: 'error' });
+      console.error('Upload error:', error);
+      addNotification({ message: 'Failed to upload documents', type: 'error' });
     }
   };
 
@@ -348,191 +377,177 @@ const OrganizerProfile = () => {
 
         <div className="profile-content">
           {activeTab === 'profile' && (
-            <form onSubmit={handleProfileUpdate} className="profile-form">
-              <div className="form-section">
-                <h3>Basic Information</h3>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>First Name</label>
-                    <input
-                      type="text"
-                      value={profile.firstName}
-                      onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
-                      disabled={!isEditing}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Last Name</label>
-                    <input
-                      type="text"
-                      value={profile.lastName}
-                      onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
-                      disabled={!isEditing}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Phone Number</label>
-                    <input
-                      type="tel"
-                      value={profile.phone}
-                      onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                      disabled={!isEditing}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Location</label>
-                    {profile.address ? (
-                      <div className={`location-display ${isEditing ? 'editing' : ''}`}>
-                        <MapPin size={20} />
-                        <a 
-                          href={profile.address} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="location-link"
-                        >
-                          {getLocationText()}
-                          <ExternalLink size={16} />
-                        </a>
-                        {isEditing && (
-                          <button 
-                            type="button" 
-                            onClick={() => setShowLocationModal(true)}
-                            className="edit-location-btn"
+            <div className="max-w-4xl mx-auto">
+              <form onSubmit={handleProfileUpdate} className="space-y-8">
+                {/* Basic Information Section */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                    <User className="w-5 h-5 mr-2 text-indigo-600" />
+                    Basic Information
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">First Name</label>
+                      <input
+                        type="text"
+                        value={profile.firstName}
+                        onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
+                        disabled={!isEditing}
+                        required
+                        className={`w-full px-4 py-3 rounded-lg border transition-colors ${
+                          isEditing 
+                            ? 'border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200' 
+                            : 'border-gray-200 bg-gray-50'
+                        }`}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">Last Name</label>
+                      <input
+                        type="text"
+                        value={profile.lastName}
+                        onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
+                        disabled={!isEditing}
+                        required
+                        className={`w-full px-4 py-3 rounded-lg border transition-colors ${
+                          isEditing 
+                            ? 'border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200' 
+                            : 'border-gray-200 bg-gray-50'
+                        }`}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                      <input
+                        type="tel"
+                        value={profile.phone}
+                        onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                        disabled={!isEditing}
+                        required
+                        className={`w-full px-4 py-3 rounded-lg border transition-colors ${
+                          isEditing 
+                            ? 'border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200' 
+                            : 'border-gray-200 bg-gray-50'
+                        }`}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">Location</label>
+                      {profile.address ? (
+                        <div className={`flex items-center space-x-3 p-3 rounded-lg border ${
+                          isEditing ? 'border-gray-300 bg-white' : 'border-gray-200 bg-gray-50'
+                        }`}>
+                          <MapPin className="w-5 h-5 text-gray-400" />
+                          <a 
+                            href={profile.address} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex-1 text-indigo-600 hover:text-indigo-800 flex items-center space-x-2"
                           >
-                            <Edit2 size={16} />
-                          </button>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="location-empty">
-                        {isEditing ? (
-                          <button 
-                            type="button" 
-                            onClick={() => setShowLocationModal(true)}
-                            className="add-location-btn"
-                          >
-                            <Plus size={20} />
-                            Add Location
-                          </button>
-                        ) : (
-                          <div className="no-location">
-                            <MapPin size={20} />
-                            No location added
-                          </div>
-                        )}
-                      </div>
-                    )}
+                            <span className="truncate">{getLocationText()}</span>
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                          {isEditing && (
+                            <button 
+                              type="button" 
+                              onClick={() => setShowLocationModal(true)}
+                              className="p-1 text-gray-400 hover:text-indigo-600 transition-colors"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="p-3 rounded-lg border border-gray-200 bg-gray-50">
+                          {isEditing ? (
+                            <button 
+                              type="button" 
+                              onClick={() => setShowLocationModal(true)}
+                              className="flex items-center space-x-2 text-indigo-600 hover:text-indigo-800 transition-colors"
+                            >
+                              <Plus className="w-5 h-5" />
+                              <span>Add Location</span>
+                            </button>
+                          ) : (
+                            <div className="flex items-center space-x-2 text-gray-500">
+                              <MapPin className="w-5 h-5" />
+                              <span>No location added</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="form-section">
-                <h3>Professional Information</h3>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Company/Organization</label>
-                    <input
-                      type="text"
-                      value={profile.organization}
-                      onChange={(e) => setProfile({ ...profile, organization: e.target.value })}
-                      placeholder="Your organization name"
-                      disabled={!isEditing}
-                    />
+                {/* Professional Information Section */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                    <FileText className="w-5 h-5 mr-2 text-indigo-600" />
+                    Professional Information
+                  </h3>
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">Company/Organization</label>
+                      <input
+                        type="text"
+                        value={profile.organization}
+                        onChange={(e) => setProfile({ ...profile, organization: e.target.value })}
+                        placeholder="Your organization name"
+                        disabled={!isEditing}
+                        className={`w-full px-4 py-3 rounded-lg border transition-colors ${
+                          isEditing 
+                            ? 'border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200' 
+                            : 'border-gray-200 bg-gray-50'
+                        }`}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">Bio</label>
+                      <textarea
+                        value={profile.bio}
+                        onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                        placeholder="Tell us about yourself and your event organizing experience..."
+                        rows="4"
+                        disabled={!isEditing}
+                        className={`w-full px-4 py-3 rounded-lg border transition-colors resize-none ${
+                          isEditing 
+                            ? 'border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200' 
+                            : 'border-gray-200 bg-gray-50'
+                        }`}
+                      />
+                    </div>
                   </div>
                 </div>
-                <div className="form-group">
-                  <label>Bio</label>
-                  <textarea
-                    value={profile.bio}
-                    onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                    placeholder="Tell us about yourself and your event organizing experience..."
-                    rows="4"
-                    disabled={!isEditing}
-                  />
-                </div>
-              </div>
 
-              {isEditing && (
-                <div className="form-actions">
-                  <Button type="submit" disabled={loading} icon={<Save size={20} />}>
-                    {loading ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                  <Button type="button" onClick={handleCancel} variant="secondary" icon={<X size={20} />}>
-                    Cancel
-                  </Button>
-                </div>
-              )}
-            </form>
+                {/* Action Buttons */}
+                {isEditing && (
+                  <div className="flex justify-end space-x-4 pt-6">
+                    <button
+                      type="button"
+                      onClick={handleCancel}
+                      className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors flex items-center space-x-2"
+                    >
+                      <X className="w-4 h-4" />
+                      <span>Cancel</span>
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors flex items-center space-x-2"
+                    >
+                      <Save className="w-4 h-4" />
+                      <span>{loading ? 'Saving...' : 'Save Changes'}</span>
+                    </button>
+                  </div>
+                )}
+              </form>
+            </div>
           )}
 
           {activeTab === 'documents' && (
-            <div className="documents-section">
-              <div className="documents-header">
-                <h3>Verification Documents</h3>
-              </div>
-
-              <div className="required-documents">
-                <div className="document-upload-card">
-                  <div className="document-card-header">
-                    <FileText size={24} />
-                    <h4>Aadhar Card</h4>
-                  </div>
-                  {aadharCard ? (
-                    <div className="document-uploaded">
-                      <div className="document-info">
-                        <span>{aadharCard.name}</span>
-                        <div className="document-status">
-                          {getVerificationStatusIcon(aadharCard.status)}
-                          <span>{aadharCard.status}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <label className="upload-btn">
-                      <Upload size={20} />
-                      Upload Aadhar Card
-                      <input type="file" accept=".pdf" onChange={(e) => handleDocumentUpload(e, 'aadhar')} hidden />
-                    </label>
-                  )}
-                </div>
-
-                <div className="document-upload-card">
-                  <div className="document-card-header">
-                    <FileText size={24} />
-                    <h4>PAN Card</h4>
-                  </div>
-                  {panCard ? (
-                    <div className="document-uploaded">
-                      <div className="document-info">
-                        <span>{panCard.name}</span>
-                        <div className="document-status">
-                          {getVerificationStatusIcon(panCard.status)}
-                          <span>{panCard.status}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <label className="upload-btn">
-                      <Upload size={20} />
-                      Upload PAN Card
-                      <input type="file" accept=".pdf" onChange={(e) => handleDocumentUpload(e, 'pan')} hidden />
-                    </label>
-                  )}
-                </div>
-              </div>
-
-              <div className="verification-info">
-                <h4>Document Requirements</h4>
-                <ul>
-                  <li><strong>Aadhar Card:</strong> Government-issued identity proof (required)</li>
-                  <li><strong>PAN Card:</strong> Tax identification document (required)</li>
-                </ul>
-              </div>
+            <div className="max-w-4xl mx-auto">
+              <DocumentUpload />
             </div>
           )}
         </div>

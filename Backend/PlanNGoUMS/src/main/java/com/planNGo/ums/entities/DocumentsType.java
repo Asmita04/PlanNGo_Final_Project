@@ -28,7 +28,7 @@ public class DocumentsType extends BaseEntity  {
 	@GeneratedValue (strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column(name = "document_type",nullable = false)
+	@Column(name = "document_type",nullable = false,unique = true)
 	private String documentType;
 
 }

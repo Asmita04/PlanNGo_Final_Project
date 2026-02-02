@@ -1,19 +1,25 @@
 package com.planNGo.ums.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import com.planNGo.ums.custom_exceptions.ResourceNotFoundException;
 import com.planNGo.ums.dtos.ApiResponse;
 import com.planNGo.ums.dtos.OrganizerDTO;
 import com.planNGo.ums.dtos.UserDTO;
 import com.planNGo.ums.entities.Customer;
+import com.planNGo.ums.entities.Document;
 import com.planNGo.ums.entities.Organizer;
 import com.planNGo.ums.entities.User;
 import com.planNGo.ums.repository.CustomerRepository;
+import com.planNGo.ums.repository.DocumentRepository;
 import com.planNGo.ums.repository.OrganizerRepository;
 import com.planNGo.ums.repository.UserRepository;
 
@@ -28,6 +34,8 @@ public class AdminServiceImpl implements AdminService {
 	private final OrganizerRepository organizerRepository;
 	private final CustomerRepository customerRepository;
 	private final UserRepository userRepository;
+	private final DocumentRepository documentRepository;
+	private final DocumentService documentService;
 	
 	@Override
 	public ApiResponse verifyOrganizer(Long userId) {
@@ -92,6 +100,23 @@ public class AdminServiceImpl implements AdminService {
 				
 		
 		return userDtos;
+	}
+
+	
+	@GetMapping("/documents/{userId}")
+	public ResponseEntity<?> getOrganizerDocuments(@PathVariable Long userId) {
+
+	    List<Document> files = documentRepository.findAllByUserDetails_Id(userId);
+
+	    return ResponseEntity.ok(
+	            files.stream()
+	                    .map(file -> Map.of(
+	                            "fileId", file.getId(),
+	                            "docType", file.getDocumentsType().getDocumentType(),
+	                            "downloadUrl", documentService.generateDownloadUrl(file.getS3Key())
+	                    ))
+	                    .toList()
+	    );
 	}
 
 	

@@ -3,6 +3,7 @@ export { eventsService } from './eventsService';
 export { bookingsService } from './bookingsService';
 export { usersService } from './usersService';
 export { venuesService } from './venuesService';
+export { organizerService } from './organizerService';
 export { default as apiClient } from './client';
 
 // Re-export for backward compatibility
@@ -11,6 +12,7 @@ import { eventsService } from './eventsService';
 import { bookingsService } from './bookingsService';
 import { usersService } from './usersService';
 import { venuesService } from './venuesService';
+import { organizerService } from './organizerService';
 
 export const api = {
   // Auth methods
@@ -60,4 +62,7 @@ export const api = {
   createVenue: venuesService.createVenue,
   updateVenue: venuesService.updateVenue,
   deleteVenue: venuesService.deleteVenue,
+
+  // Organizer methods
+  uploadDocuments: organizerService.uploadDocuments,
 };

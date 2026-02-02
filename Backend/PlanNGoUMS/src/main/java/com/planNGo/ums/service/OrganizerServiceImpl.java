@@ -1,14 +1,21 @@
 package com.planNGo.ums.service;
 
+import java.io.IOException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.planNGo.ums.custom_exceptions.ResourceNotFoundException;
 import com.planNGo.ums.dtos.ApiResponse;
 import com.planNGo.ums.dtos.OrganizerResp;
 import com.planNGo.ums.dtos.UpdateOrganizer;
+import com.planNGo.ums.entities.Document;
+import com.planNGo.ums.entities.DocumentsType;
 import com.planNGo.ums.entities.Organizer;
 import com.planNGo.ums.entities.User;
+import com.planNGo.ums.repository.DocumentRepository;
+import com.planNGo.ums.repository.DocumentsTypeRepository;
 import com.planNGo.ums.repository.OrganizerRepository;
 import com.planNGo.ums.repository.UserRepository;
 
@@ -21,8 +28,12 @@ import lombok.extern.slf4j.Slf4j;
 public class OrganizerServiceImpl implements OrganizerService {
 	private final OrganizerRepository organizerRepository;
 	private final UserRepository userRepository;
+	private final DocumentRepository documentRepository;
+	private final DocumentsTypeRepository documentsTypeRepository;
 	
-
+	private final DocumentService documentService;
+	
+	
 	@Override
 	public ApiResponse deleteOrganizer(Long organizerId) {
 		Organizer organizer =organizerRepository.findById(organizerId)
@@ -78,10 +89,57 @@ public class OrganizerServiceImpl implements OrganizerService {
 	}
 	
 
-//	@Override
-//	public List<OrganizerDTO> getAllOrganizers() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
+
+	@Override
+	public ApiResponse uploadDocuments(
+	        Long userId,
+	        MultipartFile[] files,
+	        String[] docType
+	) throws IOException {
+
+	    if (files.length != docType.length) {
+	        throw new IllegalArgumentException("Files and document types count must match");
+	    }
+
+	    long count = documentRepository.countByUserDetails_Id(userId);
+
+	    if (count + files.length > 3) {
+	        return new ApiResponse("Unsuccessful", "Maximum 3 KYC files allowed");
+	    }
+
+	    User user = userRepository.findById(userId)
+	            .orElseThrow(() -> new ResourceNotFoundException("Invalid user!!!!!"));
+
+	    for (int i = 0; i < files.length; i++) {
+
+	        MultipartFile file = files[i];
+	        String type = docType[i]; // ✅ matching type
+
+	        DocumentsType documentsType = documentsTypeRepository
+	                .findByDocumentType(type)
+	                .orElseThrow(() ->
+	                        new ResourceNotFoundException("Invalid DocumentType: " + type));
+
+	        String folder = type + "/" + userId;
+
+	        String s3Key = documentService.upload(file, folder);
+
+	        Document record = new Document();
+	        record.setUserDetails(user);
+	        record.setDocumentsType(documentsType);
+	        record.setS3Key(s3Key);
+
+	        documentRepository.save(record);
+	    }
+
+	    return new ApiResponse("Successful", "Documents uploaded successfully");
+	}
+
+	
+	
+	
+	
+	
+	
 
 }
