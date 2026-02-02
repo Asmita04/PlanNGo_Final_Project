@@ -19,7 +19,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-2 sm:top-3 md:top-4 left-1/2 transform -translate-x-1/2 w-[calc(100%-1rem)] sm:w-[calc(100%-1.5rem)] md:w-[calc(100%-2rem)] max-w-6xl backdrop-blur-xl bg-white/20 border border-white/20 rounded-xl md:rounded-2xl shadow-xl z-50 px-3 sm:px-4 md:px-6 py-2 md:py-3">
+    <nav className="fixed top-2 sm:top-3 md:top-4 left-1/2 transform -translate-x-1/2 w-[calc(100%-1rem)] sm:w-[calc(100%-1.5rem)] md:w-[calc(100%-2rem)] max-w-6xl backdrop-blur-xl bg-teal-950/70 border border-teal-700/30 rounded-xl md:rounded-2xl shadow-xl z-50 px-3 sm:px-4 md:px-6 py-2 md:py-3 transition-all duration-300">
       <div className="flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-1.5 sm:gap-2 text-base sm:text-lg md:text-xl font-bold text-teal-500 flex-shrink-0">
@@ -76,18 +76,18 @@ const Navbar = () => {
               <User className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden lg:block text-xs sm:text-sm md:text-base">{user.name}</span>
             </button>
-            <div className="absolute top-full right-0 mt-2 min-w-[160px] sm:min-w-[180px] bg-white/95 backdrop-blur-xl border border-white/20 rounded-xl md:rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+            <div className="absolute top-full right-0 mt-2 min-w-[160px] sm:min-w-[180px] bg-teal-950/95 backdrop-blur-xl border border-teal-700/30 rounded-xl md:rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
               {user.userRole && user.userRole === 'ROLE_CUSTOMER' && (
-                <Link to="/user/profile" className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 text-gray-800 hover:bg-gray-50 transition-colors rounded-t-xl md:rounded-t-2xl text-xs sm:text-sm md:text-base">
+                <Link to="/user/profile" className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 text-gray-200 hover:bg-teal-800/50 transition-colors rounded-t-xl md:rounded-t-2xl text-xs sm:text-sm md:text-base">
                   <User className="w-4 h-4" /> Profile
                 </Link>
               )}
               {user.userRole && user.userRole === 'ROLE_ORGANIZER' && (
-                <Link to="/organizer/profile" className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 text-gray-800 hover:bg-gray-50 transition-colors rounded-t-xl md:rounded-t-2xl text-xs sm:text-sm md:text-base">
+                <Link to="/organizer/profile" className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 text-gray-200 hover:bg-teal-800/50 transition-colors rounded-t-xl md:rounded-t-2xl text-xs sm:text-sm md:text-base">
                   <User className="w-4 h-4" /> Profile
                 </Link>
               )}
-              <button onClick={handleLogout} className="flex items-center gap-2 w-full px-3 sm:px-4 py-2 sm:py-3 text-left text-gray-800 hover:bg-gray-50 transition-colors rounded-b-xl md:rounded-b-2xl text-xs sm:text-sm md:text-base">
+              <button onClick={handleLogout} className="flex items-center gap-2 w-full px-3 sm:px-4 py-2 sm:py-3 text-left text-gray-200 hover:bg-teal-800/50 transition-colors rounded-b-xl md:rounded-b-2xl text-xs sm:text-sm md:text-base">
                 <LogOut className="w-4 h-4" /> Logout
               </button>
             </div>

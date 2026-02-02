@@ -10,11 +10,12 @@
   top: 100%;
   right: 0;
   margin-top: 0.5rem;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(15, 23, 42, 0.9);
+  /* Dark Slate-900 with opacity */
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   min-width: 180px;
   opacity: 0;
   visibility: hidden;
