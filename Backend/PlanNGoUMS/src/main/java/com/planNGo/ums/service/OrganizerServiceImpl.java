@@ -10,10 +10,9 @@ import com.planNGo.ums.custom_exceptions.ResourceNotFoundException;
 import com.planNGo.ums.dtos.ApiResponse;
 import com.planNGo.ums.dtos.OrganizerResp;
 import com.planNGo.ums.dtos.UpdateOrganizer;
-import com.planNGo.ums.entities.Document;
-import com.planNGo.ums.entities.DocumentsType;
 import com.planNGo.ums.entities.Organizer;
 import com.planNGo.ums.entities.User;
+import com.planNGo.ums.helper.ImageUploadHelper;
 import com.planNGo.ums.repository.DocumentRepository;
 import com.planNGo.ums.repository.DocumentsTypeRepository;
 import com.planNGo.ums.repository.OrganizerRepository;
@@ -32,6 +31,8 @@ public class OrganizerServiceImpl implements OrganizerService {
 	private final DocumentsTypeRepository documentsTypeRepository;
 	
 	private final DocumentService documentService;
+	
+	private final ImageUploadHelper imageUploadHelper;
 	
 	
 	@Override
@@ -91,48 +92,24 @@ public class OrganizerServiceImpl implements OrganizerService {
 
 
 	@Override
-	public ApiResponse uploadDocuments(
-	        Long userId,
-	        MultipartFile[] files,
-	        String[] docType
-	) throws IOException {
+	public ApiResponse uploadDocuments(Long userId,MultipartFile files,String docType)  {
+		try {
+            String storedPath = imageUploadHelper.uploadFileWithId(files, userId);
+            log.info(storedPath+" yaha store hoagya");
+            User user= userRepository.findById(userId)
+            		.orElseThrow(() -> new ResourceNotFoundException("Invalid user id !!!!!"));
+            	user.setPfp("http://localhost:8080/"+storedPath);
+            	
+            return new ApiResponse("Success",storedPath);
+                    
+            
 
-	    if (files.length != docType.length) {
-	        throw new IllegalArgumentException("Files and document types count must match");
-	    }
+        } catch (IllegalArgumentException e) {
+            return new ApiResponse("Error", e.toString());
 
-	    long count = documentRepository.countByUserDetails_Id(userId);
-
-	    if (count + files.length > 3) {
-	        return new ApiResponse("Unsuccessful", "Maximum 3 KYC files allowed");
-	    }
-
-	    User user = userRepository.findById(userId)
-	            .orElseThrow(() -> new ResourceNotFoundException("Invalid user!!!!!"));
-
-	    for (int i = 0; i < files.length; i++) {
-
-	        MultipartFile file = files[i];
-	        String type = docType[i]; // ✅ matching type
-
-	        DocumentsType documentsType = documentsTypeRepository
-	                .findByDocumentType(type)
-	                .orElseThrow(() ->
-	                        new ResourceNotFoundException("Invalid DocumentType: " + type));
-
-	        String folder = type + "/" + userId;
-
-	        String s3Key = documentService.upload(file, folder);
-
-	        Document record = new Document();
-	        record.setUserDetails(user);
-	        record.setDocumentsType(documentsType);
-	        record.setS3Key(s3Key);
-
-	        documentRepository.save(record);
-	    }
-
-	    return new ApiResponse("Successful", "Documents uploaded successfully");
+        } catch (IOException e) {
+            return new ApiResponse("Unsuccessful", e.toString());
+        }
 	}
 
 	

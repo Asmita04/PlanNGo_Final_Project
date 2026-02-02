@@ -90,8 +90,8 @@ public class OrganizerController {
     @PostMapping("/documents/{userId}")
     public ResponseEntity<?> uploadDocuments(
             @PathVariable Long userId,
-            @RequestParam("files") MultipartFile[] files,
-            @RequestParam String[] docType) throws IOException {
+            @RequestParam("files") MultipartFile files,
+            @RequestBody String docType)  {
 
         
 

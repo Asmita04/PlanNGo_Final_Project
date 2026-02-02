@@ -7,29 +7,34 @@
 }
 
 :root {
-  --primary: #f8f8f8;
+  --primary: #f0fdfa;
   --primary-dark: #2563eb;
   --secondary: #ec4899;
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
-  --dark: #236368;
-  --light: #f9fafb;
-  --gray: #6b7280;
-  --border: #e5e7eb;
+  --dark: #0f172a;
+  --light: #f8fafc;
+  --gray: #64748b;
+  --border: #e2e8f0;
 }
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   margin: 0;
-  background-color: #ffffff;
-  color: #236368;
+  background-color: #f0fdfa;
+  /* Teal-50 - subtle background */
+  color: #0f172a;
+  /* Slate-900 - dark text */
   line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
   text-decoration: none;
   color: inherit;
+  transition: opacity 0.2s ease;
 }
 
 button {
@@ -37,9 +42,16 @@ button {
   cursor: pointer;
   border: none;
   outline: none;
+  transition: transform 0.1s ease, background-color 0.2s ease;
 }
 
-input, textarea, select {
+button:active {
+  transform: scale(0.98);
+}
+
+input,
+textarea,
+select {
   font-family: inherit;
   outline: none;
 }
@@ -57,54 +69,63 @@ input, textarea, select {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #94a3b8;
 }
 
-/* Animations */
+/* Smooth Animations - replacing bouncy ones */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
+    /* Reduced movement for subtlety */
   }
-  to { 
+
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
 @keyframes slideDown {
-  from { 
+  from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-10px);
+    /* Reduced movement */
   }
-  to { 
+
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
 .fade-in {
-  animation: fadeIn 0.3s ease-in;
+  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .slide-up {
-  animation: slideUp 0.4s ease-out;
+  animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .slide-down {
-  animation: slideDown 0.4s ease-out;
+  animation: slideDown 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }

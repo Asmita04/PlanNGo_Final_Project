@@ -20,7 +20,9 @@ public interface OrganizerService {
 
 	ApiResponse updateDetails(Long id, UpdateOrganizer organizer);
 
-	ApiResponse uploadDocuments(Long userId, MultipartFile[] files, String[] docType) throws IOException;
+	
+
+	ApiResponse uploadDocuments(Long userId, MultipartFile files, String docType);
 
 	
 	

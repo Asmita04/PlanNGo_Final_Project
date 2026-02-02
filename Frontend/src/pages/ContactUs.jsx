@@ -27,7 +27,7 @@ const ContactUs = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     // Simulate API call
     setTimeout(() => {
       console.log('Form submitted:', formData);
@@ -138,80 +138,80 @@ const ContactUs = () => {
 
                 <div className="form-fields">
                   <div className={`form-group ${focusedField === 'name' ? 'focused' : ''} ${formData.name ? 'filled' : ''}`}>
-                    <label htmlFor="name">
-                      <User size={18} />
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      onFocus={() => setFocusedField('name')}
-                      onBlur={() => setFocusedField('')}
-                      placeholder="John Doe"
-                      required
-                    />
+                    <label htmlFor="name">Full Name</label>
+                    <div className="input-wrapper">
+                      <User className="input-icon" size={18} />
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        onFocus={() => setFocusedField('name')}
+                        onBlur={() => setFocusedField('')}
+                        placeholder="John Doe"
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div className={`form-group ${focusedField === 'email' ? 'focused' : ''} ${formData.email ? 'filled' : ''}`}>
-                    <label htmlFor="email">
-                      <Mail size={18} />
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      onFocus={() => setFocusedField('email')}
-                      onBlur={() => setFocusedField('')}
-                      placeholder="john@example.com"
-                      required
-                    />
+                    <label htmlFor="email">Email Address</label>
+                    <div className="input-wrapper">
+                      <Mail className="input-icon" size={18} />
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        onFocus={() => setFocusedField('email')}
+                        onBlur={() => setFocusedField('')}
+                        placeholder="john@example.com"
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div className={`form-group ${focusedField === 'subject' ? 'focused' : ''} ${formData.subject ? 'filled' : ''}`}>
-                    <label htmlFor="subject">
-                      <FileText size={18} />
-                      Subject
-                    </label>
-                    <input
-                      type="text"
-                      id="subject"
-                      name="subject"
-                      value={formData.subject}
-                      onChange={handleChange}
-                      onFocus={() => setFocusedField('subject')}
-                      onBlur={() => setFocusedField('')}
-                      placeholder="How can we help?"
-                      required
-                    />
+                    <label htmlFor="subject">Subject</label>
+                    <div className="input-wrapper">
+                      <FileText className="input-icon" size={18} />
+                      <input
+                        type="text"
+                        id="subject"
+                        name="subject"
+                        value={formData.subject}
+                        onChange={handleChange}
+                        onFocus={() => setFocusedField('subject')}
+                        onBlur={() => setFocusedField('')}
+                        placeholder="How can we help?"
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div className={`form-group textarea-group ${focusedField === 'message' ? 'focused' : ''} ${formData.message ? 'filled' : ''}`}>
-                    <label htmlFor="message">
-                      <MessageSquare size={18} />
-                      Message
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      rows="5"
-                      value={formData.message}
-                      onChange={handleChange}
-                      onFocus={() => setFocusedField('message')}
-                      onBlur={() => setFocusedField('')}
-                      placeholder="Tell us more about your inquiry..."
-                      required
-                    ></textarea>
+                    <label htmlFor="message">Message</label>
+                    <div className="input-wrapper">
+                      <MessageSquare className="input-icon" size={18} />
+                      <textarea
+                        id="message"
+                        name="message"
+                        rows="5"
+                        value={formData.message}
+                        onChange={handleChange}
+                        onFocus={() => setFocusedField('message')}
+                        onBlur={() => setFocusedField('')}
+                        placeholder="Tell us more about your inquiry..."
+                        required
+                      ></textarea>
+                    </div>
                   </div>
                 </div>
 
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="submit-button"
                   disabled={isSubmitting}
                 >
