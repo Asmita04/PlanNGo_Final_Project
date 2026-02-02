@@ -8,6 +8,8 @@ import com.planngo.ticketservice.service.TicketService;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/tickets")
 @RequiredArgsConstructor
@@ -28,4 +30,9 @@ public class TicketController {
 	        ticketService.cancelTicket(ticketId);
 	        return ResponseEntity.ok("Ticket cancelled successfully");
 	    }
+
+	@GetMapping
+	public List<TicketResponseDTO> getAllConfirmedTickets() {
+		return ticketService.getAllConfirmedTickets();
+	}
 }

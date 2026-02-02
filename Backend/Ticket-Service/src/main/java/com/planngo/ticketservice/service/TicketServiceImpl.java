@@ -1,5 +1,7 @@
 package com.planngo.ticketservice.service;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.planngo.ticketservice.client.EventClient;
 
@@ -58,7 +60,7 @@ public class TicketServiceImpl implements TicketService {
 	            .eventId(request.getEventId())
 	            .ticketType(request.getTicketType())
 	            .count(request.getCount())
-	            .status(TicketStatus.BOOKED)
+				.status(TicketStatus.PENDING)
 	            .createdAt(LocalDateTime.now())
 	            .price(totalCalculatedPrice)
 	            .build();
@@ -94,4 +96,23 @@ public class TicketServiceImpl implements TicketService {
 
 	}
 
+	@Override
+	public List<TicketResponseDTO> getAllConfirmedTickets() {
+		return ticketRepository.findByStatus("CONFIRMED")
+				.stream()
+				.map(this::mapToDTO)
+				.collect(Collectors.toList());
+	}
+
+	private TicketResponseDTO mapToDTO(Ticket t) {
+		return TicketResponseDTO.builder()
+				.ticketId(t.getTicketId())
+				.eventId(t.getEventId())
+				.customerId(t.getCustomerId())
+				.count(t.getCount())
+				.price(t.getPrice())
+				.status(String.valueOf(t.getStatus()))
+				.createdAt(t.getCreatedAt())
+				.build();
+	}
 }
