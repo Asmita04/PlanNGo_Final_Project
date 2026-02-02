@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { api } from '../services';
-import { CreditCard, Calendar, MapPin, ArrowLeft } from 'lucide-react';
+import { CreditCard, Calendar, MapPin, ArrowLeft, Ticket } from 'lucide-react';
 import Button from '../components/Button';
 import './Review.css';
 
@@ -47,8 +47,9 @@ const Review = () => {
   }
 
   const { event } = bookingState;
-  const totalAmount = event.price * quantity;
-  const availableTickets = event.capacity - event.booked;
+  const eventPrice = event.ticketPrice || event.price || 0;
+  const totalAmount = eventPrice * quantity;
+  const availableTickets = (event.capacity || 0) - (event.booked || 0);
 
   const handleQuantityChange = (newQuantity) => {
     const validQuantity = Math.max(1, Math.min(availableTickets, newQuantity));
@@ -150,13 +151,20 @@ const Review = () => {
               <h2>Order Summary</h2>
               
               <div className="event-details">
-                <img src={event.image} alt={event.title} className="event-image" />
+                <img 
+                  src={event.eventImage || event.image || '/placeholder.jpg'} 
+                  alt={event.title} 
+                  className="event-image"
+                  onError={(e) => {
+                    e.target.src = '/placeholder.jpg';
+                  }}
+                />
                 <div className="event-info">
                   <h3>{event.title}</h3>
                   <div className="event-meta">
                     <div className="meta-item">
                       <Calendar size={16} />
-                      <span>{new Date(event.date).toLocaleDateString('en-US', { 
+                      <span>{new Date(event.startDate || event.date).toLocaleDateString('en-US', { 
                         weekday: 'long', 
                         year: 'numeric', 
                         month: 'long', 
@@ -165,7 +173,16 @@ const Review = () => {
                     </div>
                     <div className="meta-item">
                       <MapPin size={16} />
-                      <span>{event.location}</span>
+                      <span>
+                        {event.venue?.venueName 
+                          ? `${event.venue.venueName}, ${event.venue.city}` 
+                          : event.location || 'Location TBD'
+                        }
+                      </span>
+                    </div>
+                    <div className="meta-item">
+                      <Ticket size={16} />
+                      <span>{quantity} ticket{quantity > 1 ? 's' : ''}</span>
                     </div>
                   </div>
                 </div>
@@ -199,7 +216,7 @@ const Review = () => {
               <div className="price-breakdown">
                 <div className="price-item">
                   <span>Ticket Price</span>
-                  <span>₹{event.price}</span>
+                  <span>₹{eventPrice}</span>
                 </div>
                 <div className="price-item">
                   <span>Quantity</span>
@@ -207,7 +224,7 @@ const Review = () => {
                 </div>
                 <div className="price-item">
                   <span>Subtotal</span>
-                  <span>₹{event.price * quantity}</span>
+                  <span>₹{eventPrice * quantity}</span>
                 </div>
                 <div className="price-item">
                   <span>Service Fee</span>
@@ -246,11 +263,16 @@ const Review = () => {
               </div>
               <div className="summary-item">
                 <span>Date</span>
-                <span>{new Date(event.date).toLocaleDateString()}</span>
+                <span>{new Date(event.startDate || event.date).toLocaleDateString()}</span>
               </div>
               <div className="summary-item">
                 <span>Location</span>
-                <span>{event.location}</span>
+                <span>
+                  {event.venue?.venueName 
+                    ? `${event.venue.venueName}, ${event.venue.city}` 
+                    : event.location || 'Location TBD'
+                  }
+                </span>
               </div>
               <div className="summary-item">
                 <span>Tickets</span>

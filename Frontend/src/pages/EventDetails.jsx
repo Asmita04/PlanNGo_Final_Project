@@ -98,29 +98,44 @@ const EventDetails = () => {
 
   return (
     <div className="event-details-page">
-      <div className="event-hero" style={{ backgroundImage: `url(${event.eventImage || '/placeholder.jpg'})` }}>
-        <div className="event-hero-overlay">
-          <div className="container">
-            <div className="event-hero-content">
-              <span className="event-badge">{event.category}</span>
-              <h1>{event.title}</h1>
-              <div className="event-meta">
-                <div className="meta-item">
-                  <Calendar size={20} />
-                  <span>{new Date(event.startDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                </div>
-                <div className="meta-item">
-                  <Clock size={20} />
-                  <span>{event.time}</span>
-                </div>
-                <div className="meta-item">
-                  <MapPin size={20} />
-                  <span>
-                    {event.venue?.venueName}, {event.venue?.city}
-                  </span>
-
-                </div>
+      <div className="relative w-full h-96 bg-cover bg-center" style={{ backgroundImage: `url(${event.eventImage || '/placeholder.jpg'})` }}>
+        <div className="absolute inset-0 bg-black bg-opacity-50">
+          <div className="container mx-auto px-4 h-full flex flex-col justify-center items-center text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">{event.title}</h1>
+            <div className="flex flex-col md:flex-row items-center justify-center gap-6 text-white">
+              <div className="flex items-center gap-2">
+                <Calendar size={20} className="text-blue-400" />
+                <span className="text-lg font-medium">
+                  {event.startDate || event.date ? 
+                    new Date(event.startDate || event.date).toLocaleDateString('en-US', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    }) : 'Date TBD'
+                  }
+                </span>
               </div>
+              {event.time && (
+                <div className="flex items-center gap-2">
+                  <Clock size={20} className="text-blue-400" />
+                  <span className="text-lg font-medium">{event.time}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <MapPin size={20} className="text-blue-400" />
+                <span className="text-lg font-medium">
+                  {event.venue?.venueName && event.venue?.city ? 
+                    `${event.venue.venueName}, ${event.venue.city}` : 
+                    event.location || 'Location TBD'
+                  }
+                </span>
+              </div>
+            </div>
+            <div className="mt-6">
+              <span className="inline-block bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
+                {event.category || 'Event'}
+              </span>
             </div>
           </div>
         </div>
@@ -183,7 +198,7 @@ const EventDetails = () => {
             <div className="booking-card">
               <div className="price-section">
                 <span className="price-label">Ticket Price</span>
-                <span className="price">₹{event.price}</span>
+                <span className="price">₹{event.ticketPrice || event.price || 0}</span>
               </div>
 
               <div className="availability">
@@ -211,7 +226,7 @@ const EventDetails = () => {
 
               <div className="total-price">
                 <span>Total</span>
-                <span>₹{event.price * quantity}</span>
+                <span>₹{(event.ticketPrice || event.price || 0) * quantity}</span>
               </div>
 
               <Button fullWidth size="lg" onClick={handleBooking} disabled={availableTickets === 0}>
@@ -227,11 +242,6 @@ const EventDetails = () => {
                   <Share2 size={20} />
                   Share
                 </button>
-              </div>
-
-              <div className="organizer-info">
-                <h4>Organized by</h4>
-                <p>{event.organizer}</p>
               </div>
             </div>
           </div>

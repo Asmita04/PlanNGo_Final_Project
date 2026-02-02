@@ -2,6 +2,49 @@
   min-height: 100vh;
 }
 
+/* Force all text to be black and visible on light backgrounds */
+.event-details-page .event-main * {
+  color: #ffffff !important;
+}
+
+/* Keep booking card text black on white background */
+.booking-card * {
+  color: #000000 !important;
+  font-weight: bold !important;
+}
+
+/* Keep specific elements with their intended colors */
+.event-badge,
+.price,
+.schedule-time,
+.total-price span:last-child {
+  color: #6366f1 !important;
+}
+
+.tag {
+  color: #000000 !important;
+}
+
+.event-details-page .travel-header h3 {
+  color: #000000 !important;
+}
+
+.traveler-header {
+  color: #000000 !important;
+}
+
+.traveler-header h3 {
+  color: #000000 !important;
+}
+
+.availability {
+  color: #10b981 !important;
+}
+
+.venue-info svg {
+  color: #6366f1 !important;
+}
+
 .event-hero {
   height: 400px;
   background-size: cover;
@@ -19,7 +62,21 @@
 }
 
 .event-hero-content {
-  color: white;
+  color: white !important;
+  text-align: center;
+}
+
+.event-hero-content * {
+  color: white !important;
+}
+
+.event-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: rgba(99, 102, 241, 0.9);
+  border-radius: 20px;
+  font-weight: 600;
+  margin-bottom: 1rem;
 }
 
 .event-badge {
@@ -64,7 +121,7 @@
 }
 
 .event-section {
-  background: white;
+  background: #00272a;
   padding: 2rem;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
@@ -78,15 +135,15 @@ body.dark-mode .event-section {
   font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  color: #1f2937;
+  color: #ffffff !important;
 }
 
 body.dark-mode .event-section h2 {
-  color: #f9fafb;
+  color: #ffffff !important;
 }
 
 .event-section p {
-  color: #6b7280;
+  color: #ffffff !important;
   line-height: 1.8;
   font-size: 1.05rem;
 }
@@ -95,7 +152,7 @@ body.dark-mode .event-section h2 {
   display: flex;
   gap: 1rem;
   padding: 1.5rem;
-  background: #f9fafb;
+  background:  #374151;
   border-radius: 12px;
 }
 
@@ -110,16 +167,16 @@ body.dark-mode .venue-info {
 
 .venue-info h3 {
   font-size: 1.125rem;
-  color: #1f2937;
+  color: #ffffff !important;
   margin-bottom: 0.25rem;
 }
 
 body.dark-mode .venue-info h3 {
-  color: #f9fafb;
+  color: #ffffff !important;
 }
 
 .venue-info p {
-  color: #6b7280;
+  color: #ffffff !important;
   margin: 0;
 }
 
@@ -133,7 +190,7 @@ body.dark-mode .venue-info h3 {
   display: flex;
   gap: 2rem;
   padding: 1rem;
-  background: #f9fafb;
+  background: #2f557c;
   border-radius: 8px;
   border-left: 4px solid #6366f1;
 }
@@ -149,11 +206,11 @@ body.dark-mode .schedule-item {
 }
 
 .schedule-activity {
-  color: #1f2937;
+  color: #ffffff !important;
 }
 
 body.dark-mode .schedule-activity {
-  color: #f9fafb;
+  color: #ffffff !important;
 }
 
 .event-tags {
@@ -165,7 +222,7 @@ body.dark-mode .schedule-activity {
 .tag {
   padding: 0.5rem 1rem;
   background: #ede9fe;
-  color: #6366f1;
+  color: #000000 !important;
   border-radius: 20px;
   font-weight: 600;
   font-size: 0.9rem;
@@ -192,6 +249,11 @@ body.dark-mode .tag {
   gap: 1.5rem;
 }
 
+.booking-card * {
+  color: white !important;
+  font-weight: bold !important;
+}
+
 body.dark-mode .booking-card {
   background: #1f2937;
 }
@@ -209,7 +271,7 @@ body.dark-mode .price-section {
 }
 
 .price-label {
-  color: #6b7280;
+  color: #ffffff !important;
   font-weight: 500;
 }
 
@@ -230,12 +292,12 @@ body.dark-mode .price-section {
 .quantity-selector label {
   display: block;
   font-weight: 600;
-  color: #374151;
+  color: #ffffff !important;
   margin-bottom: 0.5rem;
 }
 
 body.dark-mode .quantity-selector label {
-  color: #d1d5db;
+  color: #ffffff !important;
 }
 
 .quantity-controls {
@@ -346,19 +408,19 @@ body.dark-mode .organizer-info {
 }
 
 .organizer-info h4 {
-  color: #6b7280;
+  color: #000000 !important;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
 }
 
 .organizer-info p {
-  color: #1f2937;
+  color: #000000 !important;
   font-weight: 600;
   font-size: 1.05rem;
 }
 
 body.dark-mode .organizer-info p {
-  color: #f9fafb;
+  color: #000000 !important;
 }
 
 @media (max-width: 1024px) {

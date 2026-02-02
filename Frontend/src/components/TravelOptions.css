@@ -23,12 +23,12 @@ body.dark-mode .travel-options {
   gap: 0.5rem;
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1f2937;
+  color: #000000 !important;
   margin: 0;
 }
 
 body.dark-mode .travel-header h3 {
-  color: #f9fafb;
+  color: #000000 !important;
 }
 
 .travel-error {
