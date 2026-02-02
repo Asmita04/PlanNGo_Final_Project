@@ -64,7 +64,7 @@ public class EventServiceImpl implements EventService {
                 .isExpired(false)
                 .build();
 
-        
+        eventRepository.save(event);
         
         try {
 			
@@ -72,7 +72,7 @@ public class EventServiceImpl implements EventService {
             log.info(storedPath+" yaha store hoagya");
             
             		
-            	event.setEventImage("http://localhost:8080/"+storedPath);
+            	event.setEventImage("http://localhost:9097/"+storedPath);
             	
           
                     
