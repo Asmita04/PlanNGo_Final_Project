@@ -102,7 +102,6 @@ const EventDetails = () => {
         <div className="event-hero-overlay">
           <div className="container">
             <div className="event-hero-content">
-              <span className="event-badge">{event.category}</span>
               <h1>{event.title}</h1>
               <div className="event-meta">
                 <div className="meta-item">
@@ -118,9 +117,9 @@ const EventDetails = () => {
                   <span>
                     {event.venue?.venueName}, {event.venue?.city}
                   </span>
-
                 </div>
               </div>
+              <span className="event-badge">{event.category}</span>
             </div>
           </div>
         </div>
@@ -183,7 +182,7 @@ const EventDetails = () => {
             <div className="booking-card">
               <div className="price-section">
                 <span className="price-label">Ticket Price</span>
-                <span className="price">₹{event.price}</span>
+                <span className="price">₹{event.ticketPrice || event.price || 0}</span>
               </div>
 
               <div className="availability">
@@ -211,7 +210,7 @@ const EventDetails = () => {
 
               <div className="total-price">
                 <span>Total</span>
-                <span>₹{event.price * quantity}</span>
+                <span>₹{(event.ticketPrice || event.price || 0) * quantity}</span>
               </div>
 
               <Button fullWidth size="lg" onClick={handleBooking} disabled={availableTickets === 0}>

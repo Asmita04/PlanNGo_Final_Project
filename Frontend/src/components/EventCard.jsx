@@ -96,7 +96,7 @@ const EventCard = ({ event }) => {
               className="book-button"
               onClick={handleBookClick}
             >
-              Book Now
+              View Details
             </button>
           </div>
         </div>
