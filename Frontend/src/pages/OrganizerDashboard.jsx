@@ -20,7 +20,7 @@ const OrganizerDashboard = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: 'Technology',
+    category: 'MUSIC',
     startDateTime: '',
     endDateTime: '',
     venue: '',
@@ -80,7 +80,7 @@ const OrganizerDashboard = () => {
     setFormData({
       title: '',
       description: '',
-      category: 'Technology',
+      category: 'MUSIC',
       startDateTime: '',
       endDateTime: '',
       venue: '',
@@ -381,12 +381,25 @@ const OrganizerDashboard = () => {
                     <div className="form-group">
                       <label>Category</label>
                       <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
-                        <option>Technology</option>
-                        <option>Music</option>
-                        <option>Sports</option>
-                        <option>Food</option>
-                        <option>Art</option>
-                        <option>Business</option>
+                        <option value="MUSIC">Music</option>
+                        <option value="COMEDY">Comedy</option>
+                        <option value="ART">Art</option>
+                        <option value="DRAMA">Drama</option>
+                        <option value="DANCE">Dance</option>
+                        <option value="THEATRE">Theatre</option>
+                        <option value="MOVIE">Movie</option>
+                        <option value="STANDUP">Stand-up</option>
+                        <option value="OPEN_MIC">Open Mic</option>
+                        <option value="FESTIVAL">Festival</option>
+                        <option value="SPORTS">Sports</option>
+                        <option value="TECH">Tech</option>
+                        <option value="WORKSHOP">Workshop</option>
+                        <option value="CONFERENCE">Conference</option>
+                        <option value="SEMINAR">Seminar</option>
+                        <option value="EXHIBITION">Exhibition</option>
+                        <option value="CULTURAL">Cultural</option>
+                        <option value="RELIGIOUS">Religious</option>
+                        <option value="SOCIAL">Social</option>
                       </select>
                     </div>
                   </div>
