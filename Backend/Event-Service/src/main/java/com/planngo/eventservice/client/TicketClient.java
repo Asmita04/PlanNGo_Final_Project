@@ -1,19 +1,23 @@
 package com.planngo.eventservice.client;
 
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import java.util.List;
 
-import com.planngo.eventservice.dto.OrganizerResp;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import com.planngo.eventservice.dto.TicketRequest;
+
 @FeignClient(
-        name = "planNGo-ticketService",
+        name = "TICKET-SERVICE",
         url = "http://localhost:9099",
-        path = "/tickets"
+        path = "/event-tickets"
 )
 public interface TicketClient {
 
 	    // This endpoint is meant ONLY for authorization check
-	    @GetMapping("/status/{userId}")
-	    OrganizerResp getOrganizerStatus(@PathVariable Long userId);
+	    @PostMapping
+	    ResponseEntity<List<TicketRequest>> create(@RequestBody TicketRequest dto);
 	
 }

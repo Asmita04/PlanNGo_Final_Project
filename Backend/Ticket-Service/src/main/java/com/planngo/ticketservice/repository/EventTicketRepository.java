@@ -5,6 +5,7 @@ import com.planngo.ticketservice.model.TicketType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -15,4 +16,6 @@ public interface EventTicketRepository extends JpaRepository<EventTicket, Intege
 	     * This is used to calculate totals and verify stock before booking.
 	     */
 	    Optional<EventTicket> findByEventIdAndTypeName(Integer eventId, TicketType typeName);
+	    
+	    List<EventTicket> findAllByEventId(Integer eventId);
 }

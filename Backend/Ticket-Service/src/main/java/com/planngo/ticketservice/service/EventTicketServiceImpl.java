@@ -1,4 +1,5 @@
 package com.planngo.ticketservice.service;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,9 +52,18 @@ public class EventTicketServiceImpl implements EventTicketService {
         return mapToDTO(entity);
     }
 
+
     @Override
-    public void delete(Integer id) {
-        repository.deleteById(id);
+    public List<EventTicketResponseDTO> getByEventId(Integer eventId) {
+        List<EventTicket> entity = repository.findAllByEventId(eventId);
+        
+        List<EventTicketResponseDTO> eventTicketResponseDTO = new ArrayList<>();
+        
+        for(EventTicket e : entity) {
+        	eventTicketResponseDTO.add(mapToDTO(e));
+        }
+        
+        return eventTicketResponseDTO;
     }
 
     @Override
@@ -69,7 +79,13 @@ public class EventTicketServiceImpl implements EventTicketService {
                 );
 
         return ticket.getPrice();
+    } 
+
+    @Override
+    public void delete(Integer id) {
+        repository.deleteById(id);
     }
+
 
     private EventTicketResponseDTO mapToDTO(EventTicket e) {
         return EventTicketResponseDTO.builder()
