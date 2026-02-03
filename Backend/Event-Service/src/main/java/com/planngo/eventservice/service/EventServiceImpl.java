@@ -2,12 +2,15 @@ package com.planngo.eventservice.service;
 
 
 import com.planngo.eventservice.client.OrganizerClient;
+import com.planngo.eventservice.client.TicketClient;
 import com.planngo.eventservice.exceptions.ResourceNotFoundException;
 import com.planngo.eventservice.helper.ImageUploadHelper;
 import com.planngo.eventservice.dto.ApiResponse;
 import com.planngo.eventservice.dto.EventRequest;
 import com.planngo.eventservice.dto.EventResponse;
+import com.planngo.eventservice.dto.EventTicketRequestDTO;
 import com.planngo.eventservice.dto.OrganizerResp;
+import com.planngo.eventservice.dto.TicketRequest;
 import com.planngo.eventservice.model.Event;
 import com.planngo.eventservice.model.Venue;
 import com.planngo.eventservice.repository.EventRepository;
@@ -20,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -32,6 +37,7 @@ public class EventServiceImpl implements EventService {
     private final VenueRepository venueRepository;
     private final OrganizerClient organizerClient;
     private final ImageUploadHelper imageUploadHelper;
+    private final TicketClient ticketClient;
     
     @Override
     public ApiResponse createEvent(Long userId, EventRequest eventRequest, MultipartFile file) {
@@ -83,7 +89,20 @@ public class EventServiceImpl implements EventService {
         }
 
         
+        
         Event persistedEvent = eventRepository.save(event);
+        
+        TicketRequest[] requests= eventRequest.getTickets();
+        
+        
+        
+        List<TicketRequest> ticketRequests= new ArrayList<>(Arrays.asList(requests));
+        EventTicketRequestDTO eventTicketRequestDTO= new EventTicketRequestDTO();
+        
+        eventTicketRequestDTO.setEventId(persistedEvent.getEventId());
+        eventTicketRequestDTO.setTickets(ticketRequests);
+        ticketClient.create(eventTicketRequestDTO);
+        
         
         return new ApiResponse("Created!", "Event created successfully with Event Id: " + persistedEvent.getEventId());
     }

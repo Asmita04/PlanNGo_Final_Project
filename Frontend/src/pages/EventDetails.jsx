@@ -64,7 +64,7 @@ const EventDetails = () => {
       // If id is a number, use it as eventId, otherwise treat as title
       const isNumericId = !isNaN(id);
       let eventData;
-      
+
       if (isNumericId) {
         eventData = await api.getEventById(id);
       } else {
@@ -76,7 +76,7 @@ const EventDetails = () => {
           throw new Error('Event not found');
         }
       }
-      
+
       setEvent(eventData);
     } catch (error) {
       console.error('Error loading event:', error);
@@ -90,6 +90,13 @@ const EventDetails = () => {
       navigate('/login');
       return;
     }
+
+
+    console.log('Updating booking with:', { event, quantity });
+    updateBooking(event, quantity);
+
+    // Small delay to ensure state is updated
+
     
     const bookingData = {
       ...event,
@@ -99,6 +106,7 @@ const EventDetails = () => {
     
     updateBooking(bookingData, quantity);
     
+
     setTimeout(() => {
       navigate('/review');
     }, 100);
@@ -142,12 +150,12 @@ const EventDetails = () => {
               <div className="flex items-center gap-2">
                 <Calendar size={20} className="text-blue-400" />
                 <span className="text-lg font-medium">
-                  {event.startDate || event.date ? 
-                    new Date(event.startDate || event.date).toLocaleDateString('en-US', { 
-                      weekday: 'long', 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
+                  {event.startDate || event.date ?
+                    new Date(event.startDate || event.date).toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
                     }) : 'Date TBD'
                   }
                 </span>
@@ -161,8 +169,8 @@ const EventDetails = () => {
               <div className="flex items-center gap-2">
                 <MapPin size={20} className="text-blue-400" />
                 <span className="text-lg font-medium">
-                  {event.venue?.venueName && event.venue?.city ? 
-                    `${event.venue.venueName}, ${event.venue.city}` : 
+                  {event.venue?.venueName && event.venue?.city ?
+                    `${event.venue.venueName}, ${event.venue.city}` :
                     event.location || 'Location TBD'
                   }
                 </span>
@@ -190,104 +198,26 @@ const EventDetails = () => {
               <div className="venue-info">
                 <MapPin size={24} />
                 <div>
-                 <h3>{event.venue?.venueName}</h3>
-                 <p>{event.venue?.address}</p>
+                  <h3>{event.venue?.venueName}</h3>
+                  <p>{event.venue?.address}</p>
 
                 </div>
               </div>
-            <TravelOptions eventLocation={event.venue?.city} eventVenue={event.venue?.venueName}/>
+              <TravelOptions eventLocation={event.venue?.city} eventVenue={event.venue?.venueName} />
             </div>
 
-            <div className="event-section">
-              <h2>Event Schedule</h2>
-              <div className="schedule-list">
-               {event.schedule?.length ? (
-                  event.schedule.map((item, index) => (
-                    <div key={index} className="schedule-item">
-                      <span className="schedule-time">{item.time}</span>
-                      <span className="schedule-activity">{item.activity}</span>
-                    </div>
-                  ))
-                ) : (
-                <p>No schedule available</p>
-              )}
 
-              </div>
-            </div>
-
-            <div className="event-section">
-              <h2>Tags</h2>
-              <div className="event-tags">
-               {event.tags?.length ? (
-                  event.tags.map((tag, index) => (
-                    <span key={index} className="tag">{tag}</span>
-                  ))
-                ) : (
-                  <span className="tag">General</span>
-                )}
-
-              </div>
-            </div>
           </div>
 
           <div className="event-sidebar">
             <div className="booking-card">
-              <div className="ticket-type-selector">
-                <label>Ticket Type</label>
-                <select value={ticketType} onChange={(e) => setTicketType(e.target.value)}>
-                  <option value="GOLD">Gold</option>
-                  <option value="SILVER">Silver</option>
-                  <option value="PLATINUM">Platinum</option>
-                </select>
-              </div>
 
-              <div className="price-section">
-                <span className="price-label">Ticket Price</span>
-                <span className="price">₹{ticketPrice}</span>
-              </div>
-
-              <div className="availability">
-                <Users size={20} />
-                <span>{availableTickets} tickets available</span>
-              </div>
-
-              <div className="quantity-selector">
-                <label>Number of Tickets</label>
-                <div className="quantity-controls">
-                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
-                  <input 
-                    type="number" 
-                    value={quantity} 
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value) || 1;
-                      setQuantity(Math.max(1, Math.min(availableTickets, value)));
-                    }}
-                    min="1"
-                    max={Math.max(1, availableTickets)}
-                  />
-                  <button onClick={() => setQuantity(Math.min(availableTickets, quantity + 1))}>+</button>
-                </div>
-              </div>
-
-              <div className="total-price">
-                <span>Total</span>
-                <span>₹{totalPrice}</span>
-              </div>
 
               <Button fullWidth size="lg" onClick={handleBooking} disabled={availableTickets === 0}>
                 {availableTickets === 0 ? 'Sold Out' : 'Book Now'}
               </Button>
 
-              <div className="action-buttons">
-                <button className="action-btn" onClick={() => toggleFavorite(eventId)}>
-                  <Heart size={20} fill={isFavorite ? '#ef4444' : 'none'} color={isFavorite ? '#ef4444' : 'currentColor'} />
-                  {isFavorite ? 'Saved' : 'Save'}
-                </button>
-                <button className="action-btn" onClick={handleShare}>
-                  <Share2 size={20} />
-                  Share
-                </button>
-              </div>
+
             </div>
           </div>
         </div>

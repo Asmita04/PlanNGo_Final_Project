@@ -24,12 +24,12 @@ public class EventTicketController {
 	private final EventTicketService service;
 
     @PostMapping
-    public ResponseEntity<List<EventTicketResponseDTO>> create(@RequestBody EventTicketRequestDTO dto) {
+    public ResponseEntity<?> create(@RequestBody EventTicketRequestDTO dto) {
         return ResponseEntity.ok(service.create(dto));
     }
     
     @GetMapping("/{eventId}/details")
-    public List<EventTicketResponseDTO> getByEventId(Integer eventId) {
+    public List<EventTicketResponseDTO> getByEventId(@PathVariable Integer eventId) {
         return service.getByEventId(eventId);
     }
     

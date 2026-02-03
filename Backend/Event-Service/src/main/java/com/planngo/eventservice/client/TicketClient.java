@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.planngo.eventservice.dto.EventRequest;
+import com.planngo.eventservice.dto.EventTicketRequestDTO;
 import com.planngo.eventservice.dto.TicketRequest;
 
 @FeignClient(
@@ -18,6 +20,6 @@ public interface TicketClient {
 
 	    // This endpoint is meant ONLY for authorization check
 	    @PostMapping
-	    ResponseEntity<List<TicketRequest>> create(@RequestBody TicketRequest dto);
+	    ResponseEntity<?> create(@RequestBody EventTicketRequestDTO eventTicketRequestDTO);
 	
 }

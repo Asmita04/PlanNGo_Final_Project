@@ -3,12 +3,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.planngo.ticketservice.dto.*;
+import com.planngo.ticketservice.dto.ApiResponse;
+import com.planngo.ticketservice.dto.EventTicketRequestDTO;
+import com.planngo.ticketservice.dto.EventTicketResponseDTO;
+import com.planngo.ticketservice.dto.TicketRequest;
 import com.planngo.ticketservice.model.EventTicket;
 import com.planngo.ticketservice.model.TicketType;
-
 import com.planngo.ticketservice.repository.EventTicketRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -19,23 +22,22 @@ public class EventTicketServiceImpl implements EventTicketService {
 	private final EventTicketRepository repository;
 
     @Override
-    public List<EventTicketResponseDTO> create(EventTicketRequestDTO dto) {
+    public ApiResponse create(EventTicketRequestDTO dto) {
 
-        List<EventTicket> entities = dto.getTickets().stream()
-                .map(ticket -> (EventTicket.builder()
-                        .eventId(dto.getEventId())
-                        .typeName(TicketType.valueOf(ticket.getTicketType())) // ✅ FIX
-                        .price(ticket.getPrice())
-                        .totalQuantity(ticket.getTotalQuantity())
-                        .build()
-                ))
-                .collect(Collectors.toList());
+        List<EventTicket> entities = new ArrayList<>();
+        
+        
+        for(TicketRequest e : dto.tickets() ) {
+        	
+        	
+        	entities.add(new EventTicket(e.getTotalQuantity(),e.getPrice(),e.getTicketType(),dto.eventId()));
+        	
+        }
+        
 
         List<EventTicket> saved = repository.saveAll(entities);
 
-        return saved.stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+        return new ApiResponse("Success","Created tickets");
     }
     @Override
     public List<EventTicketResponseDTO> getAll() {

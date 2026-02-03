@@ -12,7 +12,14 @@ import lombok.*;
 @Builder
 public class EventTicket {
 
-    @Id
+    public EventTicket(Integer totalQuantity, Double price, String ticketType, Integer eventId) {
+		this.totalQuantity=totalQuantity;
+		this.price=price;
+		this.typeName=TicketType.valueOf(ticketType);
+		this.eventId=eventId;
+    }
+
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ticket_type_id")
     private Integer ticketTypeId;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Search, Filter, Plus, Edit, Trash2, Eye, X } from 'lucide-react';
+import { MapPin, Search, Filter, Plus, Edit, Trash2, Eye, X, Link as LinkIcon } from 'lucide-react';
 import { api } from '../services';
 import './VenueManagement.css';
 
@@ -8,7 +8,16 @@ const VenueManagement = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
+
+  // Create/Edit Modal States
   const [showModal, setShowModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedVenueId, setSelectedVenueId] = useState(null);
+
+  // View Modal States
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [viewVenueData, setViewVenueData] = useState(null);
+
   const [venueForm, setVenueForm] = useState({
     venueName: '',
     capacity: '',
@@ -66,11 +75,59 @@ const VenueManagement = () => {
   };
 
   const handleAddVenue = () => {
+    setIsEditing(false);
+    setSelectedVenueId(null);
     setShowModal(true);
+  };
+
+  const handleEditVenue = (venue) => {
+    setVenueForm({
+      venueName: venue.venueName || '',
+      capacity: venue.capacity || '',
+      location: venue.location || '',
+      address: venue.address || '',
+      city: venue.city || '',
+      state: venue.state || '',
+      country: venue.country || 'India',
+      postalCode: venue.postalCode || '',
+      contactPhone: venue.contactPhone || '',
+      contactEmail: venue.contactEmail || '',
+      googleMapsUrl: venue.googleMapsUrl || '',
+      description: venue.description || '',
+      isAvailable: venue.isAvailable !== undefined ? venue.isAvailable : true
+    });
+    setSelectedVenueId(venue.venueId);
+    setIsEditing(true);
+    setShowModal(true);
+  };
+
+  const handleViewVenue = async (venueId) => {
+    try {
+      const data = await api.getVenueById(venueId);
+      setViewVenueData(data);
+      setShowViewModal(true);
+    } catch (error) {
+      console.error('Error fetching venue details:', error);
+      alert('Failed to fetch venue details. Please try again.');
+    }
+  };
+
+  const handleDeleteVenue = async (venueId) => {
+    if (window.confirm('Are you sure you want to delete this venue? This action cannot be undone.')) {
+      try {
+        await api.deleteVenue(venueId);
+        loadVenues(); // Refresh list on success
+      } catch (error) {
+        console.error('Error deleting venue:', error);
+        alert('Failed to delete venue. It may be linked to existing events/bookings.');
+      }
+    }
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
+    setIsEditing(false);
+    setSelectedVenueId(null);
     setVenueForm({
       venueName: '',
       capacity: '',
@@ -88,6 +145,11 @@ const VenueManagement = () => {
     });
   };
 
+  const handleCloseViewModal = () => {
+    setShowViewModal(false);
+    setViewVenueData(null);
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setVenueForm(prev => {
@@ -100,17 +162,52 @@ const VenueManagement = () => {
     });
   };
 
+  const generateMapsUrl = () => {
+    const { venueName, address, city, state, country } = venueForm;
+
+    // Construct search query from available fields
+    const parts = [venueName, address, city, state, country].filter(p => p && p.trim() !== '');
+
+    if (parts.length === 0 || (parts.length === 1 && parts[0] === 'India')) {
+      alert("Please enter Venue Name, Address, or City to generate a map URL.");
+      return;
+    }
+
+    const query = encodeURIComponent(parts.join(', '));
+    const url = `https://www.google.com/maps/search/?api=1&query=${query}`;
+
+    setVenueForm(prev => ({
+      ...prev,
+      googleMapsUrl: url
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.createVenue(venueForm);
-      console.log('Venue added successfully:', venueForm);
+      if (isEditing && selectedVenueId) {
+        await api.updateVenue(selectedVenueId, venueForm);
+        console.log('Venue updated successfully:', venueForm);
+      } else {
+        await api.createVenue(venueForm);
+        console.log('Venue added successfully:', venueForm);
+      }
       handleCloseModal();
       loadVenues();
     } catch (error) {
-      console.error('Error adding venue:', error);
+      console.error('Error saving venue:', error);
     }
   };
+
+  // Filter venues
+  const filteredVenues = venues.filter(venue => {
+    const matchesSearch = venue.venueName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      venue.city?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    if (filterType === 'available') return matchesSearch && venue.isAvailable;
+    if (filterType === 'booked') return matchesSearch && !venue.isAvailable;
+    return matchesSearch;
+  });
 
   return (
     <div className="venue-management">
@@ -149,7 +246,7 @@ const VenueManagement = () => {
       <div className="venues-table">
         {loading ? (
           <div className="loading-state">Loading venues...</div>
-        ) : venues.length === 0 ? (
+        ) : filteredVenues.length === 0 ? (
           <div className="empty-state">
             <MapPin size={64} />
             <h3>No venues found</h3>
@@ -164,7 +261,7 @@ const VenueManagement = () => {
               <span>Status</span>
               <span>Actions</span>
             </div>
-            {venues.map(venue => (
+            {filteredVenues.map(venue => (
               <div key={venue.venueId} className="table-row">
                 <span>{venue.venueName}</span>
                 <span>{venue.city}, {venue.state}</span>
@@ -173,13 +270,13 @@ const VenueManagement = () => {
                   {venue.isAvailable ? 'Available' : 'Booked'}
                 </span>
                 <div className="actions">
-                  <button className="action-btn view">
+                  <button className="action-btn view" onClick={() => handleViewVenue(venue.venueId)}>
                     <Eye size={16} />
                   </button>
-                  <button className="action-btn edit">
+                  <button className="action-btn edit" onClick={() => handleEditVenue(venue)}>
                     <Edit size={16} />
                   </button>
-                  <button className="action-btn delete">
+                  <button className="action-btn delete" onClick={() => handleDeleteVenue(venue.venueId)}>
                     <Trash2 size={16} />
                   </button>
                 </div>
@@ -189,12 +286,92 @@ const VenueManagement = () => {
         )}
       </div>
 
-      {/* Add Venue Modal */}
+      {/* View Venue Modal */}
+      {showViewModal && viewVenueData && (
+        <div className="modal-overlay" onClick={handleCloseViewModal}>
+          <div className="modal-content glass-effect" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Venue Details</h3>
+              <button className="close-btn" onClick={handleCloseViewModal}>
+                <X size={24} />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="venue-view-details">
+                <div className="view-row">
+                  <div className="view-group">
+                    <label>Venue Name</label>
+                    <p>{viewVenueData.venueName}</p>
+                  </div>
+                  <div className="view-group status">
+                    <label>Status</label>
+                    <span className={`status-badge status-${viewVenueData.isAvailable ? 'available' : 'booked'}`}>
+                      {viewVenueData.isAvailable ? 'Available' : 'Booked'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="view-row">
+                  <div className="view-group">
+                    <label>Capacity</label>
+                    <p>{viewVenueData.capacity}</p>
+                  </div>
+                  <div className="view-group">
+                    <label>Location</label>
+                    <p>{viewVenueData.location}</p>
+                  </div>
+                </div>
+
+                <div className="view-group">
+                  <label>Full Address</label>
+                  <p>{viewVenueData.address}, {viewVenueData.city}, {viewVenueData.state} - {viewVenueData.postalCode}</p>
+                </div>
+
+                <div className="view-row">
+                  <div className="view-group">
+                    <label>Contact Phone</label>
+                    <p>{viewVenueData.contactPhone || 'N/A'}</p>
+                  </div>
+                  <div className="view-group">
+                    <label>Contact Email</label>
+                    <p>{viewVenueData.contactEmail || 'N/A'}</p>
+                  </div>
+                </div>
+
+                {viewVenueData.googleMapsUrl && (
+                  <div className="view-group">
+                    <label>Google Maps</label>
+                    <a href={viewVenueData.googleMapsUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#818cf8' }}>
+                      View on Map
+                    </a>
+                  </div>
+                )}
+
+                <div className="view-group">
+                  <label>Description</label>
+                  <p style={{ lineHeight: '1.6', color: '#cbd5e1' }}>{viewVenueData.description || 'No description available.'}</p>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="cancel-btn" onClick={handleCloseViewModal}>Close</button>
+              <button className="submit-btn" onClick={() => {
+                handleCloseViewModal();
+                handleEditVenue(viewVenueData);
+              }}>
+                Edit Venue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add/Edit Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={handleCloseModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content glass-effect" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Add New Venue</h3>
+              <h3>{isEditing ? 'Edit Venue' : 'Add New Venue'}</h3>
               <button className="close-btn" onClick={handleCloseModal}>
                 <X size={24} />
               </button>
@@ -271,7 +448,7 @@ const VenueManagement = () => {
                     disabled={!venueForm.state}
                   >
                     <option value="">Select City</option>
-                    {venueForm.state && citiesByState[venueForm.state] && 
+                    {venueForm.state && citiesByState[venueForm.state] &&
                       citiesByState[venueForm.state].map(city => (
                         <option key={city} value={city}>{city}</option>
                       ))
@@ -289,7 +466,7 @@ const VenueManagement = () => {
                     onChange={handleInputChange}
                     placeholder="Enter country"
                     readOnly
-                    style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
+                    className="read-only-input"
                   />
                 </div>
                 <div className="form-group">
@@ -327,13 +504,37 @@ const VenueManagement = () => {
               </div>
               <div className="form-group">
                 <label>Google Maps URL</label>
-                <input
-                  type="url"
-                  name="googleMapsUrl"
-                  value={venueForm.googleMapsUrl}
-                  onChange={handleInputChange}
-                  placeholder="Enter Google Maps URL manually"
-                />
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="url"
+                    name="googleMapsUrl"
+                    value={venueForm.googleMapsUrl}
+                    onChange={handleInputChange}
+                    placeholder="Enter Google Maps URL - or generate from address"
+                    style={{ flex: 1 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={generateMapsUrl}
+                    style={{
+                      background: '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '0 1rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      fontWeight: '600',
+                      whiteSpace: 'nowrap'
+                    }}
+                    title="Generate URL from address details"
+                  >
+                    <LinkIcon size={16} />
+                    Generate
+                  </button>
+                </div>
               </div>
               <div className="form-group">
                 <label>Description</label>
@@ -356,37 +557,19 @@ const VenueManagement = () => {
                   <span>Available for booking</span>
                 </label>
               </div>
-              <div className="modal-footer" style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '24px' }}>
-                <button 
-                  type="button" 
-                  className="cancel-btn" 
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="cancel-btn"
                   onClick={handleCloseModal}
-                  style={{ 
-                    padding: '10px 20px',
-                    backgroundColor: '#f3f4f6',
-                    color: '#374151',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: '500'
-                  }}
                 >
                   Cancel
                 </button>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="submit-btn"
-                  style={{ 
-                    padding: '10px 20px',
-                    backgroundColor: '#20B2AA',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: '500'
-                  }}
                 >
-                  Add Venue
+                  {isEditing ? 'Update Venue' : 'Add Venue'}
                 </button>
               </div>
             </form>

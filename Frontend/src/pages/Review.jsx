@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { api } from '../services';
-import { CreditCard, Calendar, MapPin, ArrowLeft, Ticket } from 'lucide-react';
+import { CreditCard, Calendar, MapPin, ArrowLeft, Plus, Minus } from 'lucide-react';
 import Button from '../components/Button';
 import './Review.css';
 
@@ -10,9 +10,15 @@ const Review = () => {
   const navigate = useNavigate();
   const { user, addNotification, bookingState, updateBooking, clearBooking } = useApp();
   const [loading, setLoading] = useState(false);
+
+  const [ticketTypes, setTicketTypes] = useState([]);
+  const [ticketQuantities, setTicketQuantities] = useState({});
+  const [loadingTickets, setLoadingTickets] = useState(true);
+  
   const [quantity, setQuantity] = useState(1);
   const [ticketPrice, setTicketPrice] = useState(0);
   const [ticketType, setTicketType] = useState('GOLD');
+
 
   useEffect(() => {
     if (!user) {
@@ -21,8 +27,17 @@ const Review = () => {
     }
 
     if (bookingState.event) {
+
+      if (bookingState.event.eventId || bookingState.event.id) {
+        fetchTicketTypes(bookingState.event.eventId || bookingState.event.id);
+      } else {
+        // Fallback or error handling
+        setLoadingTickets(false);
+      }
+
       setQuantity(bookingState.quantity);
       loadTicketPrice();
+
     }
   }, [user, bookingState, navigate]);
 
@@ -54,6 +69,37 @@ const Review = () => {
     loadRazorpay();
   }, []);
 
+  const fetchTicketTypes = async (eventId) => {
+    try {
+      const response = await fetch(`http://localhost:9090/event-tickets/${eventId}/details`);
+      if (response.ok) {
+        const data = await response.json();
+        setTicketTypes(data);
+
+        // Initialize quantities map with 0
+        const initialQuantities = {};
+        if (data && Array.isArray(data)) {
+          data.forEach(t => initialQuantities[t.ticketTypeId] = 0);
+        }
+        setTicketQuantities(initialQuantities);
+      } else {
+        console.error('Failed to fetch ticket types');
+      }
+    } catch (error) {
+      console.error('Error fetching ticket types:', error);
+    } finally {
+      setLoadingTickets(false);
+    }
+  };
+
+  const handleQuantityChange = (ticketId, delta, max) => {
+    setTicketQuantities(prev => {
+      const current = prev[ticketId] || 0;
+      const newValue = Math.max(0, Math.min(max, current + delta));
+      return { ...prev, [ticketId]: newValue };
+    });
+  };
+
   if (!bookingState.event) {
     return (
       <div className="loading-container">
@@ -63,16 +109,15 @@ const Review = () => {
   }
 
   const { event } = bookingState;
-  const serviceFee = 0;
-  const subtotal = ticketPrice * quantity;
-  const totalAmount = subtotal + serviceFee;
-  const availableTickets = event?.venue?.capacity ? event.venue.capacity - (event.booked || 0) : 100;
 
-  const handleQuantityChange = (newQuantity) => {
-    const validQuantity = Math.max(1, Math.min(availableTickets, newQuantity));
-    setQuantity(validQuantity);
-    updateBooking(event, validQuantity);
-  };
+  // Calculate Totals based on mixed selection
+  const selectedTicketsList = ticketTypes.map(t => ({
+    ...t,
+    quantity: ticketQuantities[t.ticketTypeId] || 0
+  })).filter(t => t.quantity > 0);
+
+  const totalTickets = selectedTicketsList.reduce((sum, t) => sum + t.quantity, 0);
+  const totalAmount = selectedTicketsList.reduce((sum, t) => sum + (t.price * t.quantity), 0);
 
   const handlePayment = async () => {
     if (!window.Razorpay) {
@@ -80,52 +125,58 @@ const Review = () => {
       return;
     }
 
+    if (totalTickets === 0) {
+      addNotification({ message: 'Please select at least one ticket', type: 'error' });
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Create Razorpay order via backend
-      const orderData = {
-        eventId: event.id,
-        ticketType: ticketType,
-        quantity: quantity,
-        totalAmount: totalAmount
-      };
+      // Create a description of selected items
+      const description = selectedTicketsList.map(t => `${t.typeName} x${t.quantity}`).join(', ');
 
-      const orderResponse = await api.createRazorpayOrder(orderData);
-      
       const options = {
         key: orderResponse.razorpayKey,
         amount: orderResponse.amount,
         currency: orderResponse.currency,
         order_id: orderResponse.orderId,
         name: 'PlanNGo',
-        description: `Booking for ${event.title}`,
+        description: `Booking: ${description}`,
+        method: {
+          netbanking: true,
+          card: true,
+          upi: true,
+          wallet: true,
+          qr: true
+        },
         handler: async (response) => {
           try {
-            // Verify payment via backend
-            const verificationData = {
-              paymentId: response.razorpay_payment_id,
-              orderId: response.razorpay_order_id,
-              signature: response.razorpay_signature
-            };
+            // Processing multiple bookings sequentially to simulate cart booking
+            // Note: In a real app, this should be a single bulk endpoint.
+            const paymentId = response.razorpay_payment_id || 'demo_' + Date.now();
 
-            await api.verifyPayment(verificationData);
-            
-            const bookingData = {
-              userId: user.id,
-              eventId: event.id,
-              quantity: quantity,
-              totalAmount: totalAmount,
-              paymentMethod: 'Razorpay',
-              paymentId: response.razorpay_payment_id
-            };
+            const bookingPromises = selectedTicketsList.map(ticket => {
+              const bookingData = {
+                userId: user.id,
+                eventId: event.id,
+                quantity: ticket.quantity,
+                totalAmount: ticket.price * ticket.quantity,
+                ticketTypeId: ticket.ticketTypeId,
+                paymentMethod: 'Razorpay',
+                paymentId: paymentId
+              };
+              return api.createBooking(bookingData);
+            });
 
-            await api.createBooking(bookingData);
+            await Promise.all(bookingPromises);
+
             clearBooking();
-            addNotification({ message: 'Payment successful! Booking confirmed.', type: 'success' });
+            addNotification({ message: 'Payment successful! Tickets booked.', type: 'success' });
             navigate('/user/dashboard');
           } catch (error) {
-            addNotification({ message: 'Payment verification failed', type: 'error' });
+            console.error('Booking creation failed', error);
+            addNotification({ message: 'Booking failed', type: 'error' });
             setLoading(false);
           }
         },
@@ -148,12 +199,12 @@ const Review = () => {
       const rzp = new window.Razorpay(options);
       rzp.on('payment.failed', function (response) {
         setLoading(false);
-        addNotification({ 
-          message: `Payment failed: ${response.error?.description || 'Unknown error'}`, 
-          type: 'error' 
+        addNotification({
+          message: `Payment failed: ${response.error?.description || 'Unknown error'}`,
+          type: 'error'
         });
       });
-      
+
       rzp.open();
     } catch (error) {
       addNotification({ message: 'Failed to create payment order', type: 'error' });
@@ -161,12 +212,22 @@ const Review = () => {
     }
   };
 
+  const getTicketColor = (typeName) => {
+    const type = typeName?.toUpperCase();
+    switch (type) {
+      case 'GOLD': return '#FFD700';
+      case 'SILVER': return '#C0C0C0';
+      case 'PLATINUM': return '#E5E4E2';
+      default: return '#818cf8';
+    }
+  };
+
   return (
     <div className="review-page">
       <div className="container">
         <div className="review-header">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={() => navigate(`/events/${event.id}`)}
             icon={<ArrowLeft size={20} />}
           >
@@ -179,11 +240,11 @@ const Review = () => {
           <div className="review-main">
             <div className="order-summary">
               <h2>Order Summary</h2>
-              
+
               <div className="event-details">
-                <img 
-                  src={event.eventImage || event.image || '/placeholder.jpg'} 
-                  alt={event.title} 
+                <img
+                  src={event.eventImage || event.image || '/placeholder.jpg'}
+                  alt={event.title}
                   className="event-image"
                   onError={(e) => {
                     e.target.src = '/placeholder.jpg';
@@ -194,82 +255,101 @@ const Review = () => {
                   <div className="event-meta">
                     <div className="meta-item">
                       <Calendar size={16} />
-                      <span>{new Date(event.startDate || event.date).toLocaleDateString('en-US', { 
-                        weekday: 'long', 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
+                      <span>{new Date(event.startDate || event.date).toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
                       })}</span>
                     </div>
                     <div className="meta-item">
                       <MapPin size={16} />
                       <span>
-                        {event.venue?.venueName 
-                          ? `${event.venue.venueName}, ${event.venue.city}` 
+                        {event.venue?.venueName
+                          ? `${event.venue.venueName}, ${event.venue.city}`
                           : event.location || 'Location TBD'
                         }
                       </span>
-                    </div>
-                    <div className="meta-item">
-                      <Ticket size={16} />
-                      <span>{quantity} ticket{quantity > 1 ? 's' : ''}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="quantity-section">
-                <label>Number of Tickets</label>
-                <div className="quantity-controls">
-                  <button 
-                    onClick={() => handleQuantityChange(quantity - 1)}
-                    disabled={quantity <= 1}
-                  >
-                    -
-                  </button>
-                  <input 
-                    type="number" 
-                    value={quantity} 
-                    onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
-                    min="1"
-                    max={availableTickets}
-                  />
-                  <button 
-                    onClick={() => handleQuantityChange(quantity + 1)}
-                    disabled={quantity >= availableTickets}
-                  >
-                    +
-                  </button>
+              {loadingTickets ? (
+                <div className="loading-tickets">Loading ticket options...</div>
+              ) : ticketTypes.length > 0 ? (
+                <div className="ticket-selection">
+                  <h3>Select Tickets</h3>
+                  <div className="ticket-list-vertical">
+                    {ticketTypes.map((ticket) => {
+                      const qty = ticketQuantities[ticket.ticketTypeId] || 0;
+                      const color = getTicketColor(ticket.typeName);
+
+                      return (
+                        <div
+                          key={ticket.ticketTypeId}
+                          className={`ticket-row ${qty > 0 ? 'active' : ''}`}
+                          style={{ '--ticket-color': color }}
+                        >
+                          <div className="ticket-row-info">
+                            <span className="ticket-row-name" style={{ color: color }}>
+                              {ticket.typeName}
+                            </span>
+                            <span className="ticket-row-price">₹{ticket.price}</span>
+                            <span className="ticket-row-avail">{ticket.totalQuantity} available</span>
+                          </div>
+
+                          <div className="ticket-row-controls">
+                            <button
+                              className="qty-btn"
+                              onClick={() => handleQuantityChange(ticket.ticketTypeId, -1, ticket.totalQuantity)}
+                              disabled={qty <= 0}
+                            >
+                              <Minus size={16} />
+                            </button>
+                            <span className="qty-val">{qty}</span>
+                            <button
+                              className="qty-btn"
+                              onClick={() => handleQuantityChange(ticket.ticketTypeId, 1, ticket.totalQuantity)}
+                              disabled={qty >= ticket.totalQuantity}
+                            >
+                              <Plus size={16} />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="no-tickets-msg">No ticket details available.</div>
+              )}
 
               <div className="price-breakdown">
-                <div className="price-item">
-                  <span>Ticket Price</span>
-                  <span>₹{ticketPrice}</span>
-                </div>
-                <div className="price-item">
-                  <span>Quantity</span>
-                  <span>×{quantity}</span>
-                </div>
-                <div className="price-item">
-                  <span>Subtotal</span>
-                  <span>₹{subtotal}</span>
-                </div>
-                <div className="price-item">
-                  <span>Service Fee</span>
-                  <span>₹{serviceFee}</span>
-                </div>
+                {selectedTicketsList.length > 0 ? (
+                  selectedTicketsList.map(t => (
+                    <div key={t.ticketTypeId} className="price-item">
+                      <span>{t.typeName} (x{t.quantity})</span>
+                      <span>₹{t.price * t.quantity}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="price-item empty">
+                    <span>No tickets selected</span>
+                    <span>-</span>
+                  </div>
+                )}
+
                 <div className="price-total">
                   <span>Total Amount</span>
                   <span>₹{totalAmount}</span>
                 </div>
               </div>
 
-              <Button 
-                fullWidth 
+              <Button
+                fullWidth
                 size="lg"
-                disabled={loading || !window.Razorpay || quantity <= 0}
+                disabled={loading || !window.Razorpay || totalTickets <= 0}
                 onClick={handlePayment}
                 icon={<CreditCard size={20} />}
               >
@@ -292,22 +372,19 @@ const Review = () => {
                 <span>{event.title}</span>
               </div>
               <div className="summary-item">
-                <span>Date</span>
-                <span>{new Date(event.startDate || event.date).toLocaleDateString()}</span>
+                <span>Tickets Selected</span>
+                <span>{totalTickets}</span>
               </div>
-              <div className="summary-item">
-                <span>Location</span>
-                <span>
-                  {event.venue?.venueName 
-                    ? `${event.venue.venueName}, ${event.venue.city}` 
-                    : event.location || 'Location TBD'
-                  }
-                </span>
-              </div>
-              <div className="summary-item">
-                <span>Tickets</span>
-                <span>{quantity}</span>
-              </div>
+
+              <div className="summary-divider"></div>
+
+              {selectedTicketsList.map(t => (
+                <div key={t.ticketTypeId} className="summary-subitem">
+                  <span style={{ color: getTicketColor(t.typeName) }}>{t.typeName}</span>
+                  <span>x{t.quantity}</span>
+                </div>
+              ))}
+
               <div className="summary-total">
                 <span>Total</span>
                 <span>₹{totalAmount}</span>
