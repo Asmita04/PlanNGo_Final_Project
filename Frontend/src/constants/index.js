@@ -40,6 +40,10 @@ export const API_ENDPOINTS = {
   ORGANIZER_EVENTS: '/organizer/events',
   ORGANIZER_BOOKINGS: '/organizer/bookings',
 
+  // Payment endpoints
+  CREATE_PAYMENT_ORDER: '/payments/create-payment-order',
+  VERIFY_PAYMENT: '/payments/verify-payment',
+
   EVENT_TICKET_TYPES: '/event-tickets',
 EVENT_TICKET_TYPE_BY_ID: (id) => `/event-tickets/${id}`,
 

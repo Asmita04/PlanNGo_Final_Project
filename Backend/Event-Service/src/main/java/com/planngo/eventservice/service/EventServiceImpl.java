@@ -59,6 +59,7 @@ public class EventServiceImpl implements EventService {
                 .startDate(eventRequest.getStartDate())
                 .endDate(eventRequest.getEndDate())
                 .isApproved(eventRequest.getIsApproved())
+                .organizerId(organizer.getOrganizerId())
                 .category(eventRequest.getCategory())
                 .venue(venue)
                 .isExpired(false)
@@ -69,14 +70,10 @@ public class EventServiceImpl implements EventService {
         try {
 			
             String storedPath = imageUploadHelper.uploadFileWithId(file, event.getEventId().longValue());
-            log.info(storedPath+" yaha store hoagya");
+            log.info(storedPath+" image stored here");
             
             		
             	event.setEventImage("http://localhost:9097/"+storedPath);
-            	
-          
-                    
-            
 
         } catch (IllegalArgumentException e) {
             return new ApiResponse("Error", e.toString());

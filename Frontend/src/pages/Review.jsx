@@ -11,22 +11,38 @@ const Review = () => {
   const { user, addNotification, bookingState, updateBooking, clearBooking } = useApp();
   const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [ticketPrice, setTicketPrice] = useState(0);
+  const [ticketType, setTicketType] = useState('GOLD');
 
   useEffect(() => {
-    console.log('Review component mounted');
-    console.log('User:', user);
-    console.log('BookingState:', bookingState);
-    
     if (!user) {
-      console.log('No user, redirecting to login');
       navigate('/login');
       return;
     }
 
     if (bookingState.event) {
       setQuantity(bookingState.quantity);
+      loadTicketPrice();
     }
   }, [user, bookingState, navigate]);
+
+  const loadTicketPrice = async () => {
+    if (!bookingState.event?.id) return;
+    
+    try {
+      const price = await api.getPriceForTicketType(bookingState.event.id, ticketType);
+      setTicketPrice(price);
+    } catch (error) {
+      console.error('Error loading ticket price:', error);
+      setTicketPrice(bookingState.event?.price || 0);
+    }
+  };
+
+  useEffect(() => {
+    if (ticketType && bookingState.event?.id) {
+      loadTicketPrice();
+    }
+  }, [ticketType, bookingState.event?.id]);
 
   useEffect(() => {
     const loadRazorpay = () => {
@@ -47,9 +63,10 @@ const Review = () => {
   }
 
   const { event } = bookingState;
-  const eventPrice = event.ticketPrice || event.price || 0;
-  const totalAmount = eventPrice * quantity;
-  const availableTickets = (event.capacity || 0) - (event.booked || 0);
+  const serviceFee = 0;
+  const subtotal = ticketPrice * quantity;
+  const totalAmount = subtotal + serviceFee;
+  const availableTickets = event?.venue?.capacity ? event.venue.capacity - (event.booked || 0) : 100;
 
   const handleQuantityChange = (newQuantity) => {
     const validQuantity = Math.max(1, Math.min(availableTickets, newQuantity));
@@ -66,28 +83,41 @@ const Review = () => {
     setLoading(true);
 
     try {
+      // Create Razorpay order via backend
+      const orderData = {
+        eventId: event.id,
+        ticketType: ticketType,
+        quantity: quantity,
+        totalAmount: totalAmount
+      };
+
+      const orderResponse = await api.createRazorpayOrder(orderData);
+      
       const options = {
-        key: 'rzp_test_Rv0f4eyqBgZIGr',
-        amount: totalAmount * 100,
-        currency: 'INR',
+        key: orderResponse.razorpayKey,
+        amount: orderResponse.amount,
+        currency: orderResponse.currency,
+        order_id: orderResponse.orderId,
         name: 'PlanNGo',
         description: `Booking for ${event.title}`,
-        method: {
-          netbanking: true,
-          card: true,
-          upi: true,
-          wallet: true,
-          qr: true
-        },
         handler: async (response) => {
           try {
+            // Verify payment via backend
+            const verificationData = {
+              paymentId: response.razorpay_payment_id,
+              orderId: response.razorpay_order_id,
+              signature: response.razorpay_signature
+            };
+
+            await api.verifyPayment(verificationData);
+            
             const bookingData = {
               userId: user.id,
               eventId: event.id,
               quantity: quantity,
               totalAmount: totalAmount,
               paymentMethod: 'Razorpay',
-              paymentId: response.razorpay_payment_id || 'demo_payment_' + Date.now()
+              paymentId: response.razorpay_payment_id
             };
 
             await api.createBooking(bookingData);
@@ -95,7 +125,7 @@ const Review = () => {
             addNotification({ message: 'Payment successful! Booking confirmed.', type: 'success' });
             navigate('/user/dashboard');
           } catch (error) {
-            addNotification({ message: 'Booking failed', type: 'error' });
+            addNotification({ message: 'Payment verification failed', type: 'error' });
             setLoading(false);
           }
         },
@@ -126,7 +156,7 @@ const Review = () => {
       
       rzp.open();
     } catch (error) {
-      addNotification({ message: 'Failed to initiate payment', type: 'error' });
+      addNotification({ message: 'Failed to create payment order', type: 'error' });
       setLoading(false);
     }
   };
@@ -216,7 +246,7 @@ const Review = () => {
               <div className="price-breakdown">
                 <div className="price-item">
                   <span>Ticket Price</span>
-                  <span>₹{eventPrice}</span>
+                  <span>₹{ticketPrice}</span>
                 </div>
                 <div className="price-item">
                   <span>Quantity</span>
@@ -224,11 +254,11 @@ const Review = () => {
                 </div>
                 <div className="price-item">
                   <span>Subtotal</span>
-                  <span>₹{eventPrice * quantity}</span>
+                  <span>₹{subtotal}</span>
                 </div>
                 <div className="price-item">
                   <span>Service Fee</span>
-                  <span>₹0</span>
+                  <span>₹{serviceFee}</span>
                 </div>
                 <div className="price-total">
                   <span>Total Amount</span>

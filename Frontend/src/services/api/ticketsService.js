@@ -6,8 +6,10 @@ export const ticketsService = {
     return response.data;
   },
   
-  getPriceForTicketType: async (ticketType) => {
-    const response = await apiClient.get(`/tickets/price/${ticketType}`);
+  getPriceForTicketType: async (eventId, ticketType) => {
+    const response = await apiClient.get('/event-tickets/price', {
+      params: { eventId, ticketType }
+    });
     return response.data;
   }
 };

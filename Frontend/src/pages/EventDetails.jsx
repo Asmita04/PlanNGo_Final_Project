@@ -15,7 +15,7 @@ const EventDetails = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [confirmedTicketsCount, setConfirmedTicketsCount] = useState(0);
-  const [ticketType, setTicketType] = useState('GENERAL');
+  const [ticketType, setTicketType] = useState('GOLD');
   const [ticketPrice, setTicketPrice] = useState(0);
 
   useEffect(() => {
@@ -24,10 +24,10 @@ const EventDetails = () => {
   }, [id]);
 
   useEffect(() => {
-    if (ticketType) {
+    if (ticketType && event?.id) {
       loadTicketPrice();
     }
-  }, [ticketType]);
+  }, [ticketType, event?.id]);
 
   useEffect(() => {
     // Restore quantity if returning to same event
@@ -48,8 +48,10 @@ const EventDetails = () => {
   };
 
   const loadTicketPrice = async () => {
+    if (!event?.id) return;
+    
     try {
-      const price = await api.getPriceForTicketType(ticketType);
+      const price = await api.getPriceForTicketType(event.id, ticketType);
       setTicketPrice(price);
     } catch (error) {
       console.error('Error loading ticket price:', error);
@@ -89,10 +91,14 @@ const EventDetails = () => {
       return;
     }
     
-    console.log('Updating booking with:', { event, quantity });
-    updateBooking(event, quantity);
+    const bookingData = {
+      ...event,
+      ticketType,
+      ticketPrice
+    };
     
-    // Small delay to ensure state is updated
+    updateBooking(bookingData, quantity);
+    
     setTimeout(() => {
       navigate('/review');
     }, 100);
@@ -229,16 +235,15 @@ const EventDetails = () => {
               <div className="ticket-type-selector">
                 <label>Ticket Type</label>
                 <select value={ticketType} onChange={(e) => setTicketType(e.target.value)}>
-                  <option value="GENERAL">General</option>
-                  <option value="VIP">VIP</option>
-                  <option value="PREMIUM">Premium</option>
+                  <option value="GOLD">Gold</option>
+                  <option value="SILVER">Silver</option>
+                  <option value="PLATINUM">Platinum</option>
                 </select>
               </div>
 
               <div className="price-section">
                 <span className="price-label">Ticket Price</span>
                 <span className="price">₹{ticketPrice}</span>
-                <span className="price">₹{event.ticketPrice || event.price || 0}</span>
               </div>
 
               <div className="availability">
