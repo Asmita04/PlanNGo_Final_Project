@@ -5,6 +5,7 @@ export { usersService } from './usersService';
 export { venuesService } from './venuesService';
 export { ticketsService } from './ticketsService';
 export { organizerService } from './organizerService';
+export { paymentService } from './paymentService';
 export { default as apiClient } from './client';
 
 // Re-export for backward compatibility
@@ -15,6 +16,7 @@ import { usersService } from './usersService';
 import { venuesService } from './venuesService';
 import { ticketsService } from './ticketsService';
 import { organizerService } from './organizerService';
+import { paymentService } from './paymentService';
 
 export const api = {
   // Auth methods
@@ -67,7 +69,11 @@ export const api = {
 
   // Tickets methods
   getAllConfirmedTickets: ticketsService.getAllConfirmedTickets,
-  getPriceForTicketType: ticketsService.getPriceForTicketType,
+  getPriceForTicketType: (eventId, ticketType) => ticketsService.getPriceForTicketType(eventId, ticketType),
+
+  // Payment methods
+  createRazorpayOrder: paymentService.createRazorpayOrder,
+  verifyPayment: paymentService.verifyPayment,
 
   // Organizer methods
   uploadDocuments: organizerService.uploadDocuments,

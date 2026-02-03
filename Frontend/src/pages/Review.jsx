@@ -10,9 +10,15 @@ const Review = () => {
   const navigate = useNavigate();
   const { user, addNotification, bookingState, updateBooking, clearBooking } = useApp();
   const [loading, setLoading] = useState(false);
+
   const [ticketTypes, setTicketTypes] = useState([]);
   const [ticketQuantities, setTicketQuantities] = useState({});
   const [loadingTickets, setLoadingTickets] = useState(true);
+  
+  const [quantity, setQuantity] = useState(1);
+  const [ticketPrice, setTicketPrice] = useState(0);
+  const [ticketType, setTicketType] = useState('GOLD');
+
 
   useEffect(() => {
     if (!user) {
@@ -21,14 +27,37 @@ const Review = () => {
     }
 
     if (bookingState.event) {
+
       if (bookingState.event.eventId || bookingState.event.id) {
         fetchTicketTypes(bookingState.event.eventId || bookingState.event.id);
       } else {
         // Fallback or error handling
         setLoadingTickets(false);
       }
+
+      setQuantity(bookingState.quantity);
+      loadTicketPrice();
+
     }
   }, [user, bookingState, navigate]);
+
+  const loadTicketPrice = async () => {
+    if (!bookingState.event?.id) return;
+    
+    try {
+      const price = await api.getPriceForTicketType(bookingState.event.id, ticketType);
+      setTicketPrice(price);
+    } catch (error) {
+      console.error('Error loading ticket price:', error);
+      setTicketPrice(bookingState.event?.price || 0);
+    }
+  };
+
+  useEffect(() => {
+    if (ticketType && bookingState.event?.id) {
+      loadTicketPrice();
+    }
+  }, [ticketType, bookingState.event?.id]);
 
   useEffect(() => {
     const loadRazorpay = () => {
@@ -108,9 +137,10 @@ const Review = () => {
       const description = selectedTicketsList.map(t => `${t.typeName} x${t.quantity}`).join(', ');
 
       const options = {
-        key: 'rzp_test_Rv0f4eyqBgZIGr',
-        amount: totalAmount * 100,
-        currency: 'INR',
+        key: orderResponse.razorpayKey,
+        amount: orderResponse.amount,
+        currency: orderResponse.currency,
+        order_id: orderResponse.orderId,
         name: 'PlanNGo',
         description: `Booking: ${description}`,
         method: {
@@ -177,7 +207,7 @@ const Review = () => {
 
       rzp.open();
     } catch (error) {
-      addNotification({ message: 'Failed to initiate payment', type: 'error' });
+      addNotification({ message: 'Failed to create payment order', type: 'error' });
       setLoading(false);
     }
   };

@@ -15,7 +15,7 @@ const EventDetails = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [confirmedTicketsCount, setConfirmedTicketsCount] = useState(0);
-  const [ticketType, setTicketType] = useState('GENERAL');
+  const [ticketType, setTicketType] = useState('GOLD');
   const [ticketPrice, setTicketPrice] = useState(0);
 
   useEffect(() => {
@@ -24,10 +24,10 @@ const EventDetails = () => {
   }, [id]);
 
   useEffect(() => {
-    if (ticketType) {
+    if (ticketType && event?.id) {
       loadTicketPrice();
     }
-  }, [ticketType]);
+  }, [ticketType, event?.id]);
 
   useEffect(() => {
     // Restore quantity if returning to same event
@@ -48,8 +48,10 @@ const EventDetails = () => {
   };
 
   const loadTicketPrice = async () => {
+    if (!event?.id) return;
+    
     try {
-      const price = await api.getPriceForTicketType(ticketType);
+      const price = await api.getPriceForTicketType(event.id, ticketType);
       setTicketPrice(price);
     } catch (error) {
       console.error('Error loading ticket price:', error);
@@ -89,10 +91,22 @@ const EventDetails = () => {
       return;
     }
 
+
     console.log('Updating booking with:', { event, quantity });
     updateBooking(event, quantity);
 
     // Small delay to ensure state is updated
+
+    
+    const bookingData = {
+      ...event,
+      ticketType,
+      ticketPrice
+    };
+    
+    updateBooking(bookingData, quantity);
+    
+
     setTimeout(() => {
       navigate('/review');
     }, 100);

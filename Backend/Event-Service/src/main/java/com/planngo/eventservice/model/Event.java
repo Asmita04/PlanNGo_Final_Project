@@ -50,6 +50,9 @@ public class Event {
     @EqualsAndHashCode.Exclude
     private Venue venue;
 
+    @Column(name="organizer_id", nullable = true)
+    private Long organizerId;
+
     //to sync event expiry date in db
     @PrePersist
     @PreUpdate
