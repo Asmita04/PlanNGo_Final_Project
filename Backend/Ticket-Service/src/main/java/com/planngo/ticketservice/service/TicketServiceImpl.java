@@ -3,15 +3,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.planngo.ticketservice.client.EventClient;
-
 import org.springframework.stereotype.Service;
 
-import com.planngo.ticketservice.dto.*;
-import com.planngo.ticketservice.model.*;
+import com.planngo.ticketservice.client.EventClient;
+import com.planngo.ticketservice.dto.EventResponse;
+import com.planngo.ticketservice.dto.TicketRequestDTO;
+import com.planngo.ticketservice.dto.TicketResponseDTO;
+import com.planngo.ticketservice.model.EventTicket;
+import com.planngo.ticketservice.model.Ticket;
 import com.planngo.ticketservice.model.TicketStatus;
-
-import com.planngo.ticketservice.model.Ticket.TicketBuilder;
 import com.planngo.ticketservice.repository.EventTicketRepository;
 import com.planngo.ticketservice.repository.TicketRepository;
 

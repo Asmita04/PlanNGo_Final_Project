@@ -7,5 +7,8 @@ public interface EventTicketService {
     EventTicketResponseDTO getById(Integer id);
 
     void delete(Integer id);
+
     Double getPriceForTicketType(Integer eventId, String ticketType);
+	List<EventTicketResponseDTO> getByEventId(Integer eventId);
+
 }
